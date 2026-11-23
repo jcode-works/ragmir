@@ -69,6 +69,7 @@
   "library_text": "Ajoutez Ragmir Core au dépôt qui contient les fichiers, avec Node.js 22.12 ou plus récent. Choisissez les sources, puis indexez-les. La recherche local-hash ne nécessite ni compte, ni clé API, ni téléchargement de modèle.",
   "quickstart_title": "Configurez Ragmir",
   "quickstart_text": "Laissez votre agent de code adapter la configuration, ou choisissez votre gestionnaire de paquets et lancez les commandes vous-même.",
+  "quickstart_tabs_label": "Méthode de configuration",
   "quickstart_prompt_tab": "Prompt",
   "quickstart_prompt_title": "Laissez votre agent de code configurer Ragmir",
   "quickstart_prompt_text": "Collez ce prompt dans votre agent de code. Il inspecte le dépôt, demande confirmation avant chaque choix, installe les bons paquets et vérifie la recherche citée.",

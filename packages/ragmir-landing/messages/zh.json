@@ -69,6 +69,7 @@
   "library_text": "在拥有这些文件的代码仓库中添加 Ragmir Core，需要 Node.js 22.12 或更高版本。选择数据源，然后进行摄入。local-hash 检索不需要账号、API 密钥或模型下载。",
   "quickstart_title": "配置 Ragmir",
   "quickstart_text": "让你的编程智能体为你定制配置，或者自己选择包管理器并运行命令。",
+  "quickstart_tabs_label": "配置方式",
   "quickstart_prompt_tab": "提示词",
   "quickstart_prompt_title": "让编程智能体为你配置 Ragmir",
   "quickstart_prompt_text": "将这段提示词粘贴到你的编程智能体中。它会检查代码仓库，在做出选择前先询问，安装所需的包，并验证带引用的检索结果。",

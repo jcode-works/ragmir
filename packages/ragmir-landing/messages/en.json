@@ -69,6 +69,7 @@
   "library_text": "Add Ragmir Core to the repository that owns the files, using Node.js 22.12 or later. Choose the sources, then ingest. Local-hash retrieval needs no account, API key, or model download.",
   "quickstart_title": "Set up Ragmir",
   "quickstart_text": "Let your coding agent tailor the setup, or choose your package manager and run the commands yourself.",
+  "quickstart_tabs_label": "Setup method",
   "quickstart_prompt_tab": "Prompt",
   "quickstart_prompt_title": "Let your coding agent configure Ragmir",
   "quickstart_prompt_text": "Paste this prompt into your coding agent. It inspects the repository, asks before making choices, installs the right packages, and verifies cited retrieval.",

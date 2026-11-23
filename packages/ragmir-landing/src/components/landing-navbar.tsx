@@ -218,10 +218,13 @@ const DRAWER_SECTION_TITLE_CLASS_NAME =
 function DrawerLinkList({
   links,
   currentPath,
+  newTabLabel,
   onNavigate,
 }: {
   links: readonly DrawerLink[]
   currentPath: string | undefined
+  /** Read after the label of a row that opens a new tab. */
+  newTabLabel: string
   onNavigate: () => void
 }): React.JSX.Element {
   return (
@@ -238,7 +241,10 @@ function DrawerLinkList({
               {...(external ? externalLinkProps : {})}
             >
               <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-              <span className="min-w-0 flex-1">{label}</span>
+              <span className="min-w-0 flex-1">
+                {label}
+                {external && <span className="sr-only">{` ${newTabLabel}`}</span>}
+              </span>
               {external ? (
                 <ArrowUpRight
                   aria-hidden="true"
@@ -263,11 +269,13 @@ function DrawerSection({
   title,
   links,
   currentPath,
+  newTabLabel,
   onNavigate,
 }: {
   title: string
   links: readonly DrawerLink[]
   currentPath: string | undefined
+  newTabLabel: string
   onNavigate: () => void
 }): React.JSX.Element {
   const titleId = useId()
@@ -276,7 +284,12 @@ function DrawerSection({
       <h2 className={DRAWER_SECTION_TITLE_CLASS_NAME} id={titleId}>
         {title}
       </h2>
-      <DrawerLinkList currentPath={currentPath} links={links} onNavigate={onNavigate} />
+      <DrawerLinkList
+        currentPath={currentPath}
+        links={links}
+        newTabLabel={newTabLabel}
+        onNavigate={onNavigate}
+      />
     </section>
   )
 }
@@ -308,6 +321,8 @@ export function LandingNavbar({
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
   const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
+  // Links that leave the site open a new tab and say so to screen readers.
+  const newTab = t("new_tab_label")
   const [hasScrolled, setHasScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
@@ -436,6 +451,7 @@ export function LandingNavbar({
                 className="ml-2 text-[0.7rem] font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
               >
                 v{version}
+                <span className="sr-only">{` ${newTab}`}</span>
               </a>
             )}
           </div>
@@ -447,7 +463,7 @@ export function LandingNavbar({
               locale={locale}
             />
             <a
-              aria-label={t("hero_github_cta")}
+              aria-label={`${t("hero_github_cta")} ${newTab}`}
               className={HEADER_ICON_CLASS_NAME}
               href={GITHUB_URL}
               {...externalLinkProps}
@@ -455,7 +471,7 @@ export function LandingNavbar({
               <GithubIcon className="size-[18px]" />
             </a>
             <a
-              aria-label={t("hero_npm_cta")}
+              aria-label={`${t("hero_npm_cta")} ${newTab}`}
               className={HEADER_ICON_CLASS_NAME}
               href={NPM_URL}
               {...externalLinkProps}
@@ -463,7 +479,7 @@ export function LandingNavbar({
               <NpmIcon className="size-[18px]" />
             </a>
             <a
-              aria-label={t("hero_pypi_cta")}
+              aria-label={`${t("hero_pypi_cta")} ${newTab}`}
               className={HEADER_ICON_CLASS_NAME}
               href={PYPI_URL}
               {...externalLinkProps}
@@ -545,6 +561,7 @@ export function LandingNavbar({
               <DrawerLinkList
                 currentPath={currentPath}
                 links={drawerPageLinks}
+                newTabLabel={newTab}
                 onNavigate={closeMenu}
               />
 
@@ -553,6 +570,7 @@ export function LandingNavbar({
                   currentPath={currentPath}
                   key={section.title}
                   links={section.links}
+                  newTabLabel={newTab}
                   onNavigate={closeMenu}
                   title={section.title}
                 />
@@ -566,6 +584,7 @@ export function LandingNavbar({
                     {...externalLinkProps}
                   >
                     Ragmir v{version}
+                    <span className="sr-only">{` ${newTab}`}</span>
                   </a>
                 )}
               </div>
@@ -577,12 +596,16 @@ export function LandingNavbar({
               <a href={GITHUB_URL} {...externalLinkProps}>
                 <GithubIcon data-icon="inline-start" />
                 {t("hero_github_cta")}
+                <span className="sr-only">{` ${newTab}`}</span>
+                <ArrowUpRight aria-hidden="true" className="arrow-out" />
               </a>
             </Button>
             <Button asChild className="h-11 w-full font-bold text-sm" variant="outline">
               <a href={NPM_URL} {...externalLinkProps}>
                 <NpmIcon data-icon="inline-start" />
                 {t("hero_npm_cta")}
+                <span className="sr-only">{` ${newTab}`}</span>
+                <ArrowUpRight aria-hidden="true" className="arrow-out" />
               </a>
             </Button>
           </div>

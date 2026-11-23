@@ -1,4 +1,5 @@
 ---
+import { ArrowUpRight } from "@lucide/astro"
 import { GithubIcon, NpmIcon, PypiIcon } from "../brand-icons"
 import RagmirLogo from "../ragmir-logo.astro"
 import {
@@ -18,6 +19,7 @@ interface Props {
 const { translations, localizedHomeUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
+const newTab = t("new_tab_label")
 const homePath = localizedHomeUrl.replace(/#.*$/u, "")
 
 const sections = FOOTER_SECTIONS.map((section) => ({
@@ -36,8 +38,9 @@ const sections = FOOTER_SECTIONS.map((section) => ({
   ],
 }))
 
+// A link that leaves the site shows the drawer's leaning arrow and says it opens a new tab.
 const linkClass =
-  "flex min-h-11 items-center justify-center rounded-sm py-1 text-sm font-medium leading-5 text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-8 lg:justify-start"
+  "flex min-h-11 items-center justify-center gap-1.5 rounded-sm py-1 text-sm font-medium leading-5 text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-8 lg:justify-start"
 const iconLinkClass =
   "flex size-10 items-center justify-center rounded-full bg-card text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 const marqueeCopy =
@@ -64,6 +67,15 @@ const marqueeCopy =
                     {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   >
                     {link.label}
+                    {link.external && (
+                      <Fragment>
+                        <span class="sr-only">{` ${newTab}`}</span>
+                        <ArrowUpRight
+                          aria-hidden="true"
+                          class="arrow-out size-3.5 shrink-0 text-muted-foreground"
+                        />
+                      </Fragment>
+                    )}
                   </a>
                 </li>
               ))}
@@ -97,7 +109,7 @@ const marqueeCopy =
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={t("hero_github_cta")}
+            aria-label={`${t("hero_github_cta")} ${newTab}`}
           >
             <GithubIcon className="size-4" />
           </a>
@@ -106,7 +118,7 @@ const marqueeCopy =
             href={NPM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={t("hero_npm_cta")}
+            aria-label={`${t("hero_npm_cta")} ${newTab}`}
           >
             <NpmIcon className="size-4" />
           </a>
@@ -115,7 +127,7 @@ const marqueeCopy =
             href={PYPI_URL}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={t("hero_pypi_cta")}
+            aria-label={`${t("hero_pypi_cta")} ${newTab}`}
           >
             <PypiIcon className="size-4" />
           </a>
@@ -124,7 +136,7 @@ const marqueeCopy =
               href={NPM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${t("footer_version_label")}: v${version}`}
+              aria-label={`${t("footer_version_label")}: v${version} ${newTab}`}
               class="ml-1 font-semibold text-foreground text-xs underline-offset-4 transition-colors hover:underline active:text-foreground/70"
             >
               v{version}

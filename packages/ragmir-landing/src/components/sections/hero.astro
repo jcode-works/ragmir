@@ -1,5 +1,5 @@
 ---
-import { ArrowDown, ArrowRight, SquareTerminal } from "@lucide/astro"
+import { ArrowDown, ArrowRight, ArrowUpRight, SquareTerminal } from "@lucide/astro"
 import { HeroDemo } from "../hero-demo"
 import { NpmDownloadCounter } from "../npm-download-counter"
 import { RagmirBackground } from "../ragmir-background"
@@ -94,6 +94,7 @@ const heroTitleLines = [
           href={PROJECT_LINKS.benchmarks}
         >
           {t("hero_proof_link")}
+          <ArrowUpRight aria-hidden="true" class="arrow-out ml-0.5 inline size-3 align-[-1px]" />
         </a>
       </p>
       <div class="text-shadow-hero mt-8 max-w-xl">

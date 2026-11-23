@@ -30,6 +30,7 @@ export const NAVBAR_TRANSLATIONS: TranslationSelection = {
     "hero_npm_cta",
     "hero_pypi_cta",
     "language_label",
+    "new_tab_label",
     ...Object.values(PROJECT_LINK_LABEL_KEYS),
   ],
 }

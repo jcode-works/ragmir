@@ -1,5 +1,5 @@
 ---
-import { ArrowRight } from "@lucide/astro"
+import { ArrowRight, ArrowUpRight } from "@lucide/astro"
 import { GITHUB_URL } from "../../lib/project-links"
 
 interface Props {
@@ -40,9 +40,11 @@ const t = (key: string): string => translations[key] ?? key
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-1 text-[11px] text-muted-foreground tracking-wide no-underline transition-colors hover:text-foreground active:text-foreground/80"
+            class="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground tracking-wide no-underline transition-colors hover:text-foreground active:text-foreground/80"
           >
             {t("closing_primary_cta")} | {GITHUB_URL.replace(/^https:\/\//u, "")}
+            <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+            <ArrowUpRight aria-hidden="true" class="arrow-out size-3 shrink-0" />
           </a>
         </div>
       </div>

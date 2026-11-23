@@ -163,6 +163,7 @@ const structuredData = [
               target="_blank"
             >
               {t("team_jcode_cta")}
+              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
               <ArrowUpRight aria-hidden="true" class={arrowClass} />
             </a>
             {memberLinks.map((link) => (
@@ -173,6 +174,7 @@ const structuredData = [
                 target="_blank"
               >
                 {link.label}
+                <span class="sr-only">{` ${t("new_tab_label")}`}</span>
                 <ArrowUpRight aria-hidden="true" class={`${arrowClass} text-muted-foreground`} />
               </a>
             ))}
@@ -237,6 +239,7 @@ const structuredData = [
               target="_blank"
             >
               jcode.works
+              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
               <ArrowUpRight aria-hidden="true" class={`${arrowClass} text-muted-foreground`} />
             </a>
           </div>

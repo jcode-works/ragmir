@@ -249,10 +249,11 @@ const structuredData = [
   </div>
 
   <script>
-    // One focal moment: key figures count up once when they enter the screen. Reduced motion,
-    // missing IntersectionObserver, or a failed parse keep the server-rendered final values. The
-    // router does not run this module again, so every visit to the page starts on
-    // `astro:page-load`.
+    // One focal moment: key figures count up once when they enter the screen. Figures already on
+    // screen when the page opens were read at their final values, so they stay: a number never
+    // goes backwards. Reduced motion, missing IntersectionObserver, or a failed parse keep the
+    // server-rendered final values too. The router does not run this module again, so every visit
+    // to the page starts on `astro:page-load`.
     let figures: IntersectionObserver | undefined
 
     document.addEventListener("astro:page-load", () => {
@@ -278,9 +279,15 @@ const structuredData = [
         }
         requestAnimationFrame(frame)
       }
+      // The first report says whether any part of the figures is on screen as the page opens;
+      // Chrome reports `isIntersecting` only past the threshold, so the ratio decides.
+      let firstReport = true
       const observer = new IntersectionObserver(
         (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return
+          const shownAtOpening = firstReport && entries.some((entry) => entry.intersectionRatio > 0)
+          firstReport = false
+          if (shownAtOpening) observer.disconnect()
+          if (shownAtOpening || !entries.some((entry) => entry.isIntersecting)) return
           observer.disconnect()
           for (const element of list.querySelectorAll<HTMLElement>("[data-count]")) run(element)
         },

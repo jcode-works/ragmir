@@ -569,8 +569,9 @@ textarea {
   overflow: hidden;
 }
 
-/* Loops rest when nobody can see them. */
+/* Loops rest when nobody can see them, and while someone reads or tabs through the footer. */
 [data-marquee][data-paused] .animate-marquee-text,
+footer:is(:hover, :focus-within) .animate-marquee-text,
 header[data-hidden] .logo-stack::before,
 header[data-hidden] .logo-stack::after,
 header[data-hidden] .logo-text {

@@ -250,10 +250,16 @@ const structuredData = [
 
   <script>
     // One focal moment: key figures count up once when they enter the screen. Reduced motion,
-    // missing IntersectionObserver, or a failed parse keep the server-rendered final values.
-    const list = document.querySelector<HTMLElement>("[data-team-stats]")
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (list && !reduce && "IntersectionObserver" in window) {
+    // missing IntersectionObserver, or a failed parse keep the server-rendered final values. The
+    // router does not run this module again, so every visit to the page starts on
+    // `astro:page-load`.
+    let figures: IntersectionObserver | undefined
+
+    document.addEventListener("astro:page-load", () => {
+      figures?.disconnect()
+      const list = document.querySelector<HTMLElement>("[data-team-stats]")
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (!list || reduce || !("IntersectionObserver" in window)) return
       const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - 2 ** (-10 * t))
       const run = (element: HTMLElement) => {
         const final = element.dataset.count ?? ""
@@ -281,7 +287,8 @@ const structuredData = [
         { threshold: 0.4 },
       )
       observer.observe(list)
-    }
+      figures = observer
+    })
   </script>
 
   <Footer localizedHomeUrl={`${homeUrl}#top`} translations={translations} />

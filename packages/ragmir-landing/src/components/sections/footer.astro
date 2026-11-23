@@ -149,10 +149,16 @@ const marqueeCopy =
 </footer>
 
 <script>
-  // The marquee loops forever: pause it whenever it is off screen.
-  for (const marquee of document.querySelectorAll<HTMLElement>("[data-marquee]")) {
-    new IntersectionObserver(([entry]) => {
-      marquee.toggleAttribute("data-paused", !entry?.isIntersecting)
-    }).observe(marquee)
-  }
+  // The marquee loops forever: it pauses whenever it is off screen, and under the pointer or focus
+  // in the footer (global.css). The router swaps pages without running this module again, so each
+  // page's footer is observed on `astro:page-load`.
+  let marquees: IntersectionObserver | undefined
+
+  document.addEventListener("astro:page-load", () => {
+    marquees?.disconnect()
+    marquees = new IntersectionObserver((entries) => {
+      for (const entry of entries) entry.target.toggleAttribute("data-paused", !entry.isIntersecting)
+    })
+    for (const marquee of document.querySelectorAll("[data-marquee]")) marquees.observe(marquee)
+  })
 </script>

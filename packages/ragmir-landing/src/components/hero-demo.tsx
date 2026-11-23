@@ -10,6 +10,7 @@ import {
   type TerminalLineKind,
   type TerminalScriptLine,
 } from "./hero-demo-script"
+import { scrollEdgeMask, useScrollEdges } from "./scroll-edges"
 import { TabIndicator } from "./tab-indicator"
 
 interface HeroDemoProps {
@@ -212,30 +213,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   // The story tabs slide in one row, like a streaming catalogue row: swipe on touch, arrows on
   // wider screens, and edges that fade only where more stories wait.
   const tabScrollRef = useRef<HTMLDivElement>(null)
-  const [tabEdges, setTabEdges] = useState({ start: false, end: false })
-
-  const updateTabEdges = useCallback(() => {
-    const element = tabScrollRef.current
-    if (!element) return
-    const start = element.scrollLeft > 4
-    const end = element.scrollLeft + element.clientWidth < element.scrollWidth - 4
-    setTabEdges((current) =>
-      current.start === start && current.end === end ? current : { start, end },
-    )
-  }, [])
-
-  useEffect(() => {
-    const element = tabScrollRef.current
-    if (!element) return
-    updateTabEdges()
-    element.addEventListener("scroll", updateTabEdges, { passive: true })
-    const resizes = new ResizeObserver(updateTabEdges)
-    resizes.observe(element)
-    return () => {
-      element.removeEventListener("scroll", updateTabEdges)
-      resizes.disconnect()
-    }
-  }, [updateTabEdges])
+  const tabEdges = useScrollEdges(tabScrollRef)
 
   useEffect(() => {
     // Keep the active story in view inside the row, without ever scrolling the page.
@@ -373,7 +351,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
           onKeyDown={handleTabKeyDown}
           ref={tabScrollRef}
           role="tablist"
-          style={tabEdgeMask(tabEdges)}
+          style={scrollEdgeMask(tabEdges)}
         >
           {/* From `sm`, the row leaves room at both ends for its arrow buttons. */}
           <div className="group/scenario-tabs relative flex w-max gap-1.5 sm:px-10">
@@ -576,14 +554,4 @@ function prefersReducedMotion(): boolean {
   return (
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
   )
-}
-
-/** Fades the row only on the sides where more stories are hidden. */
-function tabEdgeMask(edges: { start: boolean; end: boolean }): React.CSSProperties | undefined {
-  if (!edges.start && !edges.end) return undefined
-  const fade = 40
-  const start = edges.start ? `transparent 0, #000 ${fade}px` : "#000 0"
-  const end = edges.end ? `#000 calc(100% - ${fade}px), transparent 100%` : "#000 100%"
-  const mask = `linear-gradient(to right, ${start}, ${end})`
-  return { maskImage: mask, WebkitMaskImage: mask }
 }

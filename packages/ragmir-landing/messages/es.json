@@ -53,6 +53,7 @@
   "demo_replay_label": "Repetir el escenario",
   "demo_tabs_previous": "Escenarios anteriores",
   "demo_tabs_next": "Más escenarios",
+  "demo_tabs_label": "Escenarios de la demostración",
   "demo_badge_feature": "RAG agéntico",
   "demo_badge_incident": "RAG agéntico",
   "demo_script_prefix": "Chat privado",

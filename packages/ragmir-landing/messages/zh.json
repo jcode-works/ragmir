@@ -53,6 +53,7 @@
   "demo_replay_label": "重新播放",
   "demo_tabs_previous": "上一个场景",
   "demo_tabs_next": "更多场景",
+  "demo_tabs_label": "演示场景",
   "demo_badge_feature": "智能体式 RAG",
   "demo_badge_incident": "智能体式 RAG",
   "demo_script_prefix": "私密聊天",

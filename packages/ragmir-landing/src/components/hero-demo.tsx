@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { highlightCall, highlightCode, highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"
 import { CommandCopyButton } from "./command-copy"
@@ -40,6 +40,10 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_HERO_DEMO_SCENARIO.id)
   const activeScenario = useMemo(() => findHeroDemoScenario(activeScenarioId), [activeScenarioId])
   const [playback, setPlayback] = useState<PlaybackState>(INITIAL_PLAYBACK_STATE)
+  const baseId = useId()
+  const panelId = `${baseId}-panel`
+  const descriptionId = `${baseId}-description`
+  const tabId = (scenarioId: string): string => `${baseId}-tab-${scenarioId}`
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const isVisible = useRef(false)
@@ -220,20 +224,29 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
     const active = container?.querySelector<HTMLElement>(
       `[data-scenario-id="${activeScenario.id}"]`,
     )
-    if (!container || !active) return
-    const containerRect = container.getBoundingClientRect()
-    const activeRect = active.getBoundingClientRect()
-    const margin = 32
-    if (
-      activeRect.left < containerRect.left + margin ||
-      activeRect.right > containerRect.right - margin
-    ) {
-      container.scrollTo({
-        left: container.scrollLeft + activeRect.left - containerRect.left - margin,
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-      })
-    }
+    if (container && active) revealInRow(container, active)
   }, [activeScenario.id])
+
+  // The stories form one tab stop (APG tabs, manual activation): the arrows, Home, and End move
+  // focus along the row, and Enter or Space plays the focused story.
+  const handleTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]'))
+    const focused = document.activeElement
+    const current = focused instanceof HTMLElement ? tabs.indexOf(focused) : -1
+    if (current === -1) return
+    const target = {
+      ArrowRight: (current + 1) % tabs.length,
+      ArrowLeft: (current - 1 + tabs.length) % tabs.length,
+      Home: 0,
+      End: tabs.length - 1,
+    }[event.key]
+    const tab = target === undefined ? undefined : tabs[target]
+    if (!tab) return
+    event.preventDefault()
+    tab.focus({ preventScroll: true })
+    const container = tabScrollRef.current
+    if (container) revealInRow(container, tab)
+  }, [])
 
   const scrollTabs = useCallback((direction: 1 | -1) => {
     const element = tabScrollRef.current
@@ -335,7 +348,9 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
 
       <div className="relative mx-3 shrink-0">
         <div
+          aria-label={t("demo_tabs_label")}
           className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onKeyDown={handleTabKeyDown}
           ref={tabScrollRef}
           role="tablist"
           style={tabEdgeMask(tabEdges)}
@@ -347,6 +362,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
 
               return (
                 <button
+                  aria-controls={panelId}
                   aria-selected={isActive}
                   className={cn(
                     "relative h-8 shrink-0 rounded-full px-3.5 font-semibold text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -355,9 +371,11 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
                       : "bg-background text-muted-foreground hover:text-foreground active:bg-[var(--card-press)]",
                   )}
                   data-scenario-id={scenario.id}
+                  id={tabId(scenario.id)}
                   key={scenario.id}
                   onClick={() => handleScenarioSelect(scenario.id)}
                   role="tab"
+                  tabIndex={isActive ? 0 : -1}
                   type="button"
                 >
                   <span className="relative z-[2]">{t(scenario.titleKey)}</span>
@@ -388,13 +406,23 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
         )}
       </div>
 
-      <p className="min-h-16 px-4 pt-3 pb-2 text-xs leading-5 text-muted-foreground">
+      <p
+        className="min-h-16 px-4 pt-3 pb-2 text-xs leading-5 text-muted-foreground"
+        id={descriptionId}
+      >
         {t(activeScenario.descriptionKey)}
       </p>
 
+      {/* The terminal is the story's panel and a tab stop, so the keyboard can scroll it. */}
       <div
-        className="mx-3 mb-3 min-h-0 flex-1 overflow-y-auto rounded-xl bg-background p-4 font-mono text-[0.68rem] leading-relaxed sm:text-xs"
+        aria-describedby={descriptionId}
+        aria-labelledby={tabId(activeScenario.id)}
+        className="mx-3 mb-3 min-h-0 flex-1 overflow-y-auto rounded-xl bg-background p-4 font-mono text-[0.68rem] leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
+        id={panelId}
         ref={scrollRef}
+        role="tabpanel"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: APG makes a panel that starts with text a tab stop.
+        tabIndex={0}
       >
         {renderedLines}
 
@@ -448,7 +476,8 @@ function renderTerminalLine(input: {
           <span className="min-w-0 flex-1">{content}</span>
           {copyable && (
             <CommandCopyButton
-              className="mt-0.5 opacity-0 group-hover/terminal-line:opacity-100 focus-visible:opacity-100"
+              // Shown on hover and focus; touch screens, which never hover, keep it half visible.
+              className="mt-0.5 opacity-0 group-hover/terminal-line:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-50"
               command={text}
               copyLabel={copyLabel}
             />
@@ -481,6 +510,22 @@ function defaultLineHoldMs(kind: TerminalLineKind): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
+}
+
+/** Scrolls a row of tabs sideways so `element` shows with a margin, never scrolling the page. */
+function revealInRow(container: HTMLElement, element: HTMLElement): void {
+  const containerRect = container.getBoundingClientRect()
+  const elementRect = element.getBoundingClientRect()
+  const margin = 32
+  if (
+    elementRect.left < containerRect.left + margin ||
+    elementRect.right > containerRect.right - margin
+  ) {
+    container.scrollTo({
+      left: container.scrollLeft + elementRect.left - containerRect.left - margin,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    })
+  }
 }
 
 function prefersReducedMotion(): boolean {

@@ -53,6 +53,7 @@
   "demo_replay_label": "Replay the story",
   "demo_tabs_previous": "Previous stories",
   "demo_tabs_next": "More stories",
+  "demo_tabs_label": "Demo stories",
   "demo_badge_feature": "Agentic RAG",
   "demo_badge_incident": "Agentic RAG",
   "demo_script_prefix": "Private chat",

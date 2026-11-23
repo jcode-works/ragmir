@@ -53,6 +53,7 @@
   "demo_replay_label": "Rejouer le scénario",
   "demo_tabs_previous": "Histoires précédentes",
   "demo_tabs_next": "Autres histoires",
+  "demo_tabs_label": "Histoires de la démo",
   "demo_badge_feature": "RAG agentique",
   "demo_badge_incident": "RAG agentique",
   "demo_script_prefix": "Chat confidentiel",

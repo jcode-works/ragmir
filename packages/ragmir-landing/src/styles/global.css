@@ -385,6 +385,26 @@ textarea {
   animation: citation-mark 1.7s var(--ease-out-expo) both;
 }
 
+/*
+ * A finished story leads to the next one when a 2 px line under its tab has filled, in 4.2 s. The
+ * pointer or focus on the demo, a terminal scrolled up, or a demo off screen holds the line, so the
+ * pause shows. Once the visitor picks a story the line is gone; reduced motion never shows it.
+ */
+@keyframes demo-advance {
+  from {
+    scale: 0 1;
+  }
+}
+
+.demo-advance {
+  transform-origin: left;
+  animation: demo-advance 4.2s linear both;
+}
+
+[data-demo]:is(:hover, :focus-within, [data-reading], [data-offscreen]) .demo-advance {
+  animation-play-state: paused;
+}
+
 /* The scroll hint nudges twice after the hero settles, then rests. */
 @keyframes scroll-hint {
   0%,

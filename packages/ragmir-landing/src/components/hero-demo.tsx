@@ -31,9 +31,11 @@ const INITIAL_PLAYBACK_STATE: PlaybackState = {
 }
 
 const TYPEABLE_LINE_KINDS = new Set<TerminalLineKind>(["shell", "codex"])
-/** Pause on a finished scenario before the demo moves to the next one on its own. */
-const AUTO_ADVANCE_DELAY_MS = 4200
+/** Within this distance of the bottom the terminal follows new lines; scrolled further up, it stays. */
+const FOLLOW_THRESHOLD_PX = 24
 const COPYABLE_TERMINAL_LINE_KINDS = new Set<TerminalLineKind>(["shell", "codex"])
+const TAB_ROW_ARROW_CLASS_NAME =
+  "absolute top-1/2 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--card-hover)] text-foreground transition-colors hover:bg-[#2a2a2a] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40 sm:flex"
 
 export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   const t = useCallback((key: string): string => translations[key] ?? key, [translations])
@@ -48,8 +50,10 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   const scrollRef = useRef<HTMLDivElement>(null)
   const isVisible = useRef(false)
   const hasPlayedRef = useRef(false)
+  // Whether the terminal is scrolled to its last lines, so new lines may scroll it.
+  const followRef = useRef(true)
   // Once a visitor picks a tab or replays, the demo stops moving on by itself.
-  const userInteractedRef = useRef(false)
+  const [manual, setManual] = useState(false)
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const clearAllTimeouts = useCallback(() => {
@@ -67,6 +71,8 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
 
   const startSequence = useCallback(() => {
     clearAllTimeouts()
+    followRef.current = true
+    containerRef.current?.removeAttribute("data-reading")
     const prefersReducedMotion =
       typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -148,10 +154,14 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
     const element = containerRef.current
     if (!element) return
 
+    // Off screen or in a hidden tab, the line that leads to the next story holds still.
+    const syncOffscreen = () =>
+      element.toggleAttribute("data-offscreen", !isVisible.current || document.hidden)
     const observer = new IntersectionObserver(
       (entries) => {
         const wasVisible = isVisible.current
         isVisible.current = entries[0]?.isIntersecting ?? false
+        syncOffscreen()
         if (isVisible.current && !wasVisible && !hasPlayedRef.current) {
           hasPlayedRef.current = true
           startSequence()
@@ -160,8 +170,10 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
       { threshold: 0.3 },
     )
     observer.observe(element)
+    document.addEventListener("visibilitychange", syncOffscreen)
     return () => {
       observer.disconnect()
+      document.removeEventListener("visibilitychange", syncOffscreen)
       clearAllTimeouts()
     }
   }, [startSequence, clearAllTimeouts])
@@ -173,22 +185,29 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   }, [startSequence])
 
   useEffect(() => {
-    if (scrollRef.current) {
+    // New lines scroll the terminal only while the reader is at its last lines.
+    if (followRef.current && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   })
 
-  useEffect(() => {
-    if (!playback.isComplete || userInteractedRef.current || !isVisible.current) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+  // A reader who scrolls the terminal up keeps the lines they read, and the demo waits for them.
+  const handleTerminalScroll = useCallback(() => {
+    const element = scrollRef.current
+    if (!element) return
+    followRef.current =
+      element.scrollHeight - element.scrollTop - element.clientHeight <= FOLLOW_THRESHOLD_PX
+    containerRef.current?.toggleAttribute("data-reading", !followRef.current)
+  }, [])
 
-    const timeout = setTimeout(() => {
-      const index = HERO_DEMO_SCENARIOS.findIndex((scenario) => scenario.id === activeScenario.id)
-      const next = HERO_DEMO_SCENARIOS[(index + 1) % HERO_DEMO_SCENARIOS.length]
-      if (next) setActiveScenarioId(next.id)
-    }, AUTO_ADVANCE_DELAY_MS)
-    return () => clearTimeout(timeout)
-  }, [playback.isComplete, activeScenario.id])
+  // Until the visitor picks a story, a finished story leads to the next one once the line under
+  // its tab has filled (`.demo-advance`, held under the pointer, focus, or reading).
+  const advanceStory = useCallback(() => {
+    const index = HERO_DEMO_SCENARIOS.findIndex((scenario) => scenario.id === activeScenario.id)
+    const next = HERO_DEMO_SCENARIOS[(index + 1) % HERO_DEMO_SCENARIOS.length]
+    if (next) setActiveScenarioId(next.id)
+  }, [activeScenario.id])
+  const autoAdvancing = playback.isComplete && !manual
 
   // The story tabs slide in one row, like a streaming catalogue row: swipe on touch, arrows on
   // wider screens, and edges that fade only where more stories wait.
@@ -258,13 +277,13 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   }, [])
 
   const handleReplay = useCallback(() => {
-    userInteractedRef.current = true
+    setManual(true)
     startSequence()
   }, [startSequence])
 
   const handleScenarioSelect = useCallback(
     (scenarioId: string) => {
-      userInteractedRef.current = true
+      setManual(true)
       if (scenarioId === activeScenario.id) {
         startSequence()
         return
@@ -324,6 +343,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
   return (
     <div
       className="mx-auto flex h-[34rem] min-h-[34rem] max-h-[34rem] min-w-0 w-full max-w-full shrink-0 flex-col overflow-hidden rounded-xl bg-card sm:max-w-xl lg:max-w-none"
+      data-demo
       ref={containerRef}
     >
       <div className="flex shrink-0 items-center gap-3 px-4 pt-3 pb-2.5">
@@ -355,7 +375,8 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
           role="tablist"
           style={tabEdgeMask(tabEdges)}
         >
-          <div className="group/scenario-tabs relative flex w-max gap-1.5">
+          {/* From `sm`, the row leaves room at both ends for its arrow buttons. */}
+          <div className="group/scenario-tabs relative flex w-max gap-1.5 sm:px-10">
             <TabIndicator activeSelector='[aria-selected="true"]' className="z-[1]" />
             {HERO_DEMO_SCENARIOS.map((scenario) => {
               const isActive = scenario.id === activeScenario.id
@@ -379,30 +400,49 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
                   type="button"
                 >
                   <span className="relative z-[2]">{t(scenario.titleKey)}</span>
+                  {isActive && autoAdvancing && (
+                    // A faint track, so a line held at its start still shows the demo is waiting.
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-3 bottom-1 z-[3] h-0.5 overflow-hidden rounded-full bg-background/15 motion-reduce:hidden"
+                    >
+                      <span
+                        className="demo-advance block h-full rounded-full bg-background/60"
+                        onAnimationEnd={advanceStory}
+                      />
+                    </span>
+                  )}
                 </button>
               )
             })}
           </div>
         </div>
-        {tabEdges.start && (
-          <button
-            aria-label={t("demo_tabs_previous")}
-            className="absolute top-1/2 left-0 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--card-hover)] text-foreground transition-colors hover:bg-[#2a2a2a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
-            onClick={() => scrollTabs(-1)}
-            type="button"
-          >
-            <ChevronLeft aria-hidden="true" className="size-4" />
-          </button>
-        )}
-        {tabEdges.end && (
-          <button
-            aria-label={t("demo_tabs_next")}
-            className="absolute top-1/2 right-0 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--card-hover)] text-foreground transition-colors hover:bg-[#2a2a2a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
-            onClick={() => scrollTabs(1)}
-            type="button"
-          >
-            <ChevronRight aria-hidden="true" className="arrow-forward size-4" />
-          </button>
+        {/* At an end of the row its arrow is disabled, not removed, so it keeps keyboard focus. */}
+        {(tabEdges.start || tabEdges.end) && (
+          <>
+            <button
+              aria-disabled={!tabEdges.start}
+              aria-label={t("demo_tabs_previous")}
+              className={cn(TAB_ROW_ARROW_CLASS_NAME, "left-0")}
+              onClick={() => {
+                if (tabEdges.start) scrollTabs(-1)
+              }}
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" className="size-4" />
+            </button>
+            <button
+              aria-disabled={!tabEdges.end}
+              aria-label={t("demo_tabs_next")}
+              className={cn(TAB_ROW_ARROW_CLASS_NAME, "right-0")}
+              onClick={() => {
+                if (tabEdges.end) scrollTabs(1)
+              }}
+              type="button"
+            >
+              <ChevronRight aria-hidden="true" className="arrow-forward size-4" />
+            </button>
+          </>
         )}
       </div>
 
@@ -419,6 +459,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
         aria-labelledby={tabId(activeScenario.id)}
         className="mx-3 mb-3 min-h-0 flex-1 overflow-y-auto rounded-xl bg-background p-4 font-mono text-[0.68rem] leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
         id={panelId}
+        onScroll={handleTerminalScroll}
         ref={scrollRef}
         role="tabpanel"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: APG makes a panel that starts with text a tab stop.

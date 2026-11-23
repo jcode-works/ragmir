@@ -317,6 +317,7 @@
   "closing_open_source": "AGPL-3.0 开源",
   "command_copied": "已复制到剪贴板",
   "copy_command": "复制命令",
+  "copy_failed": "复制被阻止：请按 {shortcut}",
   "footer_marquee": "#本地 #可引用 #mcp #开源 #离线 #自托管 #文档 #智能体",
   "footer_nav_label": "页脚",
   "footer_link_npm": "npm",

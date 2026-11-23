@@ -1,19 +1,29 @@
-import { Check, Copy } from "lucide-react"
+import { Check, Copy, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"
-import { emitCopyToast } from "./command-copy-toast"
+import { COPY_FEEDBACK_MS, emitCopyNotice } from "./command-copy-toast"
+
+type CopyState = "idle" | "copied" | "failed"
 
 interface CommandCopyBoxProps {
   command: string
   copyLabel: string
 }
 
-function useCommandCopy(command: string): {
-  copied: boolean
-  handleCopy: () => Promise<void>
+/**
+ * Copies `text` and shows the outcome for `COPY_FEEDBACK_MS`, then announces it through the copy
+ * toast. When the browser refuses the clipboard, `selectInstead` selects the same text on the page,
+ * so the visitor can copy it with the keyboard shortcut the toast names.
+ */
+function useCopy(
+  text: string,
+  { toast }: { toast: boolean },
+): {
+  state: CopyState
+  copy: (selectInstead: () => void) => Promise<void>
 } {
-  const [copied, setCopied] = useState(false)
+  const [state, setState] = useState<CopyState>("idle")
   const resetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -22,19 +32,21 @@ function useCommandCopy(command: string): {
     }
   }, [])
 
-  const handleCopy = async () => {
+  const copy = async (selectInstead: () => void) => {
+    let copied = true
     try {
-      await writeCommandToClipboard(command)
+      await writeCommandToClipboard(text)
     } catch {
-      return
+      copied = false
+      selectInstead()
     }
-    setCopied(true)
-    emitCopyToast()
+    setState(copied ? "copied" : "failed")
+    emitCopyNotice({ copied, toast: toast || !copied })
     if (resetTimeout.current) clearTimeout(resetTimeout.current)
-    resetTimeout.current = setTimeout(() => setCopied(false), 1500)
+    resetTimeout.current = setTimeout(() => setState("idle"), COPY_FEEDBACK_MS)
   }
 
-  return { copied, handleCopy }
+  return { state, copy }
 }
 
 async function writeCommandToClipboard(command: string): Promise<void> {
@@ -58,30 +70,67 @@ async function writeCommandToClipboard(command: string): Promise<void> {
   }
 }
 
+/** Selects the text of `element` on the page, ready for the copy shortcut. */
+function selectText(element: Element | null | undefined): void {
+  const selection = window.getSelection()
+  if (!element || !selection) return
+  const range = document.createRange()
+  range.selectNodeContents(element)
+  selection.removeAllRanges()
+  selection.addRange(range)
+}
+
+/** Focuses a text field and selects all of it, ready for the copy shortcut. */
+function selectField(id: string | undefined): void {
+  const field = id ? document.getElementById(id) : null
+  if (!(field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement)) return
+  field.focus()
+  field.select()
+}
+
+/** The copy icon, then a check after a copy or a cross after a refusal. */
+function CopyStateIcon({
+  state,
+  className,
+}: {
+  state: CopyState
+  className?: string
+}): React.JSX.Element {
+  if (state === "copied") {
+    return (
+      <Check
+        aria-hidden="true"
+        className={cn("copy-confirm shrink-0 text-[var(--accent-title)]", className)}
+      />
+    )
+  }
+  if (state === "failed") {
+    return <X aria-hidden="true" className={cn("copy-confirm shrink-0", className)} />
+  }
+  return <Copy aria-hidden="true" className={cn("shrink-0", className)} />
+}
+
 export function CommandCopyBox({ command, copyLabel }: CommandCopyBoxProps): React.JSX.Element {
-  const { copied, handleCopy } = useCommandCopy(command)
+  const { state, copy } = useCopy(command, { toast: true })
+  const codeRef = useRef<HTMLElement>(null)
 
   return (
     <button
       aria-label={`${copyLabel}: ${command}`}
       className="group flex w-full items-center justify-between gap-3 rounded-xl bg-background px-3.5 py-3 text-left transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-      onClick={() => void handleCopy()}
+      onClick={() => void copy(() => selectText(codeRef.current))}
       type="button"
     >
-      <code className="overflow-x-auto font-mono text-xs leading-5">
+      <code className="select-text overflow-x-auto font-mono text-xs leading-5" ref={codeRef}>
         {highlightCommand(command)}
       </code>
-      {copied ? (
-        <Check
-          aria-hidden="true"
-          className="copy-confirm size-4 shrink-0 text-[var(--accent-title)]"
-        />
-      ) : (
-        <Copy
-          aria-hidden="true"
-          className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
-        />
-      )}
+      <CopyStateIcon
+        className={cn(
+          "size-4",
+          state === "idle" && "text-muted-foreground transition-colors group-hover:text-foreground",
+        )}
+        state={state}
+      />
     </button>
   )
 }
@@ -95,44 +144,54 @@ interface TextCopyButtonProps {
   text: string
   copyLabel: string
   copiedLabel: string
+  /** The field that shows `text`, selected instead when the browser refuses the clipboard. */
+  selectTargetId?: string
   className?: string
 }
 
+/**
+ * A labelled copy button. Both labels share one grid cell, so the button keeps its width, and its
+ * name is the visible label: the hidden one is not read.
+ */
 export function TextCopyButton({
   text,
   copyLabel,
   copiedLabel,
+  selectTargetId,
   className,
 }: TextCopyButtonProps): React.JSX.Element {
-  const { copied, handleCopy } = useCommandCopy(text)
+  const { state, copy } = useCopy(text, { toast: false })
+  const copied = state === "copied"
 
   return (
     <button
-      aria-label={copyLabel}
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2 font-bold text-background text-sm transition-colors hover:bg-[var(--foreground-hover)] active:bg-[var(--foreground-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
-      onClick={() => void handleCopy()}
+      onClick={() => void copy(() => selectField(selectTargetId))}
       type="button"
     >
-      {copied ? (
-        <Check aria-hidden="true" className="copy-confirm size-4" />
-      ) : (
-        <Copy aria-hidden="true" className="size-4" />
-      )}
-      {copied ? copiedLabel : copyLabel}
+      <CopyStateIcon className="size-4" state={state} />
+      <span className="grid justify-items-center">
+        <span className={cn("[grid-area:1/1]", copied && "invisible")}>{copyLabel}</span>
+        <span className={cn("[grid-area:1/1]", !copied && "invisible")}>{copiedLabel}</span>
+      </span>
     </button>
   )
 }
 
+/**
+ * The icon-only copy button of a terminal line. A refused copy selects the line's text, found as
+ * the `[data-copy-text]` element of the enclosing `[data-copy-line]`.
+ */
 export function CommandCopyButton({
   command,
   copyLabel,
   className,
   iconClassName,
 }: CommandCopyButtonProps): React.JSX.Element {
-  const { copied, handleCopy } = useCommandCopy(command)
+  const { state, copy } = useCopy(command, { toast: true })
 
   return (
     <button
@@ -141,18 +200,14 @@ export function CommandCopyButton({
         "inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-card text-muted-foreground transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
-      onClick={() => void handleCopy()}
+      onClick={(event) => {
+        const line = event.currentTarget.closest("[data-copy-line]")
+        void copy(() => selectText(line?.querySelector("[data-copy-text]")))
+      }}
       title={`${copyLabel}: ${command}`}
       type="button"
     >
-      {copied ? (
-        <Check
-          aria-hidden="true"
-          className={cn("copy-confirm size-3.5 text-[var(--accent-title)]", iconClassName)}
-        />
-      ) : (
-        <Copy aria-hidden="true" className={cn("size-3.5", iconClassName)} />
-      )}
+      <CopyStateIcon className={cn("size-3.5", iconClassName)} state={state} />
     </button>
   )
 }

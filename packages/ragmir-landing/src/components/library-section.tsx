@@ -130,6 +130,7 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
                 className="w-full sm:w-fit"
                 copiedLabel={t("command_copied")}
                 copyLabel={t("copy_prompt")}
+                selectTargetId="ragmir-setup-prompt"
                 text={RAGMIR_SETUP_PROMPT}
               />
             </TabsContent>

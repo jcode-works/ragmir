@@ -317,6 +317,7 @@
   "closing_open_source": "AGPL-3.0 open source",
   "command_copied": "Copied to clipboard",
   "copy_command": "Copy command",
+  "copy_failed": "Copy blocked: press {shortcut}",
   "footer_marquee": "#local #cited #mcp #opensource #offline #selfhosted #documents #agents",
   "footer_nav_label": "Footer",
   "footer_link_npm": "npm",

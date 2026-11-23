@@ -499,7 +499,10 @@ function renderTerminalLine(input: {
           ? highlightCode(text)
           : text
   const content = (
-    <span className={cn("min-w-0 whitespace-pre-wrap break-words", lineClass[line.kind])}>
+    <span
+      className={cn("min-w-0 whitespace-pre-wrap break-words", lineClass[line.kind])}
+      data-copy-text
+    >
       {body}
       {showCursor && (
         <span className="ml-1 inline-block h-3.5 w-2 animate-pulse bg-foreground/70" />
@@ -509,7 +512,7 @@ function renderTerminalLine(input: {
 
   if (prefix) {
     return (
-      <div className="group/terminal-line terminal-line-in mt-3 mb-1" key={key}>
+      <div className="group/terminal-line terminal-line-in mt-3 mb-1" data-copy-line key={key}>
         <span className="mb-1 block font-sans text-[0.68rem] font-semibold text-muted-foreground">
           {prefix}
         </span>

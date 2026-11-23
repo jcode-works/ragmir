@@ -268,7 +268,11 @@ const localizedTeamUrl = getLocalizedUrl("/team", locale)
       <Footer localizedHomeUrl={localizedHomeUrl} translations={translations} />
     </AnimatedBackdrop>
 
-    <CommandCopyToast client:idle message={t("command_copied")} />
+    <CommandCopyToast
+      client:idle
+      copiedMessage={t("command_copied")}
+      failedMessage={t("copy_failed")}
+    />
 
     <FloatingCta client:idle href={localizedLibraryUrl} label={t("hero_primary_cta")} />
   </main>

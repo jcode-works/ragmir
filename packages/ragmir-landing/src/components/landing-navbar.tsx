@@ -197,12 +197,10 @@ function DrawerLinkList({
   links,
   currentPath,
   onNavigate,
-  tabIndex,
 }: {
   links: readonly DrawerLink[]
   currentPath: string | undefined
   onNavigate: () => void
-  tabIndex: number
 }): React.JSX.Element {
   return (
     <ul className="overflow-hidden rounded-2xl bg-card">
@@ -215,7 +213,6 @@ function DrawerLinkList({
               className={cn(DRAWER_ROW_CLASS_NAME, current && "bg-foreground/[0.06] font-bold")}
               href={href}
               onClick={external ? undefined : onNavigate}
-              tabIndex={tabIndex}
               {...(external ? externalLinkProps : {})}
             >
               <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
@@ -245,13 +242,11 @@ function DrawerSection({
   links,
   currentPath,
   onNavigate,
-  tabIndex,
 }: {
   title: string
   links: readonly DrawerLink[]
   currentPath: string | undefined
   onNavigate: () => void
-  tabIndex: number
 }): React.JSX.Element {
   const titleId = useId()
   return (
@@ -259,12 +254,7 @@ function DrawerSection({
       <h2 className={DRAWER_SECTION_TITLE_CLASS_NAME} id={titleId}>
         {title}
       </h2>
-      <DrawerLinkList
-        currentPath={currentPath}
-        links={links}
-        onNavigate={onNavigate}
-        tabIndex={tabIndex}
-      />
+      <DrawerLinkList currentPath={currentPath} links={links} onNavigate={onNavigate} />
     </section>
   )
 }
@@ -299,7 +289,8 @@ export function LandingNavbar({
   const [hasScrolled, setHasScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
-  const menuTriggerRef = useRef<HTMLButtonElement>(null)
+  const drawerRef = useRef<HTMLDialogElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const lastScrollY = useRef(0)
   const isHidden = useRef(false)
 
@@ -328,11 +319,31 @@ export function LandingNavbar({
       }),
     ),
   }))
-  const drawerTabIndex = menuOpen ? 0 : -1
 
-  const closeMenu = useCallback(() => {
-    menuTriggerRef.current?.focus()
-    setMenuOpen(false)
+  // The drawer is a native modal dialog: the platform traps focus inside it, makes the page inert,
+  // closes it on Escape, and gives focus back to Menu. A link to a section of this page then moves
+  // focus on to that section, as any in-page link does.
+  const openMenu = useCallback(() => {
+    const drawer = drawerRef.current
+    if (!drawer || drawer.open) return
+    drawer.showModal()
+    // The platform would focus the first link; the way back comes first.
+    closeButtonRef.current?.focus()
+    setMenuOpen(true)
+  }, [])
+
+  const closeMenu = useCallback(() => drawerRef.current?.close(), [])
+
+  useEffect(() => {
+    const drawer = drawerRef.current
+    if (!drawer) return
+    // A tap on the dimmed page closes the drawer, a pointer shortcut for Escape and the Close
+    // button. Such a click targets the dialog itself, since its content fills the whole panel.
+    const onBackdropClick = (event: MouseEvent) => {
+      if (event.target === drawer) drawer.close()
+    }
+    drawer.addEventListener("click", onBackdropClick)
+    return () => drawer.removeEventListener("click", onBackdropClick)
   }, [])
 
   useEffect(() => {
@@ -374,19 +385,6 @@ export function LandingNavbar({
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  useEffect(() => {
-    if (!menuOpen) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeMenu()
-    }
-    document.addEventListener("keydown", onKeyDown)
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.removeEventListener("keydown", onKeyDown)
-      document.body.style.overflow = ""
-    }
-  }, [menuOpen, closeMenu])
 
   return (
     <>
@@ -452,10 +450,10 @@ export function LandingNavbar({
             </a>
             <button
               aria-expanded={menuOpen}
+              aria-haspopup="dialog"
               aria-label={t("nav_menu")}
               className="ml-1 flex h-10 items-center gap-2 rounded-full bg-card px-3 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)] sm:px-4"
-              onClick={() => setMenuOpen(true)}
-              ref={menuTriggerRef}
+              onClick={openMenu}
               type="button"
             >
               <Menu aria-hidden="true" className="size-5" />
@@ -467,48 +465,30 @@ export function LandingNavbar({
         </div>
       </header>
 
-      <div
-        aria-hidden={!menuOpen}
-        className={cn(
-          "fixed inset-0 z-50",
-          menuOpen ? "pointer-events-auto" : "pointer-events-none",
-        )}
+      {/* Closed, the dialog is not rendered, so nothing in it can take focus or be read. */}
+      <dialog
+        aria-label={t("nav_menu")}
+        className="drawer"
+        onClose={() => setMenuOpen(false)}
+        ref={drawerRef}
       >
-        <button
-          aria-label={t("nav_menu_close")}
-          className={cn(
-            "absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity",
-            menuOpen ? "opacity-100 duration-300" : "opacity-0 duration-200",
-          )}
-          onClick={closeMenu}
-          tabIndex={menuOpen ? 0 : -1}
-          type="button"
-        />
-        <div
-          className={cn(
-            "absolute inset-y-0 right-0 flex w-[88%] max-w-sm flex-col border-border border-l bg-background shadow-2xl shadow-black/60 transition-[translate,opacity]",
-            // Opens on a long deceleration, closes faster; reduced motion fades it in place.
-            menuOpen
-              ? "translate-x-0 opacity-100 duration-300 ease-[var(--ease-out-expo)]"
-              : "translate-x-full duration-200 ease-in motion-reduce:translate-x-0 motion-reduce:opacity-0",
-          )}
-        >
+        <div className="flex h-full flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background px-5 pt-3 pb-3">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 bg-background px-5 pt-3 pb-3">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-full h-4 bg-linear-to-b from-background to-transparent"
               />
-              <a
-                aria-label="Ragmir"
-                className="flex items-center"
-                href={localizedHomeUrl}
-                onClick={closeMenu}
-                tabIndex={drawerTabIndex}
-              >
-                <RagmirLogo />
-              </a>
-              <div className="flex items-center gap-2">
+              {/* The language row moves under the logo when the panel is too narrow for both. */}
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+                <a
+                  aria-label="Ragmir"
+                  className="flex h-10 items-center"
+                  href={localizedHomeUrl}
+                  onClick={closeMenu}
+                >
+                  <RagmirLogo />
+                </a>
                 <nav
                   aria-label={t("language_label")}
                   className="flex items-center gap-1 rounded-full bg-card p-1"
@@ -521,22 +501,21 @@ export function LandingNavbar({
                       hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
                       key={entry.locale}
                       lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-                      tabIndex={drawerTabIndex}
                     >
                       {entry.locale}
                     </a>
                   ))}
                 </nav>
-                <button
-                  aria-label={t("nav_menu_close")}
-                  className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={closeMenu}
-                  tabIndex={drawerTabIndex}
-                  type="button"
-                >
-                  <X aria-hidden="true" className="size-5" />
-                </button>
               </div>
+              <button
+                aria-label={t("nav_menu_close")}
+                className="flex size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={closeMenu}
+                ref={closeButtonRef}
+                type="button"
+              >
+                <X aria-hidden="true" className="size-5" />
+              </button>
             </div>
 
             <nav aria-label={t("nav_aria_label")} className="px-5 pt-4 pb-6">
@@ -544,7 +523,6 @@ export function LandingNavbar({
                 currentPath={currentPath}
                 links={drawerPageLinks}
                 onNavigate={closeMenu}
-                tabIndex={drawerTabIndex}
               />
 
               {drawerSections.map((section) => (
@@ -553,7 +531,6 @@ export function LandingNavbar({
                   key={section.title}
                   links={section.links}
                   onNavigate={closeMenu}
-                  tabIndex={drawerTabIndex}
                   title={section.title}
                 />
               ))}
@@ -563,7 +540,6 @@ export function LandingNavbar({
                   <a
                     className="font-medium text-muted-foreground text-xs no-underline transition-colors hover:text-foreground active:text-foreground/70"
                     href={NPM_URL}
-                    tabIndex={drawerTabIndex}
                     {...externalLinkProps}
                   >
                     Ragmir v{version}
@@ -575,20 +551,20 @@ export function LandingNavbar({
 
           <div className="grid gap-2 border-border border-t bg-background px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <Button asChild className="h-11 w-full font-bold text-sm">
-              <a href={GITHUB_URL} {...externalLinkProps} tabIndex={drawerTabIndex}>
+              <a href={GITHUB_URL} {...externalLinkProps}>
                 <GithubIcon data-icon="inline-start" />
                 {t("hero_github_cta")}
               </a>
             </Button>
             <Button asChild className="h-11 w-full font-bold text-sm" variant="outline">
-              <a href={NPM_URL} {...externalLinkProps} tabIndex={drawerTabIndex}>
+              <a href={NPM_URL} {...externalLinkProps}>
                 <NpmIcon data-icon="inline-start" />
                 {t("hero_npm_cta")}
               </a>
             </Button>
           </div>
         </div>
-      </div>
+      </dialog>
     </>
   )
 }

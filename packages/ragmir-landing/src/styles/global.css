@@ -463,6 +463,92 @@ textarea {
   animation: panel-in 220ms var(--ease-out-expo) both;
 }
 
+/*
+ * The menu drawer, a native modal dialog over a dimmed and blurred page. It slides in on the long
+ * deceleration and leaves faster; reduced motion fades it in place. `@starting-style` animates the
+ * opening and `allow-discrete` keeps `display` and the top layer until the closing ends; browsers
+ * without them show and hide the drawer at once.
+ */
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  /* Keeps the panel above the page while it leaves in browsers that drop it from the top layer. */
+  z-index: 50;
+  width: 88%;
+  max-width: 24rem;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-left: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+  translate: 100% 0;
+  transition:
+    translate 200ms ease-in,
+    overlay 200ms ease-in allow-discrete,
+    display 200ms ease-in allow-discrete;
+}
+
+.drawer[open] {
+  translate: 0 0;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.drawer::backdrop {
+  background: rgb(0 0 0 / 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition:
+    opacity 200ms ease-in,
+    overlay 200ms ease-in allow-discrete,
+    display 200ms ease-in allow-discrete;
+}
+
+.drawer[open]::backdrop {
+  opacity: 1;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+@starting-style {
+  .drawer[open] {
+    translate: 100% 0;
+  }
+
+  .drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    translate: none;
+    opacity: 0;
+    transition-property: opacity, overlay, display;
+  }
+
+  .drawer[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .drawer[open] {
+      opacity: 0;
+    }
+  }
+}
+
+/* The page under the open drawer keeps its place. */
+:root:has(.drawer[open]) {
+  overflow: hidden;
+}
+
 /* Loops rest when nobody can see them. */
 [data-marquee][data-paused] .animate-marquee-text,
 header[data-hidden] .logo-stack::before,

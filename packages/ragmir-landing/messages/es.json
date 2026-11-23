@@ -319,7 +319,7 @@
   "closing_open_source": "Código abierto AGPL-3.0",
   "command_copied": "Copiado al portapapeles",
   "copy_command": "Copiar comando",
-  "copy_failed": "Copia bloqueada: pulse {shortcut}",
+  "copy_failed": "Copia bloqueada: pulsa {shortcut}",
   "footer_marquee": "#local #citado #mcp #opensource #sinconexion #autoalojado #documentos #agentes",
   "footer_nav_label": "Pie de página",
   "footer_link_npm": "npm",

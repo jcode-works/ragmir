@@ -1,9 +1,9 @@
 ---
 import { ArrowDown, ArrowRight, ArrowUpRight, SquareTerminal } from "@lucide/astro"
 import { HeroDemo } from "../hero-demo"
-import { NpmDownloadCounter } from "../npm-download-counter"
 import { RagmirBackground } from "../ragmir-background"
 import { INTEGRATION_LOGOS, type IntegrationLogoKey } from "../../content/integration-logos"
+import { languageTag } from "../../i18n/utils"
 import { HERO_DEMO_TRANSLATIONS, pickTranslations } from "../../lib/island-translations"
 import { PROJECT_LINKS } from "../../lib/project-links"
 import { getMonthlyNpmDownloads } from "../../services/npm-downloads"
@@ -18,6 +18,11 @@ interface Props {
 const { translations, locale, localizedLibraryUrl, localizedUseCasesUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const monthlyNpmDownloads = await getMonthlyNpmDownloads()
+// Fixed at build time and written in the page language's number format (7,587, 7 587, 7587).
+const formattedNpmDownloads =
+  monthlyNpmDownloads === null
+    ? null
+    : new Intl.NumberFormat(languageTag(locale)).format(monthlyNpmDownloads)
 
 // Each logo leads to its own card in the integrations section (`#integration-<card>`).
 const worksWith: { name: string; card: string; logo?: IntegrationLogoKey }[] = [
@@ -75,15 +80,11 @@ const heroTitleLines = [
           {t("hero_secondary_cta")}
         </a>
       </div>
-      {monthlyNpmDownloads !== null && (
-        <div class="text-shadow-hero mt-3">
-          <NpmDownloadCounter
-            client:idle
-            downloads={monthlyNpmDownloads}
-            label={t("hero_npm_downloads_label")}
-            locale={locale}
-          />
-        </div>
+      {formattedNpmDownloads !== null && (
+        <p class="text-shadow-hero mt-3 flex items-start justify-start gap-1 font-semibold text-white text-xs md:items-center md:text-sm">
+          <span class="font-black tabular-nums">{formattedNpmDownloads}</span>
+          <span>{t("hero_npm_downloads_label")}</span>
+        </p>
       )}
       <p class="text-shadow-hero mt-3 max-w-xl text-xs leading-5 text-muted-foreground">
         <strong class="font-black text-white">{t("hero_proof_recall_value")}</strong>

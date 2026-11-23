@@ -76,6 +76,23 @@ body {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * One keyboard focus style: the 2 px white ring at 52 % (5.5:1 on the cards) that controls draw with
+ * `focus-visible:ring-2 focus-visible:ring-ring`. This base outline gives the same ring to anything
+ * focusable without its own, such as logo links and scrolling rows; utilities still override it.
+ */
+@layer base {
+  /* The ring keeps its colour at rest, so `transition-colors` never eases it in from the text. */
+  * {
+    outline-color: var(--ring);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 0;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5.5rem;

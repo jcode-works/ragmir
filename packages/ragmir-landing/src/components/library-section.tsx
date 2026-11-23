@@ -110,7 +110,8 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
                 ))}
               </TabsList>
             </div>
-            <TabsContent className="mt-0 grid min-w-0 gap-4" value="prompt">
+            {/* Panels hold their own controls, so they are not tab stops themselves. */}
+            <TabsContent className="mt-0 grid min-w-0 gap-4" tabIndex={-1} value="prompt">
               <div>
                 <p className="font-bold text-xs">{t("quickstart_prompt_title")}</p>
                 <p className="mt-1 text-[0.7rem] text-muted-foreground leading-4">
@@ -133,7 +134,12 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
               />
             </TabsContent>
             {packageManagers.map((manager) => (
-              <TabsContent className="mt-0 grid min-w-0 gap-3" key={manager.id} value={manager.id}>
+              <TabsContent
+                className="mt-0 grid min-w-0 gap-3"
+                key={manager.id}
+                tabIndex={-1}
+                value={manager.id}
+              >
                 {installSteps.map((step) => (
                   <CommandCopyBox
                     command={step.build(manager)}

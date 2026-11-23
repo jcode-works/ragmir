@@ -31,8 +31,9 @@ const privacyControls = [
   </div>
 
   <ol
-    class="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 scroll-px-5 overscroll-x-contain [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 lg:gap-4 [&::-webkit-scrollbar]:hidden"
+    class="-mx-5 flex snap-x snap-mandatory focus-visible:-outline-offset-2 gap-3 overflow-x-auto px-5 pb-2 scroll-px-5 overscroll-x-contain [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 lg:gap-4 [&::-webkit-scrollbar]:hidden"
     aria-label={t("privacy_title")}
+    data-scroll-row
     tabindex="0"
   >
     {privacyControls.map((control, index) => (
@@ -49,3 +50,9 @@ const privacyControls = [
     ))}
   </ol>
 </section>
+
+<script>
+  import { initScrollRows } from "../scroll-row-focus"
+
+  document.addEventListener("astro:page-load", initScrollRows)
+</script>

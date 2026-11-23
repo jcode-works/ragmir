@@ -42,7 +42,7 @@ const groups = ["index", "search", "cite", "wiki", "connect", "measure", "run", 
   </div>
 
   <div class="rounded-xl bg-card p-2 md:p-3">
-    <CapabilitiesExplorer client:visible groups={groups} label={t("capabilities_eyebrow")}>
+    <CapabilitiesExplorer client:idle groups={groups} label={t("capabilities_eyebrow")}>
       <div class="border-foreground/[0.08] border-t pt-5">
         <div class="flex flex-wrap items-center gap-1.5">
           <h3 class="mr-2 inline-flex items-center gap-2 font-bold text-sm" id="formats-heading">

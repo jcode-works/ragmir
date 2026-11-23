@@ -464,11 +464,6 @@ header[data-hidden] .logo-text {
     animation: none;
   }
 
-  [data-motion="step"] {
-    transform: none !important;
-    transition-delay: 0ms !important;
-  }
-
   .faq-item::details-content,
   .smooth-details::details-content {
     transition: none;

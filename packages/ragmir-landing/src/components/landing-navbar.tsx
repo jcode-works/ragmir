@@ -392,7 +392,8 @@ export function LandingNavbar({
       />
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-40 transition-all duration-300",
+          // Only the slide is animated, and reduced motion hides or shows the bar at once.
+          "fixed inset-x-0 top-0 z-40 transition-transform duration-300 motion-reduce:transition-none",
           hasScrolled && "bg-linear-to-b from-background via-background to-transparent",
         )}
         ref={headerRef}

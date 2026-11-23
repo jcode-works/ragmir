@@ -10,6 +10,7 @@ const { translations } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 const faqItems = getFaqItems(translations)
+// The whole card draws the focus ring when its question has keyboard focus.
 ---
 
 <section
@@ -30,8 +31,8 @@ const faqItems = getFaqItems(translations)
 
     <div class="mx-auto grid max-w-3xl gap-3">
       {faqItems.map((item) => (
-        <details class="faq-item group rounded-xl bg-card px-5 py-4 transition-colors hover:bg-[#151515] open:hover:bg-card">
-          <summary class="flex min-h-8 cursor-pointer list-none items-center justify-between gap-4 font-bold text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+        <details class="faq-item group rounded-xl bg-card px-5 py-4 transition-colors hover:bg-[#151515] open:hover:bg-card has-[summary:focus-visible]:ring-2 has-[summary:focus-visible]:ring-ring">
+          <summary class="flex min-h-8 cursor-pointer list-none items-center justify-between gap-4 font-bold text-sm outline-none [&::-webkit-details-marker]:hidden">
             {item.question}
             <svg
               class="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180 motion-reduce:transition-none"

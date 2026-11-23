@@ -538,8 +538,10 @@ export const RagmirBackground = ({
     }
   }, [enableOnMobile, bgColor])
 
+  // Decoration only: hidden from assistive technology on every page, not just inside the home bands.
   return (
     <div
+      aria-hidden="true"
       ref={containerRef}
       className={cn(
         "absolute w-full overflow-hidden pointer-events-none",

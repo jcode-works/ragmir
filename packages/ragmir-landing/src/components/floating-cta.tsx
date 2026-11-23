@@ -11,7 +11,7 @@ const SELF_SERVE_SECTION_IDS = ["library", "cta-final"]
 
 /**
  * Mobile-only install button that appears once the hero has scrolled away and hides again
- * while the install section or the closing call to action is on screen.
+ * while the install section or the closing call to action is on screen. It fades in place.
  */
 export function FloatingCta({ href, label }: FloatingCtaProps): React.JSX.Element {
   const [visible, setVisible] = useState(false)
@@ -53,12 +53,12 @@ export function FloatingCta({ href, label }: FloatingCtaProps): React.JSX.Elemen
     <div
       aria-hidden={!visible}
       inert={!visible}
-      className={`fixed inset-x-0 bottom-4 z-40 flex justify-center px-5 transition-[opacity,transform] duration-500 ease-out md:hidden ${
-        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-24 opacity-0"
+      className={`fixed inset-x-0 bottom-4 z-40 flex justify-center px-5 transition-opacity duration-200 ease-out md:hidden ${
+        visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
       <a
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-2xl shadow-black/60 transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-primary"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-2xl shadow-black/60 transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--primary-press)]"
         href={href}
       >
         {label}

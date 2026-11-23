@@ -1,4 +1,5 @@
-import type { ReactNode } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
+import { scrollEdgeMask, useScrollEdges } from "./scroll-edges"
 import { TabIndicator } from "./tab-indicator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 
@@ -16,6 +17,9 @@ interface CapabilitiesExplorerProps {
   children?: ReactNode
 }
 
+/** Tailwind's `lg`, where the group row becomes a vertical rail. */
+const RAIL_MEDIA_QUERY = "(min-width: 64rem)"
+
 /**
  * Every feature, one group at a time: a rail of groups and the features of the selected one.
  * Every panel is rendered on the server, so search engines and agents read all of them; the page
@@ -27,15 +31,33 @@ export function CapabilitiesExplorer({
   label,
   children,
 }: CapabilitiesExplorerProps): React.JSX.Element {
+  // The arrow keys follow what the eye sees: Left and Right along the phone row, Up and Down along
+  // the rail, with the matching `aria-orientation`.
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal")
+  const listRef = useRef<HTMLDivElement>(null)
+  // The phone row fades at the ends where more groups wait, like the hero demo's stories.
+  const edges = useScrollEdges(listRef)
+
+  useEffect(() => {
+    const rail = window.matchMedia(RAIL_MEDIA_QUERY)
+    const sync = () => setOrientation(rail.matches ? "vertical" : "horizontal")
+    sync()
+    rail.addEventListener("change", sync)
+    return () => rail.removeEventListener("change", sync)
+  }, [])
+
   return (
     <Tabs
       className="gap-3 lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-8"
       defaultValue={groups[0]?.key}
+      orientation={orientation}
     >
       {/* A scrolling pill row on phones, a rail beside the features from large screens up. */}
       <TabsList
         aria-label={label}
         className="relative flex w-full justify-start gap-1 overflow-x-auto rounded-full bg-background p-1 [scrollbar-width:none] group-data-[orientation=horizontal]/tabs:h-auto lg:flex-col lg:items-stretch lg:self-start lg:overflow-visible lg:rounded-3xl [&::-webkit-scrollbar]:hidden"
+        ref={listRef}
+        style={scrollEdgeMask(edges)}
       >
         <TabIndicator activeSelector='[data-state="active"]' />
         {groups.map((group) => (

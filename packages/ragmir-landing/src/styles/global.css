@@ -40,10 +40,16 @@
   --card: #0f0f0f;
   --card-foreground: #ffffff;
   --primary: #8b47ff;
-  /* Hover colours stay opaque: a translucent button lets the dot animation show through it. */
+  /*
+   * Hover and press colours stay opaque: a translucent button lets the dot animation show through
+   * it. A press always differs from rest, so a tap on a touch screen, which never hovers, shows it.
+   */
   --primary-hover: #9d62ff;
+  --primary-press: #7a3ae6;
   --foreground-hover: #e4e4e4;
+  --foreground-press: #d4d4d4;
   --card-hover: #1f1f1f;
+  --card-press: #1a1a1a;
   --inset-hover: #1a1a1a;
   --primary-foreground: #ffffff;
   --secondary: #0f0f0f;
@@ -68,6 +74,23 @@ body {
   background: #000000;
   color: #ffffff;
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * One keyboard focus style: the 2 px white ring at 52 % (5.5:1 on the cards) that controls draw with
+ * `focus-visible:ring-2 focus-visible:ring-ring`. This base outline gives the same ring to anything
+ * focusable without its own, such as logo links and scrolling rows; utilities still override it.
+ */
+@layer base {
+  /* The ring keeps its colour at rest, so `transition-colors` never eases it in from the text. */
+  * {
+    outline-color: var(--ring);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 0;
+  }
 }
 
 html {
@@ -362,6 +385,26 @@ textarea {
   animation: citation-mark 1.7s var(--ease-out-expo) both;
 }
 
+/*
+ * A finished story leads to the next one when a 2 px line under its tab has filled, in 4.2 s. The
+ * pointer or focus on the demo, a terminal scrolled up, or a demo off screen holds the line, so the
+ * pause shows. Once the visitor picks a story the line is gone; reduced motion never shows it.
+ */
+@keyframes demo-advance {
+  from {
+    scale: 0 1;
+  }
+}
+
+.demo-advance {
+  transform-origin: left;
+  animation: demo-advance 4.2s linear both;
+}
+
+[data-demo]:is(:hover, :focus-within, [data-reading], [data-offscreen]) .demo-advance {
+  animation-play-state: paused;
+}
+
 /* The scroll hint nudges twice after the hero settles, then rests. */
 @keyframes scroll-hint {
   0%,
@@ -391,7 +434,8 @@ textarea {
 
 /*
  * Links and buttons keep their place under the pointer: hover lightens the fill, a press darkens it
- * back, and the arrow inside leans toward where the link goes.
+ * below the hover colour (`--*-press`), and the arrow inside leans toward where the link goes. Like
+ * Tailwind's `hover:`, the lean answers a real pointer only, so a tap never leaves it stuck.
  */
 .arrow-out,
 .arrow-forward,
@@ -400,17 +444,46 @@ textarea {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(a, button):is(:hover, :focus-visible) .arrow-out {
+  :is(a, button):focus-visible .arrow-out {
     translate: 2px -2px;
   }
 
-  :is(a, button):is(:hover, :focus-visible) .arrow-forward {
+  :is(a, button):focus-visible .arrow-forward {
     translate: 3px 0;
   }
 
-  :is(a, button):is(:hover, :focus-visible) .arrow-up {
+  :is(a, button):focus-visible .arrow-up {
     translate: 0 -2px;
   }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  :is(a, button):hover .arrow-out {
+    translate: 2px -2px;
+  }
+
+  :is(a, button):hover .arrow-forward {
+    translate: 3px 0;
+  }
+
+  :is(a, button):hover .arrow-up {
+    translate: 0 -2px;
+  }
+}
+
+/*
+ * A "Works with" logo of the hero leads to its integration card, which lights up, colour only. The
+ * smooth scroll from the hero takes about 1.5 s, so the light holds long enough to be seen there.
+ */
+@keyframes target-light {
+  0%,
+  70% {
+    background-color: var(--card-hover);
+  }
+}
+
+.integration-card:target {
+  animation: target-light 3.2s ease-out;
 }
 
 /* A newly selected panel replaces the previous one in place, so it settles rather than slides. */
@@ -425,8 +498,95 @@ textarea {
   animation: panel-in 220ms var(--ease-out-expo) both;
 }
 
-/* Loops rest when nobody can see them. */
+/*
+ * The menu drawer, a native modal dialog over a dimmed and blurred page. It slides in on the long
+ * deceleration and leaves faster; reduced motion fades it in place. `@starting-style` animates the
+ * opening and `allow-discrete` keeps `display` and the top layer until the closing ends; browsers
+ * without them show and hide the drawer at once.
+ */
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  /* Keeps the panel above the page while it leaves in browsers that drop it from the top layer. */
+  z-index: 50;
+  width: 88%;
+  max-width: 24rem;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-left: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+  translate: 100% 0;
+  transition:
+    translate 200ms ease-in,
+    overlay 200ms ease-in allow-discrete,
+    display 200ms ease-in allow-discrete;
+}
+
+.drawer[open] {
+  translate: 0 0;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.drawer::backdrop {
+  background: rgb(0 0 0 / 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition:
+    opacity 200ms ease-in,
+    overlay 200ms ease-in allow-discrete,
+    display 200ms ease-in allow-discrete;
+}
+
+.drawer[open]::backdrop {
+  opacity: 1;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+@starting-style {
+  .drawer[open] {
+    translate: 100% 0;
+  }
+
+  .drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    translate: none;
+    opacity: 0;
+    transition-property: opacity, overlay, display;
+  }
+
+  .drawer[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .drawer[open] {
+      opacity: 0;
+    }
+  }
+}
+
+/* The page under the open drawer keeps its place. */
+:root:has(.drawer[open]) {
+  overflow: hidden;
+}
+
+/* Loops rest when nobody can see them, and while someone reads or tabs through the footer. */
 [data-marquee][data-paused] .animate-marquee-text,
+footer:is(:hover, :focus-within) .animate-marquee-text,
 header[data-hidden] .logo-stack::before,
 header[data-hidden] .logo-stack::after,
 header[data-hidden] .logo-text {
@@ -462,11 +622,6 @@ header[data-hidden] .logo-text {
 
   .scroll-hint {
     animation: none;
-  }
-
-  [data-motion="step"] {
-    transform: none !important;
-    transition-delay: 0ms !important;
   }
 
   .faq-item::details-content,

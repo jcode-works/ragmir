@@ -34,8 +34,9 @@ const deployItems = [
   </div>
 
   <ol
-    class="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 scroll-px-5 overscroll-x-contain [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
+    class="-mx-5 flex snap-x snap-mandatory focus-visible:-outline-offset-2 gap-3 overflow-x-auto px-5 pb-2 scroll-px-5 overscroll-x-contain [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
     aria-label={t("deploy_title")}
+    data-scroll-row
     tabindex="0"
   >
     {deployItems.map((item, index) => (
@@ -58,7 +59,7 @@ const deployItems = [
       <span class="font-mono text-foreground/75 text-xs">{t("deploy_owns_items")}</span>
     </p>
     <a
-      class="inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-background"
+      class="inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
       href={PROJECT_LINKS.serverGuide}
     >
       {t("deploy_guide_link")}
@@ -66,3 +67,9 @@ const deployItems = [
     </a>
   </div>
 </section>
+
+<script>
+  import { initScrollRows } from "../scroll-row-focus"
+
+  document.addEventListener("astro:page-load", initScrollRows)
+</script>

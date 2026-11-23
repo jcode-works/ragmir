@@ -19,13 +19,14 @@ const { translations, locale, localizedLibraryUrl, localizedUseCasesUrl } = Astr
 const t = (key: string): string => translations[key] ?? key
 const monthlyNpmDownloads = await getMonthlyNpmDownloads()
 
-const worksWith: { name: string; logo?: IntegrationLogoKey }[] = [
-  { name: "Claude Code", logo: "claude" },
-  { name: "Codex" },
-  { name: "Cursor", logo: "cursor" },
-  { name: "Gemini CLI", logo: "gemini" },
-  { name: "LangChain", logo: "langchain" },
-  { name: "MCP", logo: "mcp" },
+// Each logo leads to its own card in the integrations section (`#integration-<card>`).
+const worksWith: { name: string; card: string; logo?: IntegrationLogoKey }[] = [
+  { name: "Claude Code", card: "claude-code", logo: "claude" },
+  { name: "Codex", card: "codex" },
+  { name: "Cursor", card: "cursor", logo: "cursor" },
+  { name: "Gemini CLI", card: "gemini-cli", logo: "gemini" },
+  { name: "LangChain", card: "langchain-js", logo: "langchain" },
+  { name: "MCP", card: "mcp", logo: "mcp" },
 ]
 const heroTitleLines = [
   t("hero_title_line_1"),
@@ -106,7 +107,7 @@ const heroTitleLines = [
               <li>
                 <a
                   class="inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition-colors hover:text-white active:text-white/70"
-                  href="#integrations"
+                  href={`#integration-${item.card}`}
                 >
                   {logo ? (
                     <svg class="size-4" viewBox="0 0 24 24" fill={logo.color ?? "currentColor"} aria-hidden="true">

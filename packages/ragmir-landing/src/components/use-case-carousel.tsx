@@ -233,12 +233,13 @@ export function UseCaseCarousel({ translations }: UseCaseCarouselProps): React.J
           const Icon = useCase.icon
           return (
             <TabsTrigger
-              className="h-9 min-w-0 px-3 font-semibold text-xs lg:flex-1 lg:px-4"
+              // Two balanced lines in the phone grid, so every label says where it leads.
+              className="h-auto min-h-11 min-w-0 whitespace-normal px-3 py-1.5 font-semibold text-xs leading-tight lg:h-9 lg:min-h-0 lg:flex-1 lg:whitespace-nowrap lg:px-4 lg:py-1"
               key={useCase.id}
               value={useCase.id}
             >
               <Icon aria-hidden="true" />
-              <span className="truncate">{t(useCase.tabKey)}</span>
+              <span className="text-balance lg:truncate">{t(useCase.tabKey)}</span>
             </TabsTrigger>
           )
         })}

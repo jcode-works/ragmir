@@ -103,7 +103,7 @@ const DRAWER_ROW_CLASS_NAME =
 
 /** GitHub, npm, and PyPI in the bar: bare icons, like the social icons of the WorkoutGen bar. */
 const HEADER_ICON_CLASS_NAME =
-  "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 /** BCP 47 tag of each landing locale, so screen readers read every language name in its language. */
 const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
@@ -149,7 +149,11 @@ function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): R
         aria-controls={listId}
         aria-expanded={open}
         aria-label={`${label}: ${current?.label ?? locale}`}
-        className={cn(HEADER_ICON_CLASS_NAME, "w-auto gap-1.5 px-2.5", open && "bg-card")}
+        className={cn(
+          HEADER_ICON_CLASS_NAME,
+          "w-auto gap-1.5 px-2.5",
+          open && "bg-[var(--card-hover)]",
+        )}
         onClick={() => setOpen((value) => !value)}
         ref={buttonRef}
         type="button"
@@ -168,7 +172,7 @@ function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): R
           <li key={entry.locale}>
             <a
               aria-current={entry.locale === locale ? "page" : undefined}
-              className="flex items-center justify-between gap-4 rounded-xl px-3 py-2 font-semibold text-muted-foreground text-sm transition-colors hover:bg-[var(--card-hover)] hover:text-foreground aria-[current=page]:bg-foreground aria-[current=page]:text-background"
+              className="flex items-center justify-between gap-4 rounded-xl px-3 py-2 font-semibold text-muted-foreground text-sm transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
               href={entry.href}
               hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
               lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
@@ -409,7 +413,7 @@ export function LandingNavbar({
                 href={NPM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 text-[0.7rem] font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground max-[419px]:hidden"
+                className="ml-2 text-[0.7rem] font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
               >
                 v{version}
               </a>
@@ -449,7 +453,7 @@ export function LandingNavbar({
             <button
               aria-expanded={menuOpen}
               aria-label={t("nav_menu")}
-              className="ml-1 flex h-10 items-center gap-2 rounded-full bg-card px-3 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-card sm:px-4"
+              className="ml-1 flex h-10 items-center gap-2 rounded-full bg-card px-3 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)] sm:px-4"
               onClick={() => setMenuOpen(true)}
               ref={menuTriggerRef}
               type="button"
@@ -512,7 +516,7 @@ export function LandingNavbar({
                   {alternateLocales.map((entry) => (
                     <a
                       aria-current={entry.locale === locale ? "page" : undefined}
-                      className="rounded-full px-3 py-1.5 font-bold text-muted-foreground text-xs uppercase transition-colors hover:text-foreground aria-[current=page]:bg-foreground aria-[current=page]:text-background"
+                      className="rounded-full px-3 py-1.5 font-bold text-muted-foreground text-xs uppercase transition-colors hover:text-foreground active:bg-[var(--card-hover)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
                       href={entry.href}
                       hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
                       key={entry.locale}
@@ -525,7 +529,7 @@ export function LandingNavbar({
                 </nav>
                 <button
                   aria-label={t("nav_menu_close")}
-                  className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={closeMenu}
                   tabIndex={drawerTabIndex}
                   type="button"
@@ -557,7 +561,7 @@ export function LandingNavbar({
               <div className="mt-7 flex items-center justify-end gap-3">
                 {version && (
                   <a
-                    className="font-medium text-muted-foreground text-xs no-underline transition-colors hover:text-foreground"
+                    className="font-medium text-muted-foreground text-xs no-underline transition-colors hover:text-foreground active:text-foreground/70"
                     href={NPM_URL}
                     tabIndex={drawerTabIndex}
                     {...externalLinkProps}

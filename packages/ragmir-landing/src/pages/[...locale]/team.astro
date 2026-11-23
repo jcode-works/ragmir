@@ -157,7 +157,7 @@ const structuredData = [
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a
-              class={`${pillClass} rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] active:bg-primary`}
+              class={`${pillClass} rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] active:bg-[var(--primary-press)]`}
               href={JCODE_URL}
               rel="noopener"
               target="_blank"
@@ -167,7 +167,7 @@ const structuredData = [
             </a>
             {memberLinks.map((link) => (
               <a
-                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-card`}
+                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
                 href={link.href}
                 rel="nofollow noreferrer noopener"
                 target="_blank"
@@ -231,7 +231,7 @@ const structuredData = [
             <h3 class="font-black text-lg leading-snug">{t("team_jcode_title")}</h3>
             <p class="mt-2 text-muted-foreground text-sm leading-7">{t("team_jcode_text")}</p>
             <a
-              class={`${pillClass} mt-6 w-fit bg-background text-foreground hover:bg-[var(--inset-hover)] active:bg-background`}
+              class={`${pillClass} mt-6 w-fit bg-background text-foreground hover:bg-[var(--inset-hover)] active:bg-[var(--card-press)]`}
               href={JCODE_URL}
               rel="noopener"
               target="_blank"

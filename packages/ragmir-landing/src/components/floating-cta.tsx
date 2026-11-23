@@ -58,7 +58,7 @@ export function FloatingCta({ href, label }: FloatingCtaProps): React.JSX.Elemen
       }`}
     >
       <a
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-2xl shadow-black/60 transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-primary"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-2xl shadow-black/60 transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--primary-press)]"
         href={href}
       >
         {label}

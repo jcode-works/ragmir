@@ -40,10 +40,16 @@
   --card: #0f0f0f;
   --card-foreground: #ffffff;
   --primary: #8b47ff;
-  /* Hover colours stay opaque: a translucent button lets the dot animation show through it. */
+  /*
+   * Hover and press colours stay opaque: a translucent button lets the dot animation show through
+   * it. A press always differs from rest, so a tap on a touch screen, which never hovers, shows it.
+   */
   --primary-hover: #9d62ff;
+  --primary-press: #7a3ae6;
   --foreground-hover: #e4e4e4;
+  --foreground-press: #d4d4d4;
   --card-hover: #1f1f1f;
+  --card-press: #1a1a1a;
   --inset-hover: #1a1a1a;
   --primary-foreground: #ffffff;
   --secondary: #0f0f0f;
@@ -391,7 +397,8 @@ textarea {
 
 /*
  * Links and buttons keep their place under the pointer: hover lightens the fill, a press darkens it
- * back, and the arrow inside leans toward where the link goes.
+ * below the hover colour (`--*-press`), and the arrow inside leans toward where the link goes. Like
+ * Tailwind's `hover:`, the lean answers a real pointer only, so a tap never leaves it stuck.
  */
 .arrow-out,
 .arrow-forward,
@@ -400,15 +407,29 @@ textarea {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(a, button):is(:hover, :focus-visible) .arrow-out {
+  :is(a, button):focus-visible .arrow-out {
     translate: 2px -2px;
   }
 
-  :is(a, button):is(:hover, :focus-visible) .arrow-forward {
+  :is(a, button):focus-visible .arrow-forward {
     translate: 3px 0;
   }
 
-  :is(a, button):is(:hover, :focus-visible) .arrow-up {
+  :is(a, button):focus-visible .arrow-up {
+    translate: 0 -2px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  :is(a, button):hover .arrow-out {
+    translate: 2px -2px;
+  }
+
+  :is(a, button):hover .arrow-forward {
+    translate: 3px 0;
+  }
+
+  :is(a, button):hover .arrow-up {
     translate: 0 -2px;
   }
 }

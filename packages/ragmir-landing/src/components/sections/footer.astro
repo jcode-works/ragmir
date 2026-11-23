@@ -37,9 +37,9 @@ const sections = FOOTER_SECTIONS.map((section) => ({
 }))
 
 const linkClass =
-  "flex min-h-11 items-center justify-center rounded-sm py-1 text-sm font-medium leading-5 text-foreground transition-colors hover:text-[var(--accent-title)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-8 lg:justify-start"
+  "flex min-h-11 items-center justify-center rounded-sm py-1 text-sm font-medium leading-5 text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-8 lg:justify-start"
 const iconLinkClass =
-  "flex size-10 items-center justify-center rounded-full bg-card text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  "flex size-10 items-center justify-center rounded-full bg-card text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 const marqueeCopy =
   "whitespace-nowrap pr-8 font-black text-5xl text-foreground/90 uppercase italic leading-[1.1] tracking-tighter md:pr-14 md:text-7xl"
 ---
@@ -125,7 +125,7 @@ const marqueeCopy =
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${t("footer_version_label")}: v${version}`}
-              class="ml-1 font-semibold text-foreground text-xs no-underline transition-colors hover:text-[var(--accent-title)]"
+              class="ml-1 font-semibold text-foreground text-xs underline-offset-4 transition-colors hover:underline active:text-foreground/70"
             >
               v{version}
             </a>

@@ -324,7 +324,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
         </span>
         <button
           aria-label={t("demo_replay_label")}
-          className="-my-1 flex size-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="-my-1 flex size-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={handleReplay}
           title={t("demo_replay_label")}
           type="button"
@@ -352,7 +352,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
                     "relative h-8 shrink-0 rounded-full px-3.5 font-semibold text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
                       ? "bg-foreground text-background group-data-[indicator=ready]/scenario-tabs:bg-background"
-                      : "bg-background text-muted-foreground hover:text-foreground",
+                      : "bg-background text-muted-foreground hover:text-foreground active:bg-[var(--card-press)]",
                   )}
                   data-scenario-id={scenario.id}
                   key={scenario.id}

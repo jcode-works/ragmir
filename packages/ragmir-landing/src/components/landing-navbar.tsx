@@ -108,6 +108,21 @@ const HEADER_ICON_CLASS_NAME =
 /** BCP 47 tag of each landing locale, so screen readers read every language name in its language. */
 const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
 
+/**
+ * Sends a language link to the section the reader is on: every language shares the section ids,
+ * so the translated page opens at the same place, at once under reduced motion like any anchor.
+ * The `href` that crawlers read stays the page itself; only the clicked link gains the fragment.
+ */
+function keepReadingPlace(event: React.MouseEvent<HTMLAnchorElement>, href: string): void {
+  const line = window.innerHeight / 3
+  let section = ""
+  for (const candidate of document.querySelectorAll<HTMLElement>("main section[id]")) {
+    if (candidate.getBoundingClientRect().top > line) break
+    section = candidate.id
+  }
+  event.currentTarget.href = section && section !== "top" ? `${href}#${section}` : href
+}
+
 interface LanguageMenuProps {
   alternateLocales: AlternateLocale[]
   label: string
@@ -135,11 +150,17 @@ function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): R
       setOpen(false)
       buttonRef.current?.focus()
     }
+    // Tab past the last language, or back before the button, and the menu closes behind focus.
+    const onFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
+    }
     document.addEventListener("pointerdown", onPointerDown)
     document.addEventListener("keydown", onKeyDown)
+    document.addEventListener("focusin", onFocusIn)
     return () => {
       document.removeEventListener("pointerdown", onPointerDown)
       document.removeEventListener("keydown", onKeyDown)
+      document.removeEventListener("focusin", onFocusIn)
     }
   }, [open])
 
@@ -176,6 +197,7 @@ function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): R
               href={entry.href}
               hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
               lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
+              onClick={(event) => keepReadingPlace(event, entry.href)}
             >
               {entry.label}
               <span aria-hidden="true" className="font-mono text-[10px] uppercase tracking-[0.2em]">
@@ -501,6 +523,7 @@ export function LandingNavbar({
                       hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
                       key={entry.locale}
                       lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
+                      onClick={(event) => keepReadingPlace(event, entry.href)}
                     >
                       {entry.locale}
                     </a>

@@ -401,11 +401,14 @@ function packRegions(
   if (regions.length < 2) {
     return [...regions]
   }
+  // Indexed by interval: a spreadsheet reports thousands of regions, where a scan per region would
+  // cost O(regions squared) before the first one is even ruled out.
+  const locationsByInterval = new Map<string, ParsedRegion>()
+  for (const candidate of locationRegions) {
+    locationsByInterval.set(`${candidate.charStart}:${candidate.charEnd}`, candidate)
+  }
   const locationOf = (region: ChunkRegion): ParsedRegion | undefined =>
-    locationRegions.find(
-      (candidate) =>
-        candidate.charStart === region.charStart && candidate.charEnd === region.charEnd,
-    )
+    locationsByInterval.get(`${region.charStart}:${region.charEnd}`)
   const packed: ChunkRegion[] = []
   let current: ChunkRegion | null = null
   let currentLocation: ParsedRegion | undefined

@@ -42,15 +42,15 @@ const homeUrl = getLocalizedUrl("/", defaultLang)
   <main
     class="relative z-10 flex min-h-dvh flex-col items-center justify-center gap-6 px-5 text-center"
   >
-    <a aria-label="Ragmir" class="flex items-center" href={homeUrl}>
+    <a aria-label="Ragmir" class="flex items-center" data-i18n="home" href={homeUrl}>
       <RagmirLogo />
     </a>
 
-    <p class="font-black text-[5rem] text-foreground leading-none md:text-[7rem]">{code}</p>
+    <h1 class="font-black text-[5rem] text-foreground leading-none md:text-[7rem]">{code}</h1>
     <p class="max-w-md text-lg text-muted-foreground" data-i18n="desc">{message}</p>
 
     <a
-      class="rounded-full bg-[var(--primary)] px-6 py-3 font-bold text-[var(--primary-foreground)] text-sm transition-colors hover:bg-[var(--primary-hover)]"
+      class="rounded-full bg-[var(--primary)] px-6 py-3 font-bold text-[var(--primary-foreground)] text-sm transition-colors hover:bg-[var(--primary-hover)] active:bg-[var(--primary-press)]"
       data-i18n="link"
       href={homeUrl}
     >
@@ -65,11 +65,13 @@ const homeUrl = getLocalizedUrl("/", defaultLang)
       if (!copy) return
       const desc = document.querySelector('[data-i18n="desc"]')
       const btn = document.querySelector('[data-i18n="btn"]')
-      const link = document.querySelector('[data-i18n="link"]')
       const description = document.querySelector('meta[name="description"]')
       if (desc) desc.textContent = copy.message
       if (btn) btn.textContent = copy.back
-      if (link) link.setAttribute("href", `/${prefix}/`)
+      // The logo and the button both lead to the home page in the visitor's language.
+      for (const link of document.querySelectorAll('[data-i18n="link"], [data-i18n="home"]')) {
+        link.setAttribute("href", `/${prefix}/`)
+      }
       if (description) description.setAttribute("content", copy.metaDescription)
       document.title = copy.title
       document.documentElement.setAttribute("lang", languageTags[prefix] ?? prefix)

@@ -13,7 +13,13 @@ import { getIngestionProgress, readIngestionState, writeIngestionState } from ".
 import { initProject } from "./init.js"
 import { search } from "./query.js"
 import * as storeModule from "./store.js"
-import { connectStore, openRowsTable, readIndexManifest, readRows } from "./store.js"
+import {
+  connectStore,
+  openRowsTable,
+  readIndexManifest,
+  readRows,
+  updateRowsInTable,
+} from "./store.js"
 
 const tempDirs: string[] = []
 
@@ -25,6 +31,42 @@ afterEach(async () => {
 })
 
 describe("ingest", () => {
+  it("should re-ingest files whose rows went missing instead of failing every later run", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "ragmir-ingest-drift-"))
+    tempDirs.push(root)
+    await initProject(root)
+    await mkdir(path.join(root, ".ragmir", "raw"), { recursive: true })
+    await writeFile(
+      path.join(root, ".ragmir", "raw", "kept.md"),
+      "# Kept\n\nEvidence that stays indexed.\n",
+    )
+    await writeFile(
+      path.join(root, ".ragmir", "raw", "lost.md"),
+      "# Lost\n\nEvidence whose rows vanish from the table.\n",
+    )
+    await ingest({ cwd: root })
+
+    const config = await loadConfig(root)
+    const manifestBefore = await readIndexManifest(config)
+    const rowsBefore = await readRows(config)
+    // Simulate a write that never landed: the rows disappear while the manifest still counts them.
+    await updateRowsInTable([], [".ragmir/raw/lost.md"], manifestBefore?.tableName ?? "", config)
+    const rowsAfterLoss = await readRows(config)
+    expect(rowsAfterLoss.length).toBeLessThan(rowsBefore.length)
+
+    // Nothing on disk changed, so without drift detection every file is reused, the manifest count
+    // stays ahead of the table, and validation rejects the generation.
+    const repaired = await ingest({ cwd: root })
+    const rowsAfterRepair = await readRows(config)
+    const manifestAfterRepair = await readIndexManifest(config)
+
+    expect(repaired.errors).toEqual([])
+    expect(rowsAfterRepair).toHaveLength(rowsBefore.length)
+    expect(manifestAfterRepair?.chunkCount).toBe(rowsAfterRepair.length)
+    expect(rowsAfterRepair.map((row) => row.relativePath)).toContain(".ragmir/raw/lost.md")
+    expect(await search("vanish", { cwd: root })).not.toHaveLength(0)
+  })
+
   it("should collect privacy-safe phase metrics only when requested", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "ragmir-private-observability-"))
     tempDirs.push(root)

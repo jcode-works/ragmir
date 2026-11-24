@@ -3,6 +3,40 @@
 This is a breaking surface change. Ragmir now concentrates on local indexing, search, exact
 citations, OCR, and integration with developer agents.
 
+## French elisions match the words they carry (6.18)
+
+Keyword matching now separates a French elision from its word and treats every apostrophe shape as
+one mark, so `l’établissement`, `l'établissement`, and `établissement` reach the same term, and a
+question written with a typographic apostrophe keeps its keyword evidence. `aujourd'hui`, `don't`,
+and `user's` stay whole. The same folding feeds the words a question is measured on, so French
+phrasing (`combien`, `pourquoi`, `qu'est`) no longer outweighs the words the question is about. The
+keyword policy moves to version 4: existing indexes stay searchable, `rgr doctor` reports
+`readiness.lexicalIndexCurrent: false`, and the next `rgr ingest` or `rgr upgrade` stages a
+validated rebuild before activating it.
+
+## Short pages share one passage (6.18)
+
+A paginated document whose pages hold little text no longer produces one passage per page. Ragmir
+fills a passage up to `chunkSize` across consecutive pages and cites the whole range, such as
+`agenda.pdf:p1-p9#0`. An agenda PDF measured here went from 23 passages of 91 characters to 5 of
+about 1,100, so each embedding covers a readable unit and the per-document result cap returns
+evidence instead of fragments. Pages that already fill a passage are untouched. Only pagination
+packs this way: slides, spreadsheet regions, and Markdown sections name a passage and answer
+`contextPaths` filters, so they keep one passage each. The extraction policy moves to parser
+version 8, so the next `rgr ingest` stages a validated rebuild.
+
+## Readiness refuses a source that does not exist (6.18)
+
+`rgr doctor` now reports `unresolvedSources` and `readiness.sourceRulesResolved`. A source file or
+folder listed in the configuration that is no longer on disk contributes nothing, so `ready` is
+`false` while one remains and the next steps name the entries to correct. Before this, a base whose
+sources had moved away reported `ready: true` and `coverageComplete: true`, because every count
+measured only the files discovery had found. `rgr audit` already listed them under
+`sourceRules.unmatchedSources`. A successful ingestion records the finding in its health snapshot,
+so the default `rgr doctor` reports it without an O(corpus) pass; an index built before this release
+reports `unresolvedSources.count: null` until the next ingestion, which reads as unknown and does
+not hold readiness back.
+
 ## Markdown front matter forms one passage (6.16)
 
 A Markdown page that opens with YAML (`---`) or TOML (`+++`) front matter keeps that block whole:

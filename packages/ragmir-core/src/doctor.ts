@@ -115,9 +115,24 @@ export async function doctorWithConfig(
   }
   const diagnosticSnapshotAvailable = deep || health !== undefined
   const coverageVerified = deep || liveFreshness !== null
+  // A configured file or folder that does not exist contributes nothing, yet every count above
+  // only measures what discovery found. Without this, a base whose sources moved away reports
+  // itself complete.
+  const unresolvedSourceList =
+    auditReport?.sourceRules?.unmatchedSources ?? health?.unresolvedSources?.preview
+  const unresolvedSourceCount =
+    unresolvedSourceList === undefined
+      ? null
+      : (auditReport?.sourceRules?.unmatchedSources.length ?? health?.unresolvedSources?.count ?? 0)
+  const unresolvedSources = {
+    count: unresolvedSourceCount,
+    preview: unresolvedSourceList ?? [],
+  }
+  const sourceRulesResolved = unresolvedSourceCount === null || unresolvedSourceCount === 0
   const coverageComplete =
     diagnosticSnapshotAvailable &&
     coverageVerified &&
+    sourceRulesResolved &&
     missingFromIndex === 0 &&
     staleInIndex === 0 &&
     emptyTextFiles === 0 &&
@@ -161,6 +176,7 @@ export async function doctorWithConfig(
     emptyTextFiles,
     oversizedFiles,
     sensitiveFiles,
+    unresolvedSources: unresolvedSources.preview,
     warnings: securityWarnings.length,
     embeddingProvider: config.embeddingProvider,
     agentKitInstalled,
@@ -209,6 +225,7 @@ export async function doctorWithConfig(
     chunksIndexed,
     missingFromIndex,
     staleInIndex,
+    unresolvedSources,
     corpusFingerprint: manifest?.corpusFingerprint ?? null,
     securityWarnings,
     indexFreshness,
@@ -217,6 +234,7 @@ export async function doctorWithConfig(
     readiness: {
       operationalReady,
       coverageComplete,
+      sourceRulesResolved,
       indexPolicyCurrent,
       lexicalIndexCurrent,
       retrievalQualityVerified,
@@ -243,6 +261,8 @@ interface NextActionInput {
   missingFromIndex: number
   staleInIndex: number
   emptyTextFiles: number
+  /** Configured source entries that resolve to nothing, as reported by the snapshot. */
+  unresolvedSources: string[]
   warnings: number
   embeddingProvider: string
   agentKitInstalled: boolean
@@ -281,6 +301,14 @@ function nextActions(input: NextActionInput): string[] {
       `Run \`${input.run(["ingest"])}\` to create a current manifest before relying on status or search.`,
     )
     return steps
+  }
+
+  if (input.unresolvedSources.length > 0) {
+    const named = input.unresolvedSources.slice(0, 5).join(", ")
+    const remainder = input.unresolvedSources.length - Math.min(5, input.unresolvedSources.length)
+    steps.push(
+      `These configured sources do not exist, so nothing from them is indexed: ${named}${remainder > 0 ? `, and ${remainder} more` : ""}. Correct or remove them in the "sources" array of .ragmir/config.json, then run \`${input.run(["ingest"])}\`.`,
+    )
   }
 
   if (input.supportedFiles === 0) {

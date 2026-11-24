@@ -180,7 +180,16 @@ const LOW_INFORMATION_WORDS = new Set(
     "au aux avec ce ces cet cette dans de des du elle elles en est et eux faire il ils je la le " +
     "les leur leurs lui ma mais me mes mon ne nos notre nous on ou par pas peux peut pour quel " +
     "quelle quelles quels qui quoi sa se ses son sont sur ta te tes toi ton tu un une vos votre vous " +
-    "comment dois doit"
+    "comment dois doit " +
+    // French questions carry their phrasing in words a small corpus makes rare, so without these
+    // "combien", "qu" or "dit" outweigh the words the question is actually about.
+    "qu combien pourquoi quand que cela ainsi alors donc car aussi encore deja tres selon vers " +
+    "chez afin lors jusqu entre sans sous apres avant depuis pendant lequel laquelle lesquels " +
+    "lesquelles celui celle ceux celles chaque plusieurs aucun aucune autre autres meme memes " +
+    "etre ete etait sera serait avoir avait auront fait dire dit donne veut veux sait savoir " +
+    // English equivalents the list did not reach yet.
+    "also than then any all each every such both many much most very just only between before " +
+    "after during while because"
   ).split(" "),
 )
 

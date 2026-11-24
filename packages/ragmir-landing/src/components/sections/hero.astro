@@ -1,9 +1,9 @@
 ---
-import { ArrowDown, ArrowRight, SquareTerminal } from "@lucide/astro"
+import { ArrowDown, ArrowRight, ArrowUpRight, SquareTerminal } from "@lucide/astro"
 import { HeroDemo } from "../hero-demo"
-import { NpmDownloadCounter } from "../npm-download-counter"
 import { RagmirBackground } from "../ragmir-background"
 import { INTEGRATION_LOGOS, type IntegrationLogoKey } from "../../content/integration-logos"
+import { languageTag } from "../../i18n/utils"
 import { HERO_DEMO_TRANSLATIONS, pickTranslations } from "../../lib/island-translations"
 import { PROJECT_LINKS } from "../../lib/project-links"
 import { getMonthlyNpmDownloads } from "../../services/npm-downloads"
@@ -18,14 +18,20 @@ interface Props {
 const { translations, locale, localizedLibraryUrl, localizedUseCasesUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const monthlyNpmDownloads = await getMonthlyNpmDownloads()
+// Fixed at build time and written in the page language's number format (7,587, 7 587, 7587).
+const formattedNpmDownloads =
+  monthlyNpmDownloads === null
+    ? null
+    : new Intl.NumberFormat(languageTag(locale)).format(monthlyNpmDownloads)
 
-const worksWith: { name: string; logo?: IntegrationLogoKey }[] = [
-  { name: "Claude Code", logo: "claude" },
-  { name: "Codex" },
-  { name: "Cursor", logo: "cursor" },
-  { name: "Gemini CLI", logo: "gemini" },
-  { name: "LangChain", logo: "langchain" },
-  { name: "MCP", logo: "mcp" },
+// Each logo leads to its own card in the integrations section (`#integration-<card>`).
+const worksWith: { name: string; card: string; logo?: IntegrationLogoKey }[] = [
+  { name: "Claude Code", card: "claude-code", logo: "claude" },
+  { name: "Codex", card: "codex" },
+  { name: "Cursor", card: "cursor", logo: "cursor" },
+  { name: "Gemini CLI", card: "gemini-cli", logo: "gemini" },
+  { name: "LangChain", card: "langchain-js", logo: "langchain" },
+  { name: "MCP", card: "mcp", logo: "mcp" },
 ]
 const heroTitleLines = [
   t("hero_title_line_1"),
@@ -61,28 +67,24 @@ const heroTitleLines = [
       </p>
       <div class="mt-7 flex flex-col gap-3 sm:flex-row">
         <a
-          class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-sm font-bold text-primary-foreground transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-primary"
+          class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-sm font-bold text-primary-foreground transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--primary-press)]"
           href={localizedLibraryUrl}
         >
           {t("hero_primary_cta")}
           <ArrowRight class="arrow-forward size-4" />
         </a>
         <a
-          class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-card px-8 text-sm font-bold text-white transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-card"
+          class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-card px-8 text-sm font-bold text-white transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
           href={localizedUseCasesUrl}
         >
           {t("hero_secondary_cta")}
         </a>
       </div>
-      {monthlyNpmDownloads !== null && (
-        <div class="text-shadow-hero mt-3">
-          <NpmDownloadCounter
-            client:idle
-            downloads={monthlyNpmDownloads}
-            label={t("hero_npm_downloads_label")}
-            locale={locale}
-          />
-        </div>
+      {formattedNpmDownloads !== null && (
+        <p class="text-shadow-hero mt-3 flex items-start justify-start gap-1 font-semibold text-white text-xs md:items-center md:text-sm">
+          <span class="font-black tabular-nums">{formattedNpmDownloads}</span>
+          <span>{t("hero_npm_downloads_label")}</span>
+        </p>
       )}
       <p class="text-shadow-hero mt-3 max-w-xl text-xs leading-5 text-muted-foreground">
         <strong class="font-black text-white">{t("hero_proof_recall_value")}</strong>
@@ -90,10 +92,11 @@ const heroTitleLines = [
         <strong class="font-black text-white">{t("hero_proof_speed_value")}</strong>
         {` ${t("hero_proof_speed_label")}. `}
         <a
-          class="font-semibold text-white underline underline-offset-2 transition-colors hover:text-[var(--accent-title)]"
+          class="font-semibold text-white underline decoration-white/40 underline-offset-2 transition-colors hover:decoration-white active:text-white/70"
           href={PROJECT_LINKS.benchmarks}
         >
           {t("hero_proof_link")}
+          <ArrowUpRight aria-hidden="true" class="arrow-out ml-0.5 inline size-3 align-[-1px]" />
         </a>
       </p>
       <div class="text-shadow-hero mt-8 max-w-xl">
@@ -104,8 +107,8 @@ const heroTitleLines = [
             return (
               <li>
                 <a
-                  class="inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition-colors hover:text-white"
-                  href="#integrations"
+                  class="inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition-colors hover:text-white active:text-white/70"
+                  href={`#integration-${item.card}`}
                 >
                   {logo ? (
                     <svg class="size-4" viewBox="0 0 24 24" fill={logo.color ?? "currentColor"} aria-hidden="true">
@@ -135,7 +138,7 @@ const heroTitleLines = [
       aria-label={t("hero_scroll_aria_nav")}
     >
       <a
-        class="pointer-events-auto absolute left-1/2 top-0 inline-flex size-8 -translate-x-1/2 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-none motion-reduce:transition-none"
+        class="pointer-events-auto absolute left-1/2 top-0 inline-flex size-8 -translate-x-1/2 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:text-white active:text-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
         href="#use-cases"
         aria-label={t("hero_scroll_aria_link")}
       >

@@ -42,7 +42,7 @@ const groups = ["index", "search", "cite", "wiki", "connect", "measure", "run", 
   </div>
 
   <div class="rounded-xl bg-card p-2 md:p-3">
-    <CapabilitiesExplorer client:visible groups={groups} label={t("capabilities_eyebrow")}>
+    <CapabilitiesExplorer client:idle groups={groups} label={t("capabilities_eyebrow")}>
       <div class="border-foreground/[0.08] border-t pt-5">
         <div class="flex flex-wrap items-center gap-1.5">
           <h3 class="mr-2 inline-flex items-center gap-2 font-bold text-sm" id="formats-heading">
@@ -78,7 +78,7 @@ const groups = ["index", "search", "cite", "wiki", "connect", "measure", "run", 
             ))}
           </dl>
           <a
-            class="mt-6 inline-flex h-10 w-fit items-center gap-2 rounded-full bg-background px-4 font-bold text-foreground text-sm transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-background"
+            class="mt-6 inline-flex h-10 w-fit items-center gap-2 rounded-full bg-background px-4 font-bold text-foreground text-sm transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
             href={PROJECT_LINKS.supportedFormats}
           >
             {t("formats_full_list")}
@@ -90,7 +90,7 @@ const groups = ["index", "search", "cite", "wiki", "connect", "measure", "run", 
   </div>
 
   <a
-    class="mx-auto mt-10 flex h-11 w-fit items-center gap-2 rounded-full bg-card px-5 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-card"
+    class="mx-auto mt-10 flex h-11 w-fit items-center gap-2 rounded-full bg-card px-5 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
     href={PROJECT_LINKS.docs}
   >
     {t("capabilities_docs_link")}

@@ -43,7 +43,7 @@ export function chunkDocument(
       : structuralSpans(document.text, document.file.extension, chunkSize)
   const regions =
     structured.length > 0
-      ? structured
+      ? packRegions(document.text, structured, locationRegions, chunkSize)
       : [
           {
             charStart: 0,
@@ -130,6 +130,11 @@ export function chunkDocument(
   return chunks
 }
 
+/**
+ * The citable location of a span, across every region it covers. A packed chunk spans several
+ * regions, so its citation has to carry the whole range - slides 4 to 7, not slide 4 - the way page
+ * ranges already do.
+ */
 function sourceLocationForSpan(
   regions: readonly ParsedRegion[],
   start: number,
@@ -138,17 +143,29 @@ function sourceLocationForSpan(
   TextChunk,
   "locationKind" | "locationStart" | "locationEnd" | "locationLabel" | "cellStart" | "cellEnd"
 > {
-  const region = regions[firstIntervalEndingAfter(regions, start)]
-  if (!region || region.charStart >= end) {
+  const firstIndex = firstIntervalEndingAfter(regions, start)
+  const first = regions[firstIndex]
+  if (!first || first.charStart >= end) {
     return {}
   }
+  let last = first
+  for (let index = firstIndex + 1; index < regions.length; index += 1) {
+    const region = regions[index]
+    if (!region || region.charStart >= end) {
+      break
+    }
+    if (region.location.kind === first.location.kind) {
+      last = region
+    }
+  }
+  const cellEnd = last.location.cellEnd ?? last.location.cellStart
   return {
-    locationKind: region.location.kind,
-    locationStart: region.location.start,
-    locationEnd: region.location.end,
-    ...(region.location.label ? { locationLabel: region.location.label } : {}),
-    ...(region.location.cellStart ? { cellStart: region.location.cellStart } : {}),
-    ...(region.location.cellEnd ? { cellEnd: region.location.cellEnd } : {}),
+    locationKind: first.location.kind,
+    locationStart: first.location.start,
+    locationEnd: Math.max(first.location.end, last.location.end),
+    ...(first.location.label ? { locationLabel: first.location.label } : {}),
+    ...(first.location.cellStart ? { cellStart: first.location.cellStart } : {}),
+    ...(cellEnd ? { cellEnd } : {}),
   }
 }
 
@@ -314,6 +331,120 @@ function sortedCharacterIntervals<T extends CharacterInterval>(intervals: readon
   return [...intervals].sort(
     (left, right) => left.charEnd - right.charEnd || left.charStart - right.charStart,
   )
+}
+
+/** Most regions a single chunk may cover, so packing stays bounded on heavily split documents. */
+const MAX_PACKED_REGIONS = 64
+
+/** Longest run of separator characters between two regions that still counts as contiguous text. */
+const MAX_REGION_GAP = 8
+
+interface ChunkRegion {
+  charStart: number
+  charEnd: number
+  contextPath: string
+  headerRegionIndex?: number | undefined
+}
+
+/**
+ * Whether two adjacent regions can share a chunk without losing anything the region expressed.
+ *
+ * Only pagination qualifies. A PDF page region repeats the page interval the document already
+ * reports separately, and its context path is just "Page 7", so a merged chunk still cites the
+ * exact page range and gives up no structure. Every other region means something a chunk cannot
+ * carry for two of them at once: a slide or Markdown section names the passage and answers context
+ * filters, a spreadsheet region binds rows to their own table header and cell range.
+ */
+function regionsAreCitableTogether(
+  left: ParsedRegion | undefined,
+  right: ParsedRegion | undefined,
+): boolean {
+  return left?.location.kind === "page" && right?.location.kind === "page"
+}
+
+/** The deepest context path both breadcrumbs share, such as "Guide" for "Guide > A" and "Guide > B". */
+function sharedContextPath(left: string, right: string): string {
+  if (left === right) {
+    return left
+  }
+  const leftParts = left.split(" > ")
+  const rightParts = right.split(" > ")
+  const shared: string[] = []
+  for (let index = 0; index < Math.min(leftParts.length, rightParts.length); index += 1) {
+    if (leftParts[index] !== rightParts[index]) {
+      break
+    }
+    shared.push(leftParts[index] as string)
+  }
+  return shared.join(" > ")
+}
+
+/**
+ * Group consecutive regions into chunk-sized units.
+ *
+ * A region is the finest citable unit a parser reports: a PDF page, a slide, a spreadsheet row
+ * group, a Markdown section. Chunking each one on its own caps a chunk at its region, so documents
+ * split into short regions produced passages far below `chunkSize` - an agenda PDF or a slide deck
+ * became dozens of one-line passages. Each held too little text to embed meaningfully, inflated the
+ * index, and spent the per-document result cap on fragments of one page.
+ *
+ * Packing merges adjacent regions up to `chunkSize` while their merged citation stays exact, so a
+ * passage carries the context a reader needs and one vector covers chunk-sized text. Regions
+ * already at or above `chunkSize` are untouched and still split inside themselves.
+ */
+function packRegions(
+  text: string,
+  regions: readonly ChunkRegion[],
+  locationRegions: readonly ParsedRegion[],
+  chunkSize: number,
+): ChunkRegion[] {
+  if (regions.length < 2) {
+    return [...regions]
+  }
+  const locationOf = (region: ChunkRegion): ParsedRegion | undefined =>
+    locationRegions.find(
+      (candidate) =>
+        candidate.charStart === region.charStart && candidate.charEnd === region.charEnd,
+    )
+  const packed: ChunkRegion[] = []
+  let current: ChunkRegion | null = null
+  let currentLocation: ParsedRegion | undefined
+  let merged = 0
+
+  for (const region of regions) {
+    const location = locationOf(region)
+    const gap = current === null ? 0 : region.charStart - current.charEnd
+    const fits =
+      current !== null &&
+      region.charEnd - current.charStart <= chunkSize &&
+      gap >= 0 &&
+      gap <= MAX_REGION_GAP &&
+      text.slice(current.charEnd, region.charStart).trim() === "" &&
+      merged < MAX_PACKED_REGIONS &&
+      regionsAreCitableTogether(currentLocation, location)
+    if (current !== null && fits) {
+      current = {
+        charStart: current.charStart,
+        charEnd: region.charEnd,
+        contextPath: sharedContextPath(current.contextPath, region.contextPath),
+        ...(current.headerRegionIndex === undefined
+          ? {}
+          : { headerRegionIndex: current.headerRegionIndex }),
+      }
+      merged += 1
+      continue
+    }
+    if (current !== null) {
+      packed.push(current)
+    }
+    current = { ...region }
+    currentLocation = location
+    merged = 1
+  }
+  if (current !== null) {
+    packed.push(current)
+  }
+  return packed
 }
 
 function firstIntervalEndingAfter<T extends CharacterInterval>(

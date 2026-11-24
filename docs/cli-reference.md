@@ -273,6 +273,13 @@ the other counts from the last health snapshot persisted by a successful ingesti
 ignore behavior, executable probes, or compatible quality evidence must be verified live. Deep
 doctor and `rgr audit` label their O(corpus) cost in text and JSON output. A missing or invalid
 manifest always yields `ready=false`, including legacy tables that predate manifest activation.
+`readiness.sourceRulesResolved` is `false` while a source file or folder named in the configuration
+does not exist on disk. Such an entry contributes nothing, so `ready` stays `false` and the next
+steps name the entries to correct or remove; `unresolvedSources` carries the count and a preview.
+A successful ingestion records them, so the default mode reports them without an O(corpus) pass, and
+`unresolvedSources.count` is `null` for an index built before Ragmir recorded them. Include globs
+that match no file are reported by `rgr audit` under `sourceRules.unmatchedPatterns` and do not hold
+readiness back, because a pattern may legitimately wait for files.
 `readiness.lexicalIndexCurrent` is `false` for an index built under an older keyword policy, such as
 one without accent-folded terms or path and identifier terms. Search keeps using that index; the
 next `rgr ingest` or `rgr upgrade` stages and validates a rebuild before activating it. Its next

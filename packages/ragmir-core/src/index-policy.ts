@@ -8,7 +8,7 @@ const CHUNKING_ADAPTER_VERSION = 4
  * Version of the keyword text derived from each chunk. Searches keep using an index built with an
  * older version, while the next ingestion stages a full rebuild before activating it.
  */
-export const LEXICAL_POLICY_VERSION = 3
+export const LEXICAL_POLICY_VERSION = 4
 const LEGACY_LEXICAL_POLICY_VERSION = 1
 
 export function indexPolicyFingerprint(config: Config): string {
@@ -35,7 +35,7 @@ export function indexPolicyFingerprint(config: Config): string {
       // 6: dotenv templates such as env.example index with every value masked.
       // 7: Markdown front matter is one region, and its title roots a page without a level-1 heading;
       // a chunk boundary never splits a surrogate pair.
-      parserVersion: 7,
+      parserVersion: 8,
       pdfOcrCommand: config.pdfOcrCommand,
       pdfOcrParserPolicy: config.pdfOcrCommand.length > 0 ? PDF_OCR_PARSER_POLICY : null,
       imageOcrCommand: config.imageOcrCommand,

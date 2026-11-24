@@ -1,8 +1,21 @@
+/** Apostrophe shapes that stand for the same mark: documents and questions rarely agree on one. */
+const APOSTROPHE_VARIANTS = /[’ʼ՚＇‘´`]/gu
+
+/**
+ * Word-splitting elisions, as a group for one regular expression. Unicode word segmentation treats
+ * an apostrophe as part of the word, so `l'établissement` never matches `établissement` and the
+ * low-information list cannot reach `qu'est`. Each of these prefixes is a clitic that carries no
+ * meaning on its own, unlike `aujourd'hui` or the English `don't` and `user's`, which stay whole.
+ */
+const ELISION_PREFIX = /\b(qu|jusqu|lorsqu|puisqu|quoiqu|presqu|entr|[ldjnstmc])'(?=[\p{L}\p{N}])/gu
+
 export function normalizeForMatch(text: string): string {
   return text
     .toLowerCase()
     .normalize("NFKD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(APOSTROPHE_VARIANTS, "'")
+    .replace(ELISION_PREFIX, "$1 ")
 }
 
 const MIN_STEM_LENGTH = 5

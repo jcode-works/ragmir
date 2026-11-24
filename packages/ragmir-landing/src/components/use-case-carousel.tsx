@@ -157,7 +157,10 @@ function isUseCaseId(value: string): value is UseCaseId {
   return USE_CASES.some((useCase) => useCase.id === value)
 }
 
-/** One numbered step on the darker inset, with the arrow to the next step in the gap after it. */
+/**
+ * One numbered step on the darker inset, with the arrow to the next step in the gap after it. The
+ * steps of a newly selected panel fade in one after another; nothing moves.
+ */
 function WorkflowStep({
   isLast,
   label,
@@ -173,8 +176,7 @@ function WorkflowStep({
 }): React.JSX.Element {
   return (
     <li
-      className="relative flex min-h-28 flex-col rounded-xl bg-background p-4 transition-[opacity,transform] duration-300 ease-[var(--ease-out-expo)] group-data-[state=active]/panel:delay-[calc(var(--step)*50ms)] group-data-[state=inactive]/panel:translate-y-1.5 group-data-[state=inactive]/panel:opacity-0 group-data-[state=inactive]/panel:duration-150 md:p-5 lg:min-h-36"
-      data-motion="step"
+      className="relative flex min-h-28 flex-col rounded-xl bg-background p-4 transition-opacity duration-300 ease-[var(--ease-out-expo)] group-data-[state=active]/panel:delay-[calc(var(--step)*50ms)] group-data-[state=inactive]/panel:opacity-0 group-data-[state=inactive]/panel:duration-150 md:p-5 lg:min-h-36"
       style={{ "--step": position - 1 } as React.CSSProperties}
     >
       <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
@@ -231,12 +233,13 @@ export function UseCaseCarousel({ translations }: UseCaseCarouselProps): React.J
           const Icon = useCase.icon
           return (
             <TabsTrigger
-              className="h-9 min-w-0 px-3 font-semibold text-xs lg:flex-1 lg:px-4"
+              // Two balanced lines in the phone grid, so every label says where it leads.
+              className="h-auto min-h-11 min-w-0 whitespace-normal px-3 py-1.5 font-semibold text-xs leading-tight lg:h-9 lg:min-h-0 lg:flex-1 lg:whitespace-nowrap lg:px-4 lg:py-1"
               key={useCase.id}
               value={useCase.id}
             >
               <Icon aria-hidden="true" />
-              <span className="truncate">{t(useCase.tabKey)}</span>
+              <span className="text-balance lg:truncate">{t(useCase.tabKey)}</span>
             </TabsTrigger>
           )
         })}

@@ -250,6 +250,14 @@ export interface IndexHealthSnapshot {
   securityCheckedAt: string
   securityWarnings: string[]
   concentration?: IndexConcentration
+  /**
+   * Configured source files or folders that did not exist when this index was built. Absent in
+   * manifests written before this snapshot recorded them, which reads as unknown rather than none.
+   */
+  unresolvedSources?: {
+    count: number
+    preview: string[]
+  }
 }
 
 /** Live comparison of the files on disk with the index manifest, by path, size, and mtime. */
@@ -349,6 +357,8 @@ export interface SourceInventory {
   discoveredFiles: number
   supportedFiles: SourceFile[]
   skippedFiles: SkippedSourceFile[]
+  /** Configured source files or folders that do not exist, so they contribute nothing. */
+  unresolvedSources: string[]
   contentBytesRead: number
   hashedFiles: number
   reusedFingerprints: number
@@ -1331,6 +1341,14 @@ export interface DoctorReport {
   chunksIndexed: number
   missingFromIndex: number
   staleInIndex: number
+  /**
+   * Configured source files or folders that resolve to nothing, so the base silently covers less
+   * than the configuration claims. `count` is null when no snapshot recorded them.
+   */
+  unresolvedSources: {
+    count: number | null
+    preview: string[]
+  }
   corpusFingerprint: string | null
   securityWarnings: string[]
   indexFreshness: {
@@ -1343,6 +1361,8 @@ export interface DoctorReport {
   readiness: {
     operationalReady: boolean
     coverageComplete: boolean
+    /** False when a configured source file or folder does not exist. */
+    sourceRulesResolved: boolean
     indexPolicyCurrent: boolean
     lexicalIndexCurrent: boolean
     retrievalQualityVerified: boolean

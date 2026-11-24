@@ -10,6 +10,9 @@ interface Props {
 const { translations } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
+// The tab islands of the home page hydrate when the browser is idle rather than on screen, so the
+// keyboard finds their tabs on its first pass through the page.
+
 // Personal corpora: the hero terminal plays the same three stories.
 const personalCases = [
   {
@@ -50,7 +53,7 @@ const personalCases = [
   </div>
 
   <UseCaseCarousel
-    client:visible
+    client:idle
     translations={pickTranslations(translations, USE_CASE_TRANSLATIONS)}
   />
 

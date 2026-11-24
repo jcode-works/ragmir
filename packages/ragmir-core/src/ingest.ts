@@ -1,4 +1,4 @@
-import type { Connection } from "@lancedb/lancedb"
+import type { Connection, Table } from "@lancedb/lancedb"
 import { measureAbstentionCalibration } from "./abstention-calibration.js"
 import { summarizeChunkStats } from "./chunk-stats.js"
 import { chunkDocument, chunkLexicalText, chunkSearchText } from "./chunking.js"
@@ -209,8 +209,13 @@ async function ingestUnlocked(
       ...previousIndexedFiles.map((file) => [file.relativePath, file] as const),
       ...previousEmptyFiles.map((file) => [file.relativePath, { ...file, chunkCount: 0 }] as const),
     ])
+    const driftedPaths = canReuse
+      ? await driftedIndexedPaths(existingTable, previousIndexedFiles, signal)
+      : new Set<string>()
     const reusableIndexedFiles = previousIndexedFiles.filter(
-      (file) => currentFiles.get(file.relativePath)?.checksum === file.checksum,
+      (file) =>
+        currentFiles.get(file.relativePath)?.checksum === file.checksum &&
+        !driftedPaths.has(file.relativePath),
     )
     const reusableEmptyFiles = previousEmptyFiles.filter(
       (file) => currentFiles.get(file.relativePath)?.checksum === file.checksum,
@@ -843,6 +848,10 @@ function indexHealthSnapshot(input: IndexHealthSnapshotInput): IndexHealthSnapsh
     },
     skippedByReason: skippedFileCounts(input.inventory.skippedFiles),
     sourceDiagnostics: sourceDiagnostics(input.files, input.inventory.skippedFiles),
+    unresolvedSources: {
+      count: input.inventory.unresolvedSources.length,
+      preview: input.inventory.unresolvedSources.slice(0, MAX_HEALTH_PREVIEW_ITEMS),
+    },
     securityCheckedAt: input.checkedAt,
     securityWarnings: [...input.securityWarnings].sort().slice(0, MAX_HEALTH_PREVIEW_ITEMS),
     concentration: indexConcentration(indexedFilesFromState(input.state)),
@@ -1064,6 +1073,51 @@ async function* streamQueryRows(query: AsyncIterable<StreamedRowBatch>): AsyncGe
       yield batch.get(index)
     }
   }
+}
+
+/**
+ * Paths the manifest counts as indexed whose rows are not all in the table. A lost write leaves the
+ * manifest ahead of the data; reusing those paths would count rows that do not exist, so every
+ * later incremental run would fail its own row-count validation and discard the generation, leaving
+ * the index permanently unable to update. Re-ingesting just those files repairs it instead.
+ *
+ * The total row count is compared first, so an index that agrees with its manifest pays nothing.
+ */
+async function driftedIndexedPaths(
+  table: Table | null,
+  previousIndexedFiles: readonly IndexManifestFile[],
+  signal: AbortSignal | undefined,
+): Promise<Set<string>> {
+  if (table === null || previousIndexedFiles.length === 0) {
+    return new Set()
+  }
+  const expectedRows = previousIndexedFiles.reduce((total, file) => total + file.chunkCount, 0)
+  if ((await table.countRows()) === expectedRows) {
+    return new Set()
+  }
+  const committed = new Map<string, number>()
+  for await (const row of streamQueryRows(table.query().select(["relativePath", "checksum"]))) {
+    throwIfAborted(signal)
+    const relativePath = requiredStringField(
+      row,
+      "relativePath",
+      "Ingestion found an invalid source path in the active index.",
+    )
+    const checksum = requiredStringField(
+      row,
+      "checksum",
+      "Ingestion found an invalid source checksum in the active index.",
+    )
+    const key = `${relativePath}\0${checksum}`
+    committed.set(key, (committed.get(key) ?? 0) + 1)
+  }
+  const drifted = new Set<string>()
+  for (const file of previousIndexedFiles) {
+    if ((committed.get(`${file.relativePath}\0${file.checksum}`) ?? 0) !== file.chunkCount) {
+      drifted.add(file.relativePath)
+    }
+  }
+  return drifted
 }
 
 function requiredStringField(

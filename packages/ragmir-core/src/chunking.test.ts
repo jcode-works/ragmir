@@ -4,6 +4,79 @@ import { identifierParts } from "./text.js"
 import type { ParsedDocument } from "./types.js"
 
 describe("chunkDocument", () => {
+  /** A paginated document, the way `parsePdf` reports one: a page interval and a region per page. */
+  const paginatedDocument = (pageTexts: string[]): ParsedDocument => {
+    let text = ""
+    const pages = []
+    const regions = []
+    for (const [index, pageText] of pageTexts.entries()) {
+      if (index > 0) {
+        text += "\n\n"
+      }
+      const charStart = text.length
+      text += pageText
+      pages.push({ pageNumber: index + 1, charStart, charEnd: text.length })
+      regions.push({
+        charStart,
+        charEnd: text.length,
+        contextPath: `Page ${index + 1}`,
+        location: { kind: "page" as const, start: index + 1, end: index + 1 },
+      })
+    }
+    return {
+      file: {
+        absolutePath: "/tmp/agenda.pdf",
+        relativePath: "agenda.pdf",
+        source: "agenda.pdf",
+        extension: ".pdf",
+        bytes: text.length,
+        mtimeMs: 1,
+        checksum: "abc",
+      },
+      text,
+      pages,
+      regions,
+    }
+  }
+
+  it("packs short pages into chunk-sized passages that cite their whole page range", () => {
+    const doc = paginatedDocument(Array.from({ length: 12 }, (_, index) => `Agenda item ${index}.`))
+
+    const chunks = chunkDocument(doc, 1_200, 200)
+
+    // Twelve one-line pages hold far less than one chunk, so they belong in a single passage.
+    expect(chunks).toHaveLength(1)
+    expect(chunks[0]?.text).toContain("Agenda item 0.")
+    expect(chunks[0]?.text).toContain("Agenda item 11.")
+    expect(chunks[0]?.pageStart).toBe(1)
+    expect(chunks[0]?.pageEnd).toBe(12)
+    expect(chunks[0]?.locationKind).toBe("page")
+    expect(chunks[0]?.locationStart).toBe(1)
+    expect(chunks[0]?.locationEnd).toBe(12)
+  })
+
+  it("keeps a page that already fills a chunk on its own", () => {
+    const doc = paginatedDocument(["a".repeat(1_100), "b".repeat(1_100)])
+
+    const chunks = chunkDocument(doc, 1_200, 200)
+
+    expect(chunks).toHaveLength(2)
+    expect(chunks[0]?.pageStart).toBe(1)
+    expect(chunks[0]?.pageEnd).toBe(1)
+    expect(chunks[1]?.pageStart).toBe(2)
+    expect(chunks[1]?.pageEnd).toBe(2)
+  })
+
+  it("stops packing pages at the chunk size", () => {
+    const doc = paginatedDocument(Array.from({ length: 6 }, () => "c".repeat(400)))
+
+    const chunks = chunkDocument(doc, 1_200, 0)
+
+    expect(chunks.length).toBeGreaterThan(1)
+    expect(chunks.every((chunk) => chunk.text.length <= 1_200)).toBe(true)
+    expect(chunks.at(-1)?.pageEnd).toBe(6)
+  })
+
   it("creates overlapping chunks without dropping text", () => {
     const doc: ParsedDocument = {
       file: {

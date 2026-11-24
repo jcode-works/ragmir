@@ -82,7 +82,15 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   Do not claim universal binary support.
 - Paths are stored and cited with forward slashes and in Unicode NFC on every platform, so
   exclusions also match accented names stored decomposed. `rgr audit` reports source rules that
-  match nothing and excluded files whose copy is still indexed.
+  match nothing and excluded files whose copy is still indexed. A configured source file or folder
+  that does not exist holds `rgr doctor` back: it reports `unresolvedSources` and
+  `readiness.sourceRulesResolved: false` rather than counting only what discovery found.
+- Keyword folding settles the apostrophe: every shape becomes one mark and a French elision is
+  separated from its word, so `l’établissement` and `établissement` share a term, while
+  `aujourd'hui`, `don't`, and `user's` stay whole.
+- Consecutive pages of a paginated document share a passage up to `chunkSize` and cite the whole
+  range, such as `agenda.pdf:p1-p9#0`. Slides, spreadsheet regions, and Markdown sections keep one
+  passage each.
 - Local PDF OCR runs only on blank pages. `rgr ocr doctor` checks prerequisites and `rgr ocr setup`
   configures the engine; `--images` and `--legacy-word` add photo OCR and `.doc` extraction.
   Page caches and bounded batches avoid repeated work.

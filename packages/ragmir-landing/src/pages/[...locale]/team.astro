@@ -157,22 +157,24 @@ const structuredData = [
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a
-              class={`${pillClass} rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] active:bg-primary`}
+              class={`${pillClass} rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] active:bg-[var(--primary-press)]`}
               href={JCODE_URL}
               rel="noopener"
               target="_blank"
             >
               {t("team_jcode_cta")}
+              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
               <ArrowUpRight aria-hidden="true" class={arrowClass} />
             </a>
             {memberLinks.map((link) => (
               <a
-                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-card`}
+                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
                 href={link.href}
                 rel="nofollow noreferrer noopener"
                 target="_blank"
               >
                 {link.label}
+                <span class="sr-only">{` ${t("new_tab_label")}`}</span>
                 <ArrowUpRight aria-hidden="true" class={`${arrowClass} text-muted-foreground`} />
               </a>
             ))}
@@ -231,12 +233,13 @@ const structuredData = [
             <h3 class="font-black text-lg leading-snug">{t("team_jcode_title")}</h3>
             <p class="mt-2 text-muted-foreground text-sm leading-7">{t("team_jcode_text")}</p>
             <a
-              class={`${pillClass} mt-6 w-fit bg-background text-foreground hover:bg-[var(--inset-hover)] active:bg-background`}
+              class={`${pillClass} mt-6 w-fit bg-background text-foreground hover:bg-[var(--inset-hover)] active:bg-[var(--card-press)]`}
               href={JCODE_URL}
               rel="noopener"
               target="_blank"
             >
               jcode.works
+              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
               <ArrowUpRight aria-hidden="true" class={`${arrowClass} text-muted-foreground`} />
             </a>
           </div>
@@ -246,11 +249,18 @@ const structuredData = [
   </div>
 
   <script>
-    // One focal moment: key figures count up once when they enter the screen. Reduced motion,
-    // missing IntersectionObserver, or a failed parse keep the server-rendered final values.
-    const list = document.querySelector<HTMLElement>("[data-team-stats]")
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (list && !reduce && "IntersectionObserver" in window) {
+    // One focal moment: key figures count up once when they enter the screen. Figures already on
+    // screen when the page opens were read at their final values, so they stay: a number never
+    // goes backwards. Reduced motion, missing IntersectionObserver, or a failed parse keep the
+    // server-rendered final values too. The router does not run this module again, so every visit
+    // to the page starts on `astro:page-load`.
+    let figures: IntersectionObserver | undefined
+
+    document.addEventListener("astro:page-load", () => {
+      figures?.disconnect()
+      const list = document.querySelector<HTMLElement>("[data-team-stats]")
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (!list || reduce || !("IntersectionObserver" in window)) return
       const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - 2 ** (-10 * t))
       const run = (element: HTMLElement) => {
         const final = element.dataset.count ?? ""
@@ -269,16 +279,23 @@ const structuredData = [
         }
         requestAnimationFrame(frame)
       }
+      // The first report says whether any part of the figures is on screen as the page opens;
+      // Chrome reports `isIntersecting` only past the threshold, so the ratio decides.
+      let firstReport = true
       const observer = new IntersectionObserver(
         (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return
+          const shownAtOpening = firstReport && entries.some((entry) => entry.intersectionRatio > 0)
+          firstReport = false
+          if (shownAtOpening) observer.disconnect()
+          if (shownAtOpening || !entries.some((entry) => entry.isIntersecting)) return
           observer.disconnect()
           for (const element of list.querySelectorAll<HTMLElement>("[data-count]")) run(element)
         },
         { threshold: 0.4 },
       )
       observer.observe(list)
-    }
+      figures = observer
+    })
   </script>
 
   <Footer localizedHomeUrl={`${homeUrl}#top`} translations={translations} />

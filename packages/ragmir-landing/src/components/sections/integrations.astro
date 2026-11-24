@@ -16,6 +16,8 @@ const docsUrl = (file: string, anchor?: string): string =>
 const pluginsUrl = docsUrl("agent-integration.md", "plugins-and-extensions-for-coding-agents")
 
 interface Integration {
+  /** Anchor of the card, `#integration-<id>`, which the hero's "Works with" logos link to. */
+  id: string
   name: string
   kind: string
   href: string
@@ -27,12 +29,13 @@ const groups: { title: string; items: Integration[] }[] = [
   {
     title: t("integrations_group_agents"),
     items: [
-      { name: "Claude Code", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "claude" },
-      { name: "OpenAI Codex", kind: t("integrations_kind_plugin"), href: pluginsUrl, fallback: "terminal" },
-      { name: "Cursor", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "cursor" },
-      { name: "Gemini CLI", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "gemini" },
-      { name: "Qwen Code", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "qwen" },
+      { id: "claude-code", name: "Claude Code", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "claude" },
+      { id: "codex", name: "OpenAI Codex", kind: t("integrations_kind_plugin"), href: pluginsUrl, fallback: "terminal" },
+      { id: "cursor", name: "Cursor", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "cursor" },
+      { id: "gemini-cli", name: "Gemini CLI", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "gemini" },
+      { id: "qwen-code", name: "Qwen Code", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "qwen" },
       {
+        id: "more-agents",
         name: "Kimi, OpenCode, Cline",
         kind: t("integrations_kind_setup"),
         href: docsUrl("agent-integration.md", "connect-an-agent-through-mcp"),
@@ -44,35 +47,39 @@ const groups: { title: string; items: Integration[] }[] = [
     title: t("integrations_group_frameworks"),
     items: [
       {
+        id: "langchain-js",
         name: "LangChain.js",
         kind: t("integrations_kind_retriever"),
         href: docsUrl("api-reference.md", "langchainjs-retriever-and-agent-tools"),
         logo: "langchain",
       },
-      { name: "LangChain", kind: t("integrations_kind_python"), href: docsUrl("python.md", "langchain-and-langgraph"), logo: "langchain" },
-      { name: "LlamaIndex", kind: t("integrations_kind_python"), href: docsUrl("python.md", "llamaindex"), fallback: "library" },
-      { name: "TypeScript", kind: t("integrations_kind_library"), href: docsUrl("api-reference.md"), logo: "typescript" },
+      { id: "langchain-python", name: "LangChain", kind: t("integrations_kind_python"), href: docsUrl("python.md", "langchain-and-langgraph"), logo: "langchain" },
+      { id: "llamaindex", name: "LlamaIndex", kind: t("integrations_kind_python"), href: docsUrl("python.md", "llamaindex"), fallback: "library" },
+      { id: "typescript", name: "TypeScript", kind: t("integrations_kind_library"), href: docsUrl("api-reference.md"), logo: "typescript" },
     ],
   },
   {
     title: t("integrations_group_protocols"),
     items: [
       {
+        id: "mcp",
         name: "MCP",
         kind: t("integrations_kind_mcp"),
         href: docsUrl("agent-integration.md", "connect-an-agent-through-mcp"),
         logo: "mcp",
       },
       {
+        id: "agent-skills",
         name: "Agent Skills",
         kind: t("integrations_kind_skills"),
         href: docsUrl("agent-integration.md", "agent-skills-for-any-agent"),
         fallback: "skills",
       },
-      { name: "Python", kind: t("integrations_kind_python_client"), href: docsUrl("python.md"), logo: "python" },
-      { name: "npm", kind: t("integrations_kind_cli"), href: NPM_URL, logo: "npm" },
-      { name: "Docker", kind: t("integrations_kind_container"), href: docsUrl("docker.md"), logo: "docker" },
+      { id: "python", name: "Python", kind: t("integrations_kind_python_client"), href: docsUrl("python.md"), logo: "python" },
+      { id: "npm", name: "npm", kind: t("integrations_kind_cli"), href: NPM_URL, logo: "npm" },
+      { id: "docker", name: "Docker", kind: t("integrations_kind_container"), href: docsUrl("docker.md"), logo: "docker" },
       {
+        id: "ollama",
         name: "Ollama",
         kind: t("integrations_kind_local_model"),
         href: docsUrl("agent-integration.md", "confidential-chat-local-model-example"),
@@ -110,8 +117,9 @@ const groups: { title: string; items: Integration[] }[] = [
             return (
               <li>
                 <a
-                  class="group flex h-full items-center gap-3 rounded-xl bg-card px-4 py-3.5 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  class="integration-card group flex h-full items-center gap-3 rounded-xl bg-card px-4 py-3.5 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   href={item.href}
+                  id={`integration-${item.id}`}
                 >
                   <span class="flex size-6 shrink-0 items-center justify-center text-foreground">
                     {logo ? (
@@ -138,6 +146,10 @@ const groups: { title: string; items: Integration[] }[] = [
                     <span class="block font-bold text-sm leading-5">{item.name}</span>
                     <span class="block text-muted-foreground text-xs leading-4">{item.kind}</span>
                   </span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    class="arrow-out ml-auto size-4 shrink-0 self-start text-muted-foreground"
+                  />
                 </a>
               </li>
             )
@@ -148,7 +160,7 @@ const groups: { title: string; items: Integration[] }[] = [
   </div>
 
   <a
-    class="mx-auto mt-10 flex w-fit h-11 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-card"
+    class="mx-auto mt-10 flex w-fit h-11 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
     href={pluginsUrl}
   >
     {t("integrations_all_link")}

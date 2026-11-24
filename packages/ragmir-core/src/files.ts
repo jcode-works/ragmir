@@ -359,6 +359,7 @@ interface SourceDiscovery {
   candidates: SourceCandidate[]
   skippedFiles: SkippedSourceFile[]
   discoveredFiles: number
+  unresolvedSources: string[]
 }
 
 type SourceEntryStats = Pick<Stats, "size" | "mtimeMs" | "ctimeMs" | "dev" | "ino" | "mode">
@@ -1252,6 +1253,7 @@ export async function inventorySourceFiles(
       compareCodePoints(a.relativePath, b.relativePath),
     ),
     skippedFiles: discovery.skippedFiles,
+    unresolvedSources: discovery.unresolvedSources,
     contentBytesRead,
     hashedFiles,
     reusedFingerprints,
@@ -1527,6 +1529,7 @@ async function discoverSourceCandidates(
       compareCodePoints(a.relativePath, b.relativePath),
     ),
     discoveredFiles: discoveredPaths.size,
+    unresolvedSources: [...inputs.unresolvedRoots].sort(compareCodePoints),
   }
 }
 

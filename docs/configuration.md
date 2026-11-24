@@ -42,7 +42,7 @@ does not create a local copy. With both files, CLI changes go to `.ragmir/config
 | `maxChunksPerDocument` | `1` | Limit primary ranked passages from one document before final `topK` truncation, up to 100. Ranked backfill preserves the requested result count when the candidate set has too few documents. |
 | `mcpMaxTopK` | `10` | Bound explicit MCP passage requests; values above 100 are rejected. |
 | `mcpMaxOutputBytes` | `32768` | Cap variable-size MCP tool and resource JSON; the server also enforces an absolute 1 MiB ceiling. |
-| `chunkSize` / `chunkOverlap` | `1200` / `200` | Tune chunking, then rebuild the index. Chunk size is capped at 1,000,000 characters. |
+| `chunkSize` / `chunkOverlap` | `1200` / `200` | Tune chunking, then rebuild the index. Chunk size is capped at 1,000,000 characters. Consecutive pages of a paginated document share a passage up to this size and cite the whole range; slides, spreadsheet regions, and Markdown sections keep one passage each, because each names a passage and answers `contextPaths` filters. |
 | `maxFileBytes` | `50000000` | Lower the per-file parser budget; 50 MB is the hard ceiling. |
 | `ingestConcurrency` | `4` | Bound concurrent parsers; values above `8` are rejected. |
 | `embeddingBatchSize` | `32` | Bound one model call; values above `128` are rejected. |
@@ -121,6 +121,13 @@ keep using the passage text without these keyword terms. Ragmir folds case, acce
 diacritics in this text exactly as it folds query terms, then the LanceDB analyzer applies English
 stemming and removes English stop words. Folding first keeps "Réfraction" and "refraction" on the
 same indexed term, because the analyzer stems words before it folds their accents.
+
+Folding also settles the apostrophe. Every apostrophe shape, the typographic `’` included, becomes
+one mark, and a French elision is separated from the word it carries, so `l’établissement`,
+`l'établissement`, and `établissement` reach the same indexed term. Words that only look elided keep
+their shape: `aujourd'hui` stays one word, as do the English `don't` and `user's`. Without this a
+question written with a curly apostrophe, or asking about `d'authentification` where the passage
+prints `authentification`, lost its keyword evidence.
 
 After scoring and abstention, the deterministic diversity pass keeps at most
 `maxChunksPerDocument` primary passages per relative path while preserving rank order. It then

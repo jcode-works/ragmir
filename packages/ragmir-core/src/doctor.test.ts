@@ -7,6 +7,7 @@ import { doctor } from "./doctor.js"
 import { ingest } from "./ingest.js"
 import { initProject } from "./init.js"
 import { installAgentSkills, installSkill } from "./skill.js"
+import { addSourceEntries } from "./sources.js"
 import { integrationTimeout } from "./test-support/timeouts.js"
 import { VERSION } from "./version.js"
 
@@ -216,6 +217,51 @@ describe("doctor", { timeout: integrationTimeout(30_000) }, () => {
     expect(report.readiness.coverageComplete).toBe(false)
     expect(report.ready).toBe(false)
     expect(report.nextSteps.some((step) => step.includes("produced no indexable text"))).toBe(true)
+  })
+
+  it("should refuse readiness while a configured source resolves to nothing", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "ragmir-doctor-unresolved-"))
+    tempDirs.push(root)
+    await initProject(root)
+    await writeFile(path.join(root, ".ragmir", "raw", "evidence.md"), "Indexed evidence.\n")
+    await addSourceEntries({ cwd: root, entries: ["docs/moved-away.md"] })
+    await ingest({ cwd: root })
+
+    const deep = await doctor(root, { deep: true })
+    expect(deep.unresolvedSources).toEqual({
+      count: 1,
+      preview: ["docs/moved-away.md"],
+    })
+    expect(deep.readiness.sourceRulesResolved).toBe(false)
+    expect(deep.readiness.coverageComplete).toBe(false)
+    expect(deep.ready).toBe(false)
+    expect(
+      deep.nextSteps.some(
+        (step) =>
+          step.includes("docs/moved-away.md") && step.includes("so nothing from them is indexed"),
+      ),
+    ).toBe(true)
+
+    // The manifest snapshot carries the same finding, so the cheap default mode reports it too.
+    const fromManifest = await doctor(root)
+    expect(fromManifest.mode).toBe("manifest")
+    expect(fromManifest.unresolvedSources.count).toBe(1)
+    expect(fromManifest.readiness.sourceRulesResolved).toBe(false)
+    expect(fromManifest.ready).toBe(false)
+  })
+
+  it("should report resolved source rules for a base whose sources all exist", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "ragmir-doctor-resolved-"))
+    tempDirs.push(root)
+    await initProject(root)
+    await writeFile(path.join(root, ".ragmir", "raw", "evidence.md"), "Indexed evidence.\n")
+    await ingest({ cwd: root })
+
+    const report = await doctor(root, { deep: true })
+
+    expect(report.unresolvedSources).toEqual({ count: 0, preview: [] })
+    expect(report.readiness.sourceRulesResolved).toBe(true)
+    expect(report.nextSteps.join("\n")).not.toContain("so nothing from them is indexed")
   })
 
   it("should recover the previous manifest without reporting the index ready", async () => {

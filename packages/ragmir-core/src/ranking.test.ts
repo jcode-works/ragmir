@@ -10,6 +10,7 @@ import {
   type QueryTermStatistics,
   queryEvidence,
   queryTermCoverage,
+  questionFocusAbsent,
   rankHybridRows,
   rankingPolicyFor,
   tokensAreFuzzyRelated,
@@ -31,7 +32,7 @@ describe("hybrid ranking", () => {
     const alpha = row("alpha.md", "Shared policy evidence.", { distance: 0.5, score: 3 })
     const beta = row("beta.md", "Shared policy evidence.", { distance: 0.5, score: 3 })
     const policy = rankingPolicyFor("local-hash", "balanced", 1)
-    expect(policy.version).toBe(9)
+    expect(policy.version).toBe(10)
 
     const forward = rankHybridRows("policy evidence", [beta, alpha], [alpha, beta], policy)
     const reversed = rankHybridRows("policy evidence", [alpha, beta], [beta, alpha], policy)
@@ -409,11 +410,54 @@ describe("noise floor abstention", () => {
     expect(abstentionFilter(nonsense, uncalibrated, unknown)(noise)).toBe(true)
   })
 
-  it("should keep the policy admission distance for questions with known words", () => {
-    const evidence = queryEvidence("weather forecast tomorrow")
+  it("should keep the policy admission distance while every distinctive word is known", () => {
+    const evidence = queryEvidence("permission checks enforced")
+    const known: QueryTermStatistics = {
+      documentCount: 100,
+      documentFrequencies: new Map([
+        ["permission", 4],
+        ["checks", 30],
+        ["enforced", 2],
+      ]),
+    }
     const semantic = row("semantic.md", "Unrelated release notes.", { distance: 0.33 })
 
-    expect(abstentionFilter(evidence, e5, terms, 0.3)(semantic)).toBe(true)
+    expect(abstentionFilter(evidence, e5, known, 0.3)(semantic)).toBe(true)
+  })
+
+  it("should treat a fuzzy-matched focus word as present for a semantic model", () => {
+    // "forecast" is the question's most distinctive word and has no exact match, but the keyword
+    // scan related it to a word a passage holds, so the question keeps the admission distance.
+    // Search gates that scan on this very rule, so a misspelling must not read as an unknown word.
+    const evidence = queryEvidence("weather forecast tomorrow")
+    const far = row("far.md", "Unrelated release notes.", { distance: 0.33 })
+    const fuzzyMatched: QueryTermStatistics = { ...terms, fuzzyMatchedTerms: new Set(["forecast"]) }
+
+    expect(questionFocusAbsent(evidence, terms, e5)).toBe(true)
+    expect(questionFocusAbsent(evidence, fuzzyMatched, e5)).toBe(false)
+    expect(abstentionFilter(evidence, e5, fuzzyMatched, 0.3)(far)).toBe(true)
+  })
+
+  it("should ignore a question whose words are in a script indexed without spaces", () => {
+    const evidence = queryEvidence("ภาษาไทย รายงาน")
+    const unmeasured: QueryTermStatistics = {
+      documentCount: 100,
+      documentFrequencies: new Map(),
+      unmeasuredTerms: new Set(evidence.tokens),
+    }
+
+    expect(questionFocusAbsent(evidence, unmeasured, e5)).toBe(false)
+  })
+
+  it("should hold a semantic answer to the vocabulary-free distance when the focus word is absent", () => {
+    // "forecast" occurs nowhere, and it is the question's most distinctive word, so only a passage
+    // the model places very near may answer. The whole question no longer has to be unknown.
+    const evidence = queryEvidence("weather forecast tomorrow")
+    const near = row("near.md", "Unrelated release notes.", { distance: 0.2 })
+    const far = row("far.md", "Unrelated release notes.", { distance: 0.33 })
+
+    expect(abstentionFilter(evidence, e5, terms, 0.3)(near)).toBe(true)
+    expect(abstentionFilter(evidence, e5, terms, 0.3)(far)).toBe(false)
   })
 
   it("should treat a passage nearer than the floor as strong evidence", () => {
@@ -495,8 +539,18 @@ describe("noise floor abstention", () => {
     expect(absentShareOf(evidence.tokens, absentFocus)).toBeGreaterThan(0.5)
     expect(abstentionFilter(evidence, localHash, absentFocus)(passage)).toBe(false)
     expect(abstentionFilter(evidence, localHash, knownFocus)(passage)).toBe(true)
-    // A semantic model keeps its vector evidence unless every word of the question is absent.
-    expect(abstentionFilter(evidence, uncalibrated, absentFocus, 0.31)(passage)).toBe(true)
+    // A semantic model now judges the same focus: "pinecone" is the question's most distinctive
+    // word and occurs nowhere, so this passage has to be within the vocabulary-free distance.
+    expect(abstentionFilter(evidence, uncalibrated, absentFocus, 0.31)(passage)).toBe(false)
+    expect(
+      abstentionFilter(
+        evidence,
+        uncalibrated,
+        absentFocus,
+        0.31,
+      )(row("near.md", "Index sync notes.", { distance: 0.2 })),
+    ).toBe(true)
+    expect(abstentionFilter(evidence, uncalibrated, knownFocus, 0.31)(passage)).toBe(true)
     expect(
       absentShareOf(evidence.tokens, { ...absentFocus, fuzzyMatchedTerms: new Set(["pinecone"]) }),
     ).toBe(0)

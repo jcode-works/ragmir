@@ -88,6 +88,9 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
 - Keyword folding settles the apostrophe: every shape becomes one mark and a French elision is
   separated from its word, so `l’établissement` and `établissement` share a term, while
   `aujourd'hui`, `don't`, and `user's` stay whole.
+- A question whose single most distinctive word occurs nowhere in the index needs a passage within
+  the vocabulary-free distance to be answered at all, so a question about a feature the corpus does
+  not hold returns nothing rather than the nearest plausible passage.
 - Consecutive pages of a paginated document share a passage up to `chunkSize` and cite the whole
   range, such as `agenda.pdf:p1-p9#0`. Slides, spreadsheet regions, and Markdown sections keep one
   passage each.

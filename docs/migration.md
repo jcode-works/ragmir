@@ -3,6 +3,21 @@
 This is a breaking surface change. Ragmir now concentrates on local indexing, search, exact
 citations, OCR, and integration with developer agents.
 
+## A question whose rarest word is unknown needs vector evidence (6.19)
+
+A semantic model used to keep its vector evidence unless *every* word of a question was absent from
+the index, which almost never happens, so near-domain questions about features a corpus does not
+hold were answered with the nearest plausible passage. Ragmir now treats the question's single most
+distinctive word as its focus: when that word occurs nowhere, neither exactly nor through a fuzzy
+keyword match, only a passage within the vocabulary-free distance may answer. Measured with
+`rgr evaluate` on two real bases, this refused 8 more unanswerable questions at the cost of one
+answerable one of 119, and cost nothing on the larger base. False positives fell from 0.63 to 0.53
+on an English repository and from 0.86 to 0.79 on French office documents, with Recall@10, nDCG@10
+and MRR@10 unchanged within a thousandth. The one loss was a question whose verb its documents
+never use. The ranking policy moves to version 10, so
+stored retrieval-quality reports no longer verify the active policy: rerun `rgr evaluate`. No index
+needs rebuilding, because ranking is applied at search time.
+
 ## French elisions match the words they carry (6.18)
 
 Keyword matching now separates a French elision from its word and treats every apostrophe shape as

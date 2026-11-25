@@ -34,9 +34,14 @@ import { operationSignal, throwIfAborted } from "./operation.js"
 import { defaultExcludedScopePaths, pathContextResolver } from "./path-contexts.js"
 import { isPathGlob, pathGlobRegexSource, pathMatchesFilter } from "./path-globs.js"
 import { sanitizeRetrievalQuery } from "./query-sanitizer.js"
-import type { FormulationList, QueryTermStatistics, RankedRow } from "./ranking.js"
+import type {
+  FormulationList,
+  QueryEvidence,
+  QueryTermStatistics,
+  RankedRow,
+  RankingPolicy,
+} from "./ranking.js"
 import {
-  absentShareOf,
   abstentionFilter,
   fusionCandidateDepth,
   fuzzyMatchPrefilter,
@@ -44,6 +49,7 @@ import {
   isWeakAnswer,
   queryEvidence,
   queryTermCoverage,
+  questionFocusAbsent,
   rankHybridRows,
   rankingPolicyFingerprint,
   rankingPolicyFor,
@@ -402,9 +408,9 @@ async function searchWithinGeneration(
   )
   const termStatistics = withFuzzyMatches(
     await termFrequenciesPromise,
-    queryTokens,
+    evidence,
     [...lexicalCandidates.rows, ...vectorRows],
-    rankingPolicy.absentFocusShare,
+    rankingPolicy,
   )
   throwIfAborted(signal)
   const weightOf = sourceWeightOf(config)
@@ -870,16 +876,19 @@ function distinctiveTokens(
 /** Mark absent words that a candidate still matches fuzzily, so typos are not treated as noise. */
 function withFuzzyMatches(
   statistics: QueryTermStatistics | null,
-  tokens: readonly string[],
+  evidence: QueryEvidence,
   candidateRows: readonly SearchRow[],
-  absentFocusShare: number,
+  policy: RankingPolicy,
 ): QueryTermStatistics | null {
   if (!statistics) {
     return null
   }
+  const tokens = evidence.tokens
   // Fuzzy matches only decide whether the question's focus is absent, so a misspelled word does not
   // make an answerable question look unanswerable; skip the scan when the focus is present anyway.
-  if (absentShareOf(tokens, statistics) < absentFocusShare) {
+  // The test has to be the policy's own rule, or a policy that judges the single most distinctive
+  // word would never pay for the scan and would read every typo as an unknown word.
+  if (!questionFocusAbsent(evidence, statistics, policy)) {
     return statistics
   }
   const measured = [...new Set(tokens)].filter((token) => !statistics.unmeasuredTerms?.has(token))

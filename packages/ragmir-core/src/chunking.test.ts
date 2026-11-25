@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { chunkDocument, chunkLexicalText, chunkSearchText } from "./chunking.js"
 import { identifierParts } from "./text.js"
-import type { ParsedDocument } from "./types.js"
+import type { ParsedDocument, ParsedRegion } from "./types.js"
 
 describe("chunkDocument", () => {
   /** A paginated document, the way `parsePdf` reports one: a page interval and a region per page. */
@@ -75,6 +75,120 @@ describe("chunkDocument", () => {
     expect(chunks.length).toBeGreaterThan(1)
     expect(chunks.every((chunk) => chunk.text.length <= 1_200)).toBe(true)
     expect(chunks.at(-1)?.pageEnd).toBe(6)
+  })
+
+  /** A workbook, the way `parseSpreadsheet` reports one: a region per row with its cell range. */
+  const spreadsheetDocument = (
+    rows: ReadonlyArray<{
+      sheet: string
+      sheetIndex: number
+      row: number
+      header?: number
+      text: string
+      cells?: boolean
+    }>,
+  ): ParsedDocument => {
+    let text = ""
+    const regions: ParsedRegion[] = []
+    for (const [index, row] of rows.entries()) {
+      if (index > 0) {
+        text += "\n"
+      }
+      const charStart = text.length
+      text += row.text
+      regions.push({
+        charStart,
+        charEnd: text.length,
+        contextPath: `Sheet: ${row.sheet}`,
+        ...(row.header === undefined ? {} : { headerRegionIndex: row.header }),
+        location: {
+          kind: "sheet",
+          start: row.sheetIndex,
+          end: row.sheetIndex,
+          label: row.sheet,
+          ...(row.cells === false ? {} : { cellStart: `A${row.row}`, cellEnd: `C${row.row}` }),
+        },
+      })
+    }
+    return {
+      file: {
+        absolutePath: "/tmp/book.xlsx",
+        relativePath: "book.xlsx",
+        source: "book.xlsx",
+        extension: ".xlsx",
+        bytes: text.length,
+        mtimeMs: 1,
+        checksum: "abc",
+      },
+      text,
+      regions,
+    }
+  }
+
+  it("packs consecutive spreadsheet rows into a passage citing the whole cell range", () => {
+    const doc = spreadsheetDocument(
+      Array.from({ length: 10 }, (_, index) => ({
+        sheet: "Dashboard",
+        sheetIndex: 1,
+        row: index + 1,
+        header: 0,
+        text: `Row ${index + 1}\tvalue`,
+      })),
+    )
+
+    const chunks = chunkDocument(doc, 1_200, 200)
+
+    // Ten short rows of one table hold far less than one chunk, so they belong in one passage.
+    expect(chunks).toHaveLength(1)
+    expect(chunks[0]?.text).toContain("Row 1\tvalue")
+    expect(chunks[0]?.text).toContain("Row 10\tvalue")
+    expect(chunks[0]?.locationKind).toBe("sheet")
+    expect(chunks[0]?.locationLabel).toBe("Dashboard")
+    expect(chunks[0]?.cellStart).toBe("A1")
+    expect(chunks[0]?.cellEnd).toBe("C10")
+  })
+
+  it("keeps rows of two tables in one sheet apart, so each keeps its own header", () => {
+    const doc = spreadsheetDocument([
+      { sheet: "Dashboard", sheetIndex: 1, row: 1, header: 0, text: "Type\tCount" },
+      { sheet: "Dashboard", sheetIndex: 1, row: 2, header: 0, text: "Site\t152" },
+      { sheet: "Dashboard", sheetIndex: 1, row: 3, header: 2, text: "Scope\tCount" },
+      { sheet: "Dashboard", sheetIndex: 1, row: 4, header: 2, text: "Back office\t57" },
+    ])
+
+    const chunks = chunkDocument(doc, 1_200, 0)
+
+    expect(chunks).toHaveLength(2)
+    expect(chunks[0]?.cellEnd).toBe("C2")
+    expect(chunks[1]?.cellStart).toBe("A3")
+  })
+
+  it("keeps rows of different sheets apart", () => {
+    const doc = spreadsheetDocument([
+      { sheet: "First", sheetIndex: 1, row: 1, header: 0, text: "a\tb" },
+      { sheet: "First", sheetIndex: 1, row: 2, header: 0, text: "c\td" },
+      { sheet: "Second", sheetIndex: 2, row: 1, header: 2, text: "e\tf" },
+    ])
+
+    const chunks = chunkDocument(doc, 1_200, 0)
+
+    expect(chunks).toHaveLength(2)
+    expect(chunks[0]?.locationLabel).toBe("First")
+    expect(chunks[1]?.locationLabel).toBe("Second")
+  })
+
+  it("never packs a sheet chart, which has no cell range, with a row", () => {
+    const doc = spreadsheetDocument([
+      { sheet: "Data", sheetIndex: 1, row: 1, header: 0, text: "a\tb" },
+      { sheet: "Data", sheetIndex: 1, row: 2, header: 0, text: "c\td" },
+      { sheet: "Data", sheetIndex: 1, row: 3, header: 0, text: "Chart: revenue", cells: false },
+    ])
+
+    const chunks = chunkDocument(doc, 1_200, 0)
+
+    expect(chunks).toHaveLength(2)
+    expect(chunks[0]?.cellEnd).toBe("C2")
+    expect(chunks[1]?.text).toContain("Chart: revenue")
   })
 
   it("creates overlapping chunks without dropping text", () => {

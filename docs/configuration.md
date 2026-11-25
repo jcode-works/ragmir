@@ -42,7 +42,7 @@ does not create a local copy. With both files, CLI changes go to `.ragmir/config
 | `maxChunksPerDocument` | `1` | Limit primary ranked passages from one document before final `topK` truncation, up to 100. Ranked backfill preserves the requested result count when the candidate set has too few documents. |
 | `mcpMaxTopK` | `10` | Bound explicit MCP passage requests; values above 100 are rejected. |
 | `mcpMaxOutputBytes` | `32768` | Cap variable-size MCP tool and resource JSON; the server also enforces an absolute 1 MiB ceiling. |
-| `chunkSize` / `chunkOverlap` | `1200` / `200` | Tune chunking, then rebuild the index. Chunk size is capped at 1,000,000 characters. Consecutive pages of a paginated document share a passage up to this size and cite the whole range; slides, spreadsheet regions, and Markdown sections keep one passage each, because each names a passage and answers `contextPaths` filters. |
+| `chunkSize` / `chunkOverlap` | `1200` / `200` | Tune chunking, then rebuild the index. Chunk size is capped at 1,000,000 characters. Consecutive pages of a paginated document, and consecutive rows of one spreadsheet table, share a passage up to this size and cite the whole range; slides and Markdown sections keep one passage each, because each names a passage and answers `contextPaths` filters. |
 | `maxFileBytes` | `50000000` | Lower the per-file parser budget; 50 MB is the hard ceiling. |
 | `ingestConcurrency` | `4` | Bound concurrent parsers; values above `8` are rejected. |
 | `embeddingBatchSize` | `32` | Bound one model call; values above `128` are rejected. |
@@ -188,7 +188,7 @@ distinctive word counts more than a common one:
 - Calibrated Transformers models need a normalized L2 distance within the model's limit, or
   passages holding at least 30% of the question's IDF-weighted words. `multilingual-e5-small`
   packs every text into a narrow distance band and uses a limit of 0.4;
-  `mxbai-embed-xsmall-v1` uses 1.1; Granite R2 (`onnx-community/granite-embedding-97m-multilingual-r2-ONNX`) uses 0.42,
+  `mxbai-embed-xsmall-v1` uses 1.1, with 0.65 as its strong-evidence distance; Granite R2 (`onnx-community/granite-embedding-97m-multilingual-r2-ONNX`) uses 0.42,
   with 0.28 as its strong-evidence distance. Other models keep the previous rule: any related query
   word, or a distance up to 1.1. Qwen3-Embedding stays on it: fixed thresholds measured on this
   repository answered no better than each index's noise floor.

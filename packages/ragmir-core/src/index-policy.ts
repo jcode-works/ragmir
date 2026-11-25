@@ -35,7 +35,7 @@ export function indexPolicyFingerprint(config: Config): string {
       // 6: dotenv templates such as env.example index with every value masked.
       // 7: Markdown front matter is one region, and its title roots a page without a level-1 heading;
       // a chunk boundary never splits a surrogate pair.
-      parserVersion: 8,
+      parserVersion: 9,
       pdfOcrCommand: config.pdfOcrCommand,
       pdfOcrParserPolicy: config.pdfOcrCommand.length > 0 ? PDF_OCR_PARSER_POLICY : null,
       imageOcrCommand: config.imageOcrCommand,

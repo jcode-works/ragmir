@@ -39,7 +39,7 @@ export interface FormulationList<Row extends RankingRow> {
 }
 
 export interface RankingPolicy {
-  version: 10
+  version: 11
   embeddingProvider: EmbeddingProvider
   /** Semantic model whose calibrated evidence profile applies; null for local-hash. */
   embeddingModel: string | null
@@ -125,9 +125,19 @@ const MODEL_EVIDENCE_PROFILES: Readonly<Record<string, EvidenceProfile>> = {
   },
   // A coverage of 0.5 flagged a third of the correct passages of a TypeScript repository as weak:
   // natural-language questions share few words with code. 0.3 flagged 6 of 96.
+  //
+  // The band above held for unrelated questions, whose nearest passage sits at 1.204 here, and was
+  // blind to near-domain ones: measured with rgr evaluate on a 159-case set of this repository,
+  // their nearest passage has a median distance of 0.829 against 0.986 for an answerable question.
+  // A strong distance of 0.9 therefore cancelled the weak flag on them wholesale, so a question
+  // whose subject the passage never mentions came back answered. 0.65 sits below that median and
+  // still leaves the override room to rescue a paraphrase: it refuses 8 more of the 40 near-domain
+  // questions, taking their false positives from 0.85 to 0.65 and the set's from 0.53 to 0.41,
+  // with answer rate, recall, precision, MRR, and nDCG unchanged to four decimals. Lowering it to
+  // 0.40 refuses none of the rest, which the coverage test holds.
   "mixedbread-ai/mxbai-embed-xsmall-v1": {
     maximumVectorDistance: TRANSFORMERS_MAXIMUM_VECTOR_DISTANCE,
-    strongVectorDistance: 0.9,
+    strongVectorDistance: 0.65,
     vocabularyFreeDistance: 0.85,
     minimumLexicalCoverage: 0.3,
     weakEvidenceCoverage: 0.3,
@@ -217,7 +227,7 @@ export function rankingPolicyFor(
       DEFAULT_TRANSFORMERS_PROFILE)
     : LOCAL_HASH_PROFILE
   return {
-    version: 10,
+    version: 11,
     embeddingProvider,
     embeddingModel: semantic ? (embeddingModel ?? null) : null,
     retrievalProfile,

@@ -39,7 +39,7 @@ export interface FormulationList<Row extends RankingRow> {
 }
 
 export interface RankingPolicy {
-  version: 9
+  version: 10
   embeddingProvider: EmbeddingProvider
   /** Semantic model whose calibrated evidence profile applies; null for local-hash. */
   embeddingModel: string | null
@@ -62,8 +62,14 @@ export interface RankingPolicy {
   /**
    * Share of the question's IDF weight on words found nowhere in the index at which its focus counts
    * as absent: only a passage within the vocabulary-free distance can then answer, none without one.
+   * Ignored when `absentFocusOnMostDistinctiveTerm` is set.
    */
   absentFocusShare: number
+  /**
+   * Judge the question's focus on its single most distinctive word instead of an IDF-weighted share
+   * of all of them. Set for semantic models, whose vector channel keeps the final say.
+   */
+  absentFocusOnMostDistinctiveTerm: boolean
 }
 
 export interface QueryEvidence {
@@ -211,7 +217,7 @@ export function rankingPolicyFor(
       DEFAULT_TRANSFORMERS_PROFILE)
     : LOCAL_HASH_PROFILE
   return {
-    version: 9,
+    version: 10,
     embeddingProvider,
     embeddingModel: semantic ? (embeddingModel ?? null) : null,
     retrievalProfile,
@@ -224,6 +230,7 @@ export function rankingPolicyFor(
       ? LEXICAL_ONLY_EVIDENCE_COVERAGE
       : profile.weakEvidenceCoverage,
     absentFocusShare: semantic ? SEMANTIC_ABSENT_FOCUS_SHARE : LOCAL_HASH_ABSENT_FOCUS_SHARE,
+    absentFocusOnMostDistinctiveTerm: semantic,
   }
 }
 
@@ -475,16 +482,73 @@ export function absentShareOf(tokens: readonly string[], terms: QueryTermStatist
  * the IDF weight occur nowhere, as with nonsense, unrelated, or near-domain questions about a missing
  * feature. Only vector evidence can then support a passage.
  */
+/**
+ * Whether the question's most distinctive word occurs nowhere in the index, neither exactly nor
+ * through a fuzzy keyword match.
+ *
+ * A near-domain question names something the corpus does not hold, as in "which Helm chart deploys
+ * the billing API", and that name is almost always its rarest word. An answerable question's rarest
+ * word is normally the one its documents use. An IDF-weighted share over the whole question cannot
+ * separate the two: one unusual verb of the phrasing carries as much weight as the name, which is
+ * why a semantic model previously had to wait for every word to be absent and so refused almost
+ * nothing.
+ *
+ * Measured with `rgr evaluate` on two real bases, an English repository of code and documentation
+ * and a French set of office documents: this refused 8 more unanswerable questions for one
+ * answerable one of 119, and cost nothing at all on the larger base. False positives fell from
+ * 0.63 to 0.53 and from 0.86 to 0.79, with Recall@10, nDCG@10 and MRR@10 unchanged within a
+ * thousandth. A passage the model places within the vocabulary-free distance still answers, so a
+ * question whose verb the documents never use is not lost outright.
+ */
+function mostDistinctiveTermAbsent(evidence: QueryEvidence, terms: QueryTermStatistics): boolean {
+  const unique = [...new Set(evidence.tokens)]
+  // A word in a script written without spaces is never measured, so its question is never judged.
+  if (unique.length === 0 || unique.some((token) => terms.unmeasuredTerms?.has(token))) {
+    return false
+  }
+  let focus: string | null = null
+  let best = -1
+  for (const token of unique) {
+    const weight = idfWeight(token, terms)
+    if (weight > best) {
+      best = weight
+      focus = token
+    }
+  }
+  return (
+    focus !== null &&
+    (terms.documentFrequencies.get(focus) ?? 0) === 0 &&
+    !terms.fuzzyMatchedTerms?.has(focus)
+  )
+}
+
+/**
+ * Whether this question's focus counts as absent from the index under the active policy.
+ *
+ * Search calls it twice: once before the fuzzy keyword scan, to learn whether that scan is worth
+ * running at all, and once with its result, which is what decides abstention. A misspelled word
+ * must not make an answerable question look unanswerable, so the scan has to cover whichever rule
+ * the policy uses.
+ */
+export function questionFocusAbsent(
+  evidence: QueryEvidence,
+  terms: QueryTermStatistics | null,
+  policy: RankingPolicy,
+): boolean {
+  return focusAbsent(evidence, terms, policy)
+}
+
 function focusAbsent(
   evidence: QueryEvidence,
   terms: QueryTermStatistics | null,
   policy: RankingPolicy,
 ): boolean {
-  return (
-    terms !== null &&
-    evidence.anchors.length === 0 &&
-    absentShareOf(evidence.tokens, terms) >= policy.absentFocusShare
-  )
+  if (terms === null || evidence.anchors.length > 0) {
+    return false
+  }
+  return policy.absentFocusOnMostDistinctiveTerm
+    ? mostDistinctiveTermAbsent(evidence, terms)
+    : absentShareOf(evidence.tokens, terms) >= policy.absentFocusShare
 }
 
 /**

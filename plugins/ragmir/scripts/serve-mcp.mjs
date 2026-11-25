@@ -11,7 +11,7 @@ import { mkdirSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
 
-const RAGMIR_VERSION = "6.19.0"
+const RAGMIR_VERSION = "6.20.0"
 
 const projectRoot = path.resolve(
   process.env.RAGMIR_PROJECT_ROOT ||

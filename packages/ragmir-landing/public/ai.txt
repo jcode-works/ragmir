@@ -92,8 +92,10 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   the vocabulary-free distance to be answered at all, so a question about a feature the corpus does
   not hold returns nothing rather than the nearest plausible passage.
 - Consecutive pages of a paginated document share a passage up to `chunkSize` and cite the whole
-  range, such as `agenda.pdf:p1-p9#0`. Slides, spreadsheet regions, and Markdown sections keep one
-  passage each.
+  range, such as `agenda.pdf:p1-p9#0`. Consecutive rows of one spreadsheet table share a passage
+  the same way and cite one cell range, such as `book.xlsx:sheet=Dashboard:cells=A2-F12#0`; two
+  tables, two sheets, and a sheet chart stay apart. Slides and Markdown sections keep one passage
+  each, because each names the passage and answers `contextPaths` filters.
 - Local PDF OCR runs only on blank pages. `rgr ocr doctor` checks prerequisites and `rgr ocr setup`
   configures the engine; `--images` and `--legacy-word` add photo OCR and `.doc` extraction.
   Page caches and bounded batches avoid repeated work.

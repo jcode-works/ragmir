@@ -3,6 +3,44 @@
 This is a breaking surface change. Ragmir now concentrates on local indexing, search, exact
 citations, OCR, and integration with developer agents.
 
+## A strong vector match stops rescuing near-domain questions (6.20)
+
+`mxbai-embed-xsmall-v1` answers from farther away than the other calibrated models, and its
+strong-evidence distance of 0.9 sat above where questions about features a corpus does not hold
+land. Measured with `rgr evaluate` on a 159-case set of this repository, their nearest passage has
+a median distance of 0.829 against 0.986 for an answerable question, so the override cancelled the
+weak-evidence flag on them wholesale and a question whose subject the passage never mentions came
+back answered.
+
+The strong-evidence distance is now 0.65 for that model. It refuses 8 more of the 40 near-domain
+questions, taking their false positives from 0.85 to 0.65, the whole set's from 0.53 to 0.41, and
+abstention accuracy from 0.47 to 0.59. Answer rate, recall at 1, 3, and 5, precision at 5, MRR,
+and nDCG are unchanged to four decimals, because an answerable question keeps a passage that holds
+the question's words and never depended on the override. `multilingual-e5-small` and Granite R2
+were already calibrated below that band and do not change.
+
+The ranking policy moves to version 11. No index needs rebuilding, because evidence rules are
+applied at search time, but a stored retrieval-quality report no longer verifies the active
+policy: rerun `rgr evaluate`.
+
+## Spreadsheet rows share a passage with their table (6.20)
+
+A sheet of short rows produced one passage per row. Measured on a real design-system workbook, one
+sheet held 264 passages averaging 175 characters, so every vector covered a single line and a
+search returned one row where the question was about the table. Ragmir now fills a passage up to
+`chunkSize` across consecutive rows and cites the whole cell range, such as
+`book.xlsx:sheet=Dashboard:cells=A2-F12#0`. That workbook went to 48 passages averaging 971
+characters, and the 25 measured files of that corpus went from 502 passages to 286.
+
+Nothing a row expressed is given up, because rows pack only when every part of their citation
+agrees: the same sheet, the same table header, the same context path, and a cell range on both.
+Two tables in one sheet, two sheets, and a sheet chart each stay apart, and a sheet whose rows
+already fill a passage is untouched. Slides and Markdown sections still keep one passage each.
+
+The extraction policy moves to parser version 9, so the next `rgr ingest` or `rgr upgrade` stages a
+validated rebuild before activating it. Citations into a spreadsheet taken from an older index
+still resolve, but they name a single row where the new index names the range that contains it.
+
 ## A question whose rarest word is unknown needs vector evidence (6.19)
 
 A semantic model used to keep its vector evidence unless *every* word of a question was absent from

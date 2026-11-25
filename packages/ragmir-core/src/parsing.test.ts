@@ -243,7 +243,10 @@ describe("parseFile", () => {
     const auditor = results.find((result) => result.text.includes("Auditor"))
     expect(auditor).toBeDefined()
     if (!auditor) throw new Error("The auditor row was not retrieved")
-    expect(auditor.citation).toContain(":cells=A5-C5#4")
+    // The four body rows of one table share a passage and cite the range that holds them, while
+    // the header keeps its own citation and still reaches the caller as context.
+    expect(auditor.citation).toContain(":cells=A2-C5#1")
+    expect(auditor.text).toContain("Auditor\t0\t50000")
     expect(auditor.text).not.toContain("Refund approval limit")
     expect(auditor.context).toEqual([
       expect.objectContaining({
@@ -252,7 +255,7 @@ describe("parseFile", () => {
       }),
     ])
     const expanded = await expandCitation(auditor.citation, { cwd: root, contextRadius: 0 })
-    expect(expanded.passages.map((passage) => passage.chunkIndex)).toEqual([0, 4])
+    expect(expanded.passages.map((passage) => passage.chunkIndex)).toEqual([0, 1])
     expect(expanded.passages[1]?.text).toContain("Auditor\t0\t50000")
   })
 

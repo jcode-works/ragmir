@@ -130,8 +130,8 @@ word rather than an IDF-weighted share of all of them, because one unusual verb 
 otherwise carries as much weight as the name the question is about. Measured on two real bases this
 refused 8 more unanswerable questions for one answerable one of 119, cost nothing on the larger
 base, and left Recall@10 and nDCG@10 unchanged. A word the keyword scan relates to one a passage
-holds, such as a misspelling, counts as present. A question with a digit-bearing identifier, or one written in a script
-indexed without spaces, is never judged this way.
+holds, such as a misspelling, counts as present. A question with a digit-bearing identifier, or
+one written in a script indexed without spaces, is never judged this way.
 
 Folding also settles the apostrophe. Every apostrophe shape, the typographic `’` included, becomes
 one mark, and a French elision is separated from the word it carries, so `l’établissement`,

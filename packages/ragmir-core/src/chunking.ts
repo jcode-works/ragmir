@@ -349,17 +349,40 @@ interface ChunkRegion {
 /**
  * Whether two adjacent regions can share a chunk without losing anything the region expressed.
  *
- * Only pagination qualifies. A PDF page region repeats the page interval the document already
+ * Pagination always qualifies. A PDF page region repeats the page interval the document already
  * reports separately, and its context path is just "Page 7", so a merged chunk still cites the
- * exact page range and gives up no structure. Every other region means something a chunk cannot
- * carry for two of them at once: a slide or Markdown section names the passage and answers context
- * filters, a spreadsheet region binds rows to their own table header and cell range.
+ * exact page range and gives up no structure.
+ *
+ * Consecutive spreadsheet rows qualify only when nothing either one expressed differs: the same
+ * sheet, the same table header, the same breadcrumb, and a cell range on both. The merged chunk
+ * then cites one exact range, such as `cells=A2-F12`, carries the one header both rows bind to,
+ * and answers context filters with the identical path. Without this a sheet of short rows became
+ * one passage per row: a dashboard table measured here held 10 rows of 24 to 164 characters, so
+ * every vector covered a single line and a result returned one row instead of the table.
+ *
+ * A slide or Markdown section never qualifies: it names the passage and answers context filters,
+ * so two of them in one chunk would widen the breadcrumb and lose a name the region carried.
  */
 function regionsAreCitableTogether(
   left: ParsedRegion | undefined,
   right: ParsedRegion | undefined,
 ): boolean {
-  return left?.location.kind === "page" && right?.location.kind === "page"
+  if (!left || !right) {
+    return false
+  }
+  if (left.location.kind === "page" && right.location.kind === "page") {
+    return true
+  }
+  return (
+    left.location.kind === "sheet" &&
+    right.location.kind === "sheet" &&
+    left.location.start === right.location.start &&
+    left.location.label === right.location.label &&
+    left.contextPath === right.contextPath &&
+    left.headerRegionIndex === right.headerRegionIndex &&
+    left.location.cellStart !== undefined &&
+    right.location.cellStart !== undefined
+  )
 }
 
 /** The deepest context path both breadcrumbs share, such as "Guide" for "Guide > A" and "Guide > B". */

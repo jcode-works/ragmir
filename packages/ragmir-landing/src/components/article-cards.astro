@@ -21,24 +21,34 @@ interface Props {
 const { cards, cta, class: className } = Astro.props
 ---
 
-<ul class:list={["grid gap-3", className]} role="list">
+<!--
+  Each card spans three rows of a subgrid, so titles, summaries, and links line up across a row.
+  Rows get no gap: an empty row would keep it, so cards are spaced by their own bottom margin.
+-->
+<ul class:list={["-mb-3 grid gap-x-3", className]} role="list">
   {cards.map((card) => (
-    <li>
+    <li class="row-span-3 mb-3 grid grid-rows-subgrid">
       <a
-        class="group flex h-full gap-3 rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+        class:list={[
+          "group row-span-3 grid grid-rows-subgrid gap-x-3 rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]",
+          card.mark ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-[minmax(0,1fr)]",
+        ]}
         href={card.href}
       >
         <!-- The mark keeps the title's line height, so it centres on the first line of the title. -->
         {card.mark && (
-          <span class="flex h-[1lh] shrink-0 items-center text-lg leading-snug">
+          <span class="row-start-1 flex h-[1lh] items-center text-lg leading-snug">
             <IntegrationMark class="size-6 text-foreground" mark={card.mark} />
           </span>
         )}
-        <span class="flex min-w-0 flex-1 flex-col">
-          <span class="font-black text-lg leading-snug">{card.title}</span>
-          <span class="mt-2 text-small text-muted-foreground leading-5">{card.summary}</span>
-          <!-- The whole card is the link; this line only shows that it leads somewhere. -->
-          <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-small text-foreground">
+        <span class="col-start-[-2] row-start-1 font-black text-lg leading-snug">{card.title}</span>
+        <span class="col-start-[-2] row-start-2 mt-2 text-small text-muted-foreground leading-5">{card.summary}</span>
+        <!-- The whole card is the link; this line only shows that it leads somewhere. -->
+        <span
+          aria-hidden="true"
+          class="col-start-[-2] row-start-3 flex items-end gap-1.5 pt-5 font-semibold text-small text-foreground"
+        >
+          <span class="flex items-center gap-1.5">
             {cta}
             <ArrowRight class="arrow-forward size-3.5 text-muted-foreground" />
           </span>

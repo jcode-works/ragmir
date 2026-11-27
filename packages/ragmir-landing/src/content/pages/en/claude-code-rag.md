@@ -91,6 +91,33 @@ Retrieval only changes the first step. Instead of opening files and reading, the
 ranked, cited shortlist, then opens one passage. See [RAG vs MCP](/rag-vs-mcp/) for how the
 protocol and the retrieval fit together, and [agentic RAG](/agentic-rag/) for the loop.
 
+## When Claude alone is enough, and when to add RAG
+
+Claude can reach your documents in three ways. They suit different jobs.
+
+| | Claude Code alone | A project in the Claude apps | Claude Code or a chat with Ragmir |
+| --- | --- | --- | --- |
+| Where the documents are | Your repository, on your machine | Uploaded to Anthropic | On your machine; only the passages Claude reads leave it |
+| How text is found | grep, then whole files | Whole files, or a project knowledge search once they outgrow the context window | A local index returns ranked, cited passages |
+| PDFs and Office files | grep cannot search inside them | Uploaded like any file | Searched like text, cited to the page, slide, or cell |
+| Text read per answer on this repository | A median of 71.4 KiB | Not measured | A median of 4.7 to 4.8 KiB |
+| Questions the documents do not answer | grep still matched files for 28 of 30 | Not measured | Nothing returned for 23 to 28 of 30 |
+
+The Claude apps column comes from Anthropic's help center, read on November 27, 2026: on paid plans,
+a project switches to retrieval automatically when its knowledge nears the context window, and
+holds up to ten times more content ([RAG for projects](https://support.claude.com/en/articles/11473015-retrieval-augmented-generation-rag-for-projects)).
+
+**Use Claude Code alone** for a code repository of text files whose questions use the code's own
+words, and whenever you need every occurrence of an identifier. It needs nothing installed.
+
+**Use a project in the Claude apps** to chat about documents you are free to upload to Anthropic,
+on a paid plan, without setting anything up.
+
+**Add Ragmir** when the documents are PDFs, Office files, or scans, when they must stay on your
+machine, when you need a citation you can check to the line or the page, or when several agents
+and applications should share one index. With a local model instead of Claude, nothing leaves the
+machine at all: see [local or cloud RAG](/local-vs-cloud-rag/).
+
 ## How to add RAG to Claude Code
 
 Install the plugin, then index each project once:

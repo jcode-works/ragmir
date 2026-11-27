@@ -293,12 +293,16 @@ function round(value, digits = 3) {
 }
 
 function parseOptions(argumentsList) {
+  // pnpm may forward its `--` separator: skip it.
+  const values = argumentsList.filter((argument) => argument !== "--")
   const parsed = {}
-  for (let index = 0; index < argumentsList.length; index += 2) {
-    const current = argumentsList[index]
-    if (!current?.startsWith("--")) throw new Error(`Unexpected argument ${current}`)
+  for (let index = 0; index < values.length; index += 2) {
+    const current = values[index]
+    if (!current?.startsWith("--") || values[index + 1] === undefined) {
+      throw new Error(`Expected --name value pairs, got ${current}`)
+    }
     parsed[current.slice(2).replace(/-([a-z])/gu, (_, letter) => letter.toUpperCase())] =
-      argumentsList[index + 1]
+      values[index + 1]
   }
   return parsed
 }

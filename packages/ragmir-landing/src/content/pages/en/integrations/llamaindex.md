@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/llamaindex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "integrations/langchain", "docs/python", "docs/supported-formats"]
+related: ["local-vs-cloud-rag", "integrations/langchain", "docs/python", "docs/supported-formats"]
 logo: "library"
 group: "frameworks"
 ---
@@ -54,8 +54,12 @@ npm.
 `sources add` accepts more globs, such as `"specs/**/*.pdf"`, and `!` exclusions. Ingestion is
 incremental, so later runs read only new and changed files.
 
-The `ragmir` Python client (`pip install ragmir`) offers the same steps as `init_project`,
-`add_sources`, and `ingest()`.
+The `ragmir` Python client offers the same steps as `init_project`, `add_sources`, and
+`ingest()`. Install it with:
+
+```bash
+pip install ragmir
+```
 
 ## Query with the retriever
 
@@ -74,8 +78,12 @@ for node in response.source_nodes:
     print(node.node.metadata["citation"])
 ```
 
-The query engine uses the LLM set in `Settings`. Here it is a local model served by Ollama
-(`pip install llama-index-llms-ollama`), so the whole query stays on the machine.
+The query engine uses the LLM set in `Settings`. Here it is a local model served by Ollama, so the
+whole query stays on the machine. Install the Ollama integration with:
+
+```bash
+pip install llama-index-llms-ollama
+```
 
 Run on November 27, 2026 with `llama-index-retrievers-ragmir` 6.20.0 over the eleven guides of
 Ragmir's `docs/` folder, it took 53 seconds on an Apple M3 Max, most of it generation. It ended with

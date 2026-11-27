@@ -49,8 +49,13 @@ The agent searches, expands the one passage it needs, and searches again when it
 measured below follows that pattern: one search, then one expansion. The agent's own model reads
 the evidence and writes the answer. Ragmir only returns evidence.
 
-Install the plugin for Claude Code, Codex, or Cursor, or run `rgr setup --agents claude,codex` for
-a project MCP server. Register Ragmir per project, never for every project.
+Install the plugin for Claude Code, Codex, or Cursor, or set up a project MCP server:
+
+```bash
+rgr setup --agents claude,codex
+```
+
+Register Ragmir per project, never for every project.
 
 ## RAG vs MCP token usage
 

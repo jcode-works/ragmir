@@ -30,10 +30,19 @@ network.
 - Point `storageDir` at a persistent volume and mount the documents read-only.
 - `local-hash` needs no model and makes no network call. Stage a semantic model or OCR engines
   first when the questions or the scans need them ([air-gapped RAG](/air-gapped-rag/)).
-- Review the configuration, then approve its commands and endpoints with `rgr trust --yes`, or set
-  `RAGMIR_TRUST_PROJECT_CONFIG=1` in an image you build and review yourself.
-- Check coverage before trusting the corpus: `rgr audit --unsupported` lists the files that were
-  skipped and why.
+- Review the configuration, then approve its commands and endpoints:
+
+  ```bash
+  rgr trust --yes
+  ```
+
+  In an image you build and review yourself, set `RAGMIR_TRUST_PROJECT_CONFIG=1` instead.
+
+- Check coverage before trusting the corpus. The audit lists the files that were skipped and why:
+
+  ```bash
+  rgr audit --unsupported
+  ```
 
 The [self-hosted RAG guide](/self-hosted-rag/) has the container commands and a deployment
 checklist.
@@ -82,8 +91,13 @@ the whole measurement stays inside the perimeter.
 
 When a case misses, two commands help:
 
-- `rgr search "<query>" --explain --top-k 10` shows each result's vector and keyword ranks.
-- `rgr preview --path <file> --json` shows how the expected file was chunked.
+```bash
+rgr search "<query>" --explain --top-k 10
+rgr preview --path <file> --json
+```
+
+The first shows each result's vector and keyword ranks. The second shows how the expected file was
+chunked.
 
 Change one setting at a time and compare against the baseline. Keep a change only when the report
 improves without new false positives. Never edit expectations or lower thresholds to make a change
@@ -111,10 +125,19 @@ The same `rgr evaluate` command gates CI after `rgr ingest`.
   inherits the same sources and settings. The index, models, and documents stay out of Git.
 - **Health and diagnosis.** `rgr status --json` reports `ready`, the base name, and the indexed file
   count; `rgr doctor` checks freshness and configuration and lists the next steps.
-- **Safe upgrades.** Start with `rgr upgrade --check`. Upgrades keep the last validated index until
+- **Safe upgrades.** Start with the upgrade check. Upgrades keep the last validated index until
   its replacement passes, so a repair never starts by deleting `.ragmir/storage/`.
-- **Agent skills.** `npx skills add jcode-works/ragmir` installs the setup and evaluation skills,
-  among others, for the customer's own agents.
+
+  ```bash
+  rgr upgrade --check
+  ```
+
+- **Agent skills.** Install the setup and evaluation skills, among others, for the customer's own
+  agents:
+
+  ```bash
+  npx skills add jcode-works/ragmir
+  ```
 
 ## What the customer's application still owns
 

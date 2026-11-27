@@ -75,7 +75,12 @@ Citations follow each format, so one server answers from Markdown, PDFs, Office 
 Markdown passages carry their heading path, and `ragmir_sources` lists each page's front matter
 title and description. More than 900 extensions and file names index with no extra install.
 
-Scanned pages need a local OCR engine that you enable with `rgr ocr setup`.
+Scanned pages need a local OCR engine that you enable with this command:
+
+```bash
+rgr ocr setup
+```
+
 `rgr audit --unsupported` lists what was skipped.
 
 ## How each client starts it

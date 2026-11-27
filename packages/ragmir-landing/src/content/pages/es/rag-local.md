@@ -64,7 +64,12 @@ Añade más globs en el mismo comando, como `"specs/**/*.pdf"`. Las fuentes son 
 
 Más de 900 tipos de archivo se indexan sin instalar nada más, incluidos PDF, Word, PowerPoint, Excel y EPUB. Los archivos `.env`, las claves y los certificados nunca llegan al índice.
 
-Los PDF escaneados necesitan el OCR local opcional. Ejecuta `rgr ocr doctor` y luego `rgr ocr setup`.
+Los PDF escaneados necesitan el OCR local opcional. Ejecuta la comprobación del OCR y luego configúralo:
+
+```bash
+rgr ocr doctor
+rgr ocr setup
+```
 
 ### 3. Indexar y buscar
 
@@ -196,7 +201,7 @@ npx rgr ingest
 
 La GPU es opcional. WebGPU genera los embeddings de los lotes de ingesta unas dos veces más rápido en un Apple M3 Max (véase `ingestEmbeddingDevice` en la [guía de configuración](/docs/configuration/)). La búsqueda sigue en CPU.
 
-Para generar embeddings con un modelo que Ollama ya sirve, apunta Ragmir a su API compatible con OpenAI en la configuración y luego ejecuta `rgr ingest --rebuild`:
+Para generar embeddings con un modelo que Ollama ya sirve, apunta Ragmir a su API compatible con OpenAI en la configuración:
 
 ```json
 {
@@ -204,6 +209,12 @@ Para generar embeddings con un modelo que Ollama ya sirve, apunta Ragmir a su AP
   "embeddingEndpoint": "http://localhost:11434/v1",
   "embeddingModel": "nomic-embed-text"
 }
+```
+
+Después, reconstruye el índice:
+
+```bash
+rgr ingest --rebuild
 ```
 
 ## Adónde van tus datos

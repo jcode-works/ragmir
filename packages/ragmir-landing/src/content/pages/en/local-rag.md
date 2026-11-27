@@ -7,7 +7,7 @@ section: guide
 translationKey: "local-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "rag-vs-mcp"]
+related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "local-vs-cloud-rag"]
 ---
 
 You can run RAG on one machine with Ragmir for retrieval and a local model for answers.
@@ -71,7 +71,12 @@ globs relative to the project. A leading `!` excludes.
 More than 900 file types index with no extra install, including PDF, Word, PowerPoint, Excel, and
 EPUB. `.env` files, keys, and certificates never reach the index.
 
-Scanned PDFs need optional local OCR. Run `rgr ocr doctor`, then `rgr ocr setup`.
+Scanned PDFs need optional local OCR. Run the OCR check, then set it up:
+
+```bash
+rgr ocr doctor
+rgr ocr setup
+```
 
 ### 3. Ingest and search
 
@@ -227,7 +232,7 @@ A GPU stays optional. WebGPU embeds ingestion batches about twice as fast on an 
 CPU.
 
 To embed with a model Ollama already serves, point Ragmir at its OpenAI-compatible API in the
-configuration, then run `rgr ingest --rebuild`:
+configuration:
 
 ```json
 {
@@ -235,6 +240,12 @@ configuration, then run `rgr ingest --rebuild`:
   "embeddingEndpoint": "http://localhost:11434/v1",
   "embeddingModel": "nomic-embed-text"
 }
+```
+
+Then rebuild the index:
+
+```bash
+rgr ingest --rebuild
 ```
 
 ## Where your data goes

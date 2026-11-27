@@ -52,8 +52,13 @@ exists, and `rgr doctor` reports that case.
 `local-hash` needs no model. For semantic retrieval, download the model once on a connected machine,
 then carry the project folder into the network.
 
-Without Docker, add `@huggingface/transformers` and run `rgr setup --semantic`. With the full
-image, use:
+Without Docker, add `@huggingface/transformers` and run the semantic setup:
+
+```bash
+rgr setup --semantic
+```
+
+With the full image, use:
 
 ```bash
 alias rgr='docker run --rm -it -v "$PWD:/workspace" --user "$(id -u):$(id -g)" ghcr.io/jcode-works/ragmir:full'
@@ -68,9 +73,19 @@ Ragmir loads only ONNX weights through Transformers.js, with no pickled objects 
 It keeps downloads disabled after setup, so the server never fetches the model again. The next
 `rgr ingest` rebuilds the index with semantic vectors.
 
-For scanned documents, run `rgr ocr doctor` and `rgr ocr setup` inside the network. Then run
-`rgr ingest` from a terminal, because MCP clients cannot start an ingest while external extractors
-are configured.
+For scanned documents, check and set up OCR inside the network:
+
+```bash
+rgr ocr doctor
+rgr ocr setup
+```
+
+Then ingest from a terminal, because MCP clients cannot start an ingest while external extractors
+are configured:
+
+```bash
+rgr ingest
+```
 
 A container forgets approvals between runs. After reviewing the configuration, pass
 `-e RAGMIR_TRUST_PROJECT_CONFIG=1` or mount a folder as `RAGMIR_TRUST_DIR`.
@@ -101,15 +116,38 @@ A container forgets approvals between runs. After reviewing the configuration, p
      ragmir-handbook search "checkout retry policy" --compact
    ```
 
-2. Run `rgr security-audit`. It warns about an embedding endpoint that is not local and about
+2. Run the security audit. It warns about an embedding endpoint that is not local and about
    configured external extractors. With OCR on, that advisory is expected, and OCR stays usable
    while it is reported.
-3. Run `rgr status --json` and check `ready`. `rgr doctor` lists pending approvals and next steps.
-4. Run `rgr evaluate --golden golden.json` on real questions, including hard negatives that must
-   return nothing.
+
+   ```bash
+   rgr security-audit
+   ```
+
+3. Check the status and `ready`. `rgr doctor` lists pending approvals and next steps.
+
+   ```bash
+   rgr status --json
+   ```
+
+4. Evaluate on real questions, including hard negatives that must return nothing.
+
+   ```bash
+   rgr evaluate --golden golden.json
+   ```
+
 5. If semantic ingestion reports that Transformers.js loaded the model without its tokenizer, the
-   model folder is not an offline snapshot. Run `rgr models pull --enable` again on the connected
-   machine, ship the folder, then run `rgr ingest --rebuild`.
+   model folder is not an offline snapshot. Pull the model again on the connected machine:
+
+   ```bash
+   rgr models pull --enable
+   ```
+
+   Then ship the folder and rebuild the index:
+
+   ```bash
+   rgr ingest --rebuild
+   ```
 
 <figure>
   <img src="/guides/search-offline.webp" alt="Terminal running ghcr.io/jcode-works/ragmir:6.20.0 with --network none on a mounted project. The search returns specs/nist-sp-800-63b-4.pdf:p25#56 with the passage on periodic password changes." width="1440" height="555" loading="lazy" decoding="async">

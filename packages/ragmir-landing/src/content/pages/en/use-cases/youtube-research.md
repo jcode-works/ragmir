@@ -73,8 +73,10 @@ research does not cover the question. That is the moment to find a new source, n
 
 Paste a draft and ask the assistant to check each claim against the base. Ragmir's MCP server ships
 an `answer` prompt that asks for a citation on every claim and a plain statement when the documents
-hold no evidence. A passage marked `weakEvidence` deserves a second look, and a claim with no
-passage at all needs a source or a rewrite.
+hold no evidence.
+
+A passage marked `weakEvidence` deserves a second look. A claim with no passage at all needs a
+source or a rewrite.
 
 ## Keep a topic wiki that grows with the channel
 
@@ -102,7 +104,12 @@ npx rgr audit --knowledge --path wiki
 
 The routine runs without you once it is set up:
 
-- Drop new sources into `raw/` and run `npx rgr ingest`; it reads only new and changed files.
+- Drop new sources into `raw/` and ingest them. It reads only new and changed files:
+
+  ```bash
+  npx rgr ingest
+  ```
+
 - At the start of a session, the assistant lists what changed since the last one with
   `ragmir_sources` and `changedSince`, then compiles those sources into the wiki.
 - A scheduled `npx rgr audit --knowledge` flags pages to update when a source changes.

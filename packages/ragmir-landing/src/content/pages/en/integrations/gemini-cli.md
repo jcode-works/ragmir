@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/gemini-cli"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "mcp-rag-server", "integrations/claude-code", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "mcp-rag-server", "integrations/claude-code", "docs/agent-integration"]
 logo: "gemini"
 group: "agents"
 ---
@@ -84,8 +84,12 @@ cited pages and fixing what the audit finds. The model writes the pages. Ragmir 
 - The model behind Gemini CLI or Qwen Code receives the excerpts it reads. The index stays local.
   The conversation does not.
 - Extensions need local files, so they run in these coding agents, not in web or mobile chat apps.
-- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run
-  `rgr ingest` from a terminal.
+- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run the
+  ingest from a terminal:
+
+  ```bash
+  rgr ingest
+  ```
 - A link between pages is navigation, not evidence. Cite the passage that states the fact.
 
 ## Next steps

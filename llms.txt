@@ -233,8 +233,12 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
 - [Self-hosted RAG](https://ragmir.com/self-hosted-rag/) and
   [air-gapped RAG](https://ragmir.com/air-gapped-rag/): Docker images, offline staging, and a
   deployment checklist.
+- [Local or cloud RAG](https://ragmir.com/local-vs-cloud-rag/): the retrieval model and the machine
+  it needs, local, self-hosted, or cloud answers, and what a cloud provider receives.
 - [RAG for forward deployed engineers](https://ragmir.com/use-cases/forward-deployed-engineers/):
   ship and evaluate retrieval inside a customer's perimeter.
+- [RAG for YouTube creators](https://ragmir.com/use-cases/youtube-research/): books, papers, and
+  caption files in one cited base, script checks, and a topic wiki kept honest by the audit.
 - [Benchmarks](https://ragmir.com/benchmarks/) and the
   [case study of Ragmir's own repository](https://ragmir.com/case-studies/ragmir-repository/):
   dated, reproducible results with their raw reports.

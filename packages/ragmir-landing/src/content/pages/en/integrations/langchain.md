@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/langchain"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "integrations/llamaindex", "docs/api-reference", "docs/python"]
+related: ["local-vs-cloud-rag", "integrations/llamaindex", "docs/api-reference", "docs/python"]
 logo: "langchain"
 group: "frameworks"
 ---

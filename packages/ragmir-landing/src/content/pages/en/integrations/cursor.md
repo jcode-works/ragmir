@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/cursor"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "mcp-rag-server", "docs-mcp-server", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "mcp-rag-server", "docs-mcp-server", "docs/agent-integration"]
 logo: "cursor"
 group: "agents"
 ---
@@ -106,9 +106,17 @@ its first passage. `ragmir_expand` follows `nextCitation` to read the document w
   conversation does not.
 - Plugins need local files, so they run in coding agents, not in web or mobile chat apps.
 - Ragmir has no per-user access control. Each workstation builds its own index. Share sources
-  through Git, then run `rgr ingest` on each machine.
-- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run
-  `rgr ingest` from a terminal.
+  through Git, then run the ingest on each machine:
+
+  ```bash
+  rgr ingest
+  ```
+- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run the
+  ingest from a terminal:
+
+  ```bash
+  rgr ingest
+  ```
 
 ## Next steps
 

@@ -7,7 +7,7 @@ section: guide
 translationKey: "self-hosted-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["air-gapped-rag", "local-rag", "use-cases/forward-deployed-engineers", "rag-citations"]
+related: ["air-gapped-rag", "local-rag", "use-cases/forward-deployed-engineers", "local-vs-cloud-rag"]
 ---
 
 Ragmir runs wherever Node.js 22.12 runs, or in Docker on amd64 and arm64. That includes a VPS, an
@@ -92,8 +92,13 @@ Git.
 
 ## Keep the index fresh
 
-Run `rgr ingest` from cron, a systemd timer, or your CI after the documents change. Ingestion is
-incremental and resumable:
+Run the ingest from cron, a systemd timer, or your CI after the documents change:
+
+```bash
+rgr ingest
+```
+
+Ingestion is incremental and resumable:
 
 - Unchanged files are reused.
 - A changed file that fails to parse keeps its last good evidence and is reported as stale.
@@ -106,8 +111,13 @@ Searches keep working while an ingest runs.
 - **One writer per machine.** Ragmir serializes writers with a lock under `storageDir`, and readers
   stay available. The lock does not coordinate machines. Never share one writable index over NFS
   or SMB. Give each host its own index, or let one host write and copy the result.
-- **Sources travel through Git or file sync.** Commit `ragmir.config.json`, then run `rgr ingest`
-  on each workstation.
+- **Sources travel through Git or file sync.** Commit `ragmir.config.json`, then run the ingest on
+  each workstation:
+
+  ```bash
+  rgr ingest
+  ```
+
 - **Read-only for agents.** `"mcpIngest": false` keeps a shared deployment read-only for MCP
   clients.
 - **One base per audience.** Ragmir does not filter results per user. Give each audience its own
@@ -140,7 +150,12 @@ process.once("SIGTERM", () => {
 Returned passages contain document text. Log citations instead of passages when the corpus is
 confidential.
 
-Python services get the same calls from `pip install ragmir` ([Python guide](/docs/python/)).
+Python services get the same calls from the Python client ([Python guide](/docs/python/)). Install
+it with:
+
+```bash
+pip install ragmir
+```
 
 ## On-premise deployment checklist
 
@@ -149,13 +164,35 @@ Python services get the same calls from `pip install ragmir` ([Python guide](/do
 3. Put `storageDir` on a persistent volume with a single writer.
 4. Run as a non-root user with a read-only root filesystem, and add `--network none` when nothing
    needs the network.
-5. Review the config, then approve its commands and endpoints with `rgr trust --yes`, or set
-   `RAGMIR_TRUST_PROJECT_CONFIG=1` in an image whose configuration you build and review yourself.
-6. Schedule `rgr ingest` after the documents change.
-7. Health-check with `rgr status --json`. It reports `ready`, the base name, and the indexed file
-   count. `rgr doctor` checks freshness, and `rgr audit --unsupported` lists skipped files.
-8. Measure with `rgr evaluate --golden golden.json` on real questions, including hard negatives
-   that must return nothing.
+5. Review the config, then approve its commands and endpoints:
+
+   ```bash
+   rgr trust --yes
+   ```
+
+   In an image whose configuration you build and review yourself, set
+   `RAGMIR_TRUST_PROJECT_CONFIG=1` instead.
+
+6. Schedule the ingest after the documents change:
+
+   ```bash
+   rgr ingest
+   ```
+
+7. Health-check the deployment:
+
+   ```bash
+   rgr status --json
+   ```
+
+   It reports `ready`, the base name, and the indexed file count. `rgr doctor` checks freshness,
+   and `rgr audit --unsupported` lists skipped files.
+8. Measure on real questions, including hard negatives that must return nothing:
+
+   ```bash
+   rgr evaluate --golden golden.json
+   ```
+
 9. Keep TLS, authentication, authorization, and rate limits in your service.
 
 ## Next steps

@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/claude-code"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "mcp-rag-server", "integrations/codex", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "mcp-rag-server", "integrations/codex", "docs/agent-integration"]
 logo: "claude"
 group: "agents"
 ---
@@ -53,7 +53,11 @@ no account, API key, or hosted store.
 
    Without arguments, Claude proposes the sources and asks before indexing.
 
-3. Run `/ragmir:index` again whenever you add sources.
+3. Run the index command again whenever you add sources:
+
+   ```text
+   /ragmir:index
+   ```
 
 You can also build the same index by hand from the project root:
 
@@ -118,8 +122,11 @@ A result whose file changed after indexing carries `sourceStatus`. Claude can th
 `ragmir_ingest`. It reads only new and changed files. The previous index stays searchable until the
 new one passes validation.
 
-To refresh the index after commits, merges, and checkouts, run
-`npx --yes @jcode.labs/ragmir@6.20.0 hooks install` from the project root.
+To refresh the index after commits, merges, and checkouts, run this from the project root:
+
+```bash
+npx --yes @jcode.labs/ragmir@6.20.0 hooks install
+```
 
 ## Limits
 

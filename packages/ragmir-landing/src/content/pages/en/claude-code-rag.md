@@ -127,8 +127,14 @@ Install the plugin, then index each project once:
 /ragmir:index docs/**/*.md specs/**/*.pdf src/**/*.ts
 ```
 
-From a terminal, `claude plugin marketplace add jcode-works/ragmir` then
-`claude plugin install ragmir@ragmir` do the same install. With Claude Code 2.1.329 they printed
+From a terminal, these two commands do the same install:
+
+```bash
+claude plugin marketplace add jcode-works/ragmir
+claude plugin install ragmir@ragmir
+```
+
+With Claude Code 2.1.329 they printed
 `✔ Successfully installed plugin: ragmir@ragmir (scope: user)`.
 
 The plugin runs a pinned Ragmir release from npm against the open project, with no account or API
@@ -137,9 +143,14 @@ plugin, freshness, and the limits.
 
 ## Codex and Cursor
 
-The same index serves other coding agents. Codex installs the plugin with
-`codex plugin marketplace add jcode-works/ragmir` and `codex plugin add ragmir@ragmir`. Cursor
-takes the plugin folder until it is listed in its marketplace.
+The same index serves other coding agents. Codex installs the plugin with:
+
+```bash
+codex plugin marketplace add jcode-works/ragmir
+codex plugin add ragmir@ragmir
+```
+
+Cursor takes the plugin folder until it is listed in its marketplace.
 
 Both run the same MCP server, so the numbers above apply to their first pass too. See the
 [Codex](/integrations/codex/) and [Cursor](/integrations/cursor/) pages.

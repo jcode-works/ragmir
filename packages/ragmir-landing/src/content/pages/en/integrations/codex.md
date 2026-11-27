@@ -7,7 +7,7 @@ section: integration
 translationKey: "integrations/codex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["integrations", "integrations/claude-code", "mcp-rag-server", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "integrations/claude-code", "mcp-rag-server", "docs/agent-integration"]
 logo: "terminal"
 group: "agents"
 ---
@@ -108,9 +108,17 @@ Codex then reads the citation it relies on with `ragmir_expand`.
 - Ragmir cannot use Codex's model for its own ranking. Codex models produce no embeddings, and Codex
   does not support MCP sampling.
 - Plugins need local files, so they run in coding agents, not in web or mobile chat apps.
-- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run
-  `rgr ingest` from a terminal.
-- Each workstation owns its index. Share sources through Git, then run `rgr ingest` on each machine.
+- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run the
+  ingest from a terminal:
+
+  ```bash
+  rgr ingest
+  ```
+- Each workstation owns its index. Share sources through Git, then run the ingest on each machine:
+
+  ```bash
+  rgr ingest
+  ```
 
 ## Next steps
 

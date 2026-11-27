@@ -9,6 +9,7 @@ import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import { docsPagesPlugin } from "./scripts/docs-pages-plugin.mjs"
 import { noTranslateCodePlugin } from "./scripts/no-translate-code-plugin.mjs"
+import { tableRowHeadersPlugin } from "./scripts/table-row-headers-plugin.mjs"
 
 const siteUrl = process.env.PUBLIC_RAGMIR_LANDING_URL ?? "https://ragmir.com"
 const docsDirectory = fileURLToPath(new URL("../../docs", import.meta.url))
@@ -122,7 +123,11 @@ export default defineConfig({
     // A `prompt` fence is plain text that the code block labels and wraps.
     shikiConfig: { theme: "tokyo-night", langAlias: { prompt: "text" } },
     processor: satteri({
-      hastPlugins: [docsPagesPlugin({ docsDirectory }), noTranslateCodePlugin()],
+      hastPlugins: [
+        docsPagesPlugin({ docsDirectory }),
+        noTranslateCodePlugin(),
+        tableRowHeadersPlugin(),
+      ],
     }),
   },
   prefetch: {

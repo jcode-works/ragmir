@@ -47,7 +47,7 @@ En clair, la boucle décrite dans la documentation de Ragmir :
 - **Un contexte borné.** La recherche renvoie par défaut trois citations compactes, dans un budget de sortie de 32 Ko par appel. Les passages déjà renvoyés dans la session reviennent sous forme de courts stubs `seen`, afin qu’une seconde recherche consacre son budget aux nouvelles preuves.
 - **Développement à la demande.** `ragmir_expand` renvoie une citation avec ses voisins, jusqu’à cinq citations à la fois, et un `nextCitation` pour lire un long document jusqu’au bout.
 - **Des signaux exploitables par l’agent.** Un résultat vide signifie que la base ne contient aucune preuve pour la question. `weakEvidence` signale un appui fragile, `sourceStatus` signale un fichier modifié depuis l’indexation (`ragmir_ingest` rafraîchit l’index). Un avertissement nomme les mots de la question qu’aucun passage indexé ne contient.
-- **Questions hors sujet.** Sur le dépôt de Ragmir, 23 à 28 questions hors sujet sur 30 n’ont renvoyé aucun résultat le 27 novembre 2026 ([benchmarks](/benchmarks/)).
+- **Questions hors sujet.** Sur le dépôt de Ragmir, 23 à 28 questions hors sujet sur 30 n’ont renvoyé aucun résultat le 27 novembre 2026 ([benchmarks](/fr/benchmarks/)).
 
 Une recherche avec formulations, telle que l’agent l’envoie :
 
@@ -108,7 +108,7 @@ Les sorties sont reproduites telles qu’elles ont été affichées, en anglais.
 
 L’agent a lu 4 539 octets de réponses pour atteindre le passage et sa plage de lignes, alors que l’ouverture entière des trois fichiers cités aurait coûté 22 014 octets.
 
-Pour une application, `createRagmirTools` depuis `@jcode.labs/ragmir/langchain` donne à un agent LangChain.js les mêmes outils `ragmir_search` et `ragmir_expand`, et `RagmirToolkit` fait de même en Python. L’[intégration LangChain](/integrations/langchain/) montre les deux.
+Pour une application, `createRagmirTools` depuis `@jcode.labs/ragmir/langchain` donne à un agent LangChain.js les mêmes outils `ragmir_search` et `ragmir_expand`, et `RagmirToolkit` fait de même en Python. L’[intégration LangChain](/fr/integrations/langchain/) montre les deux.
 
 ## Limites
 
@@ -119,7 +119,7 @@ Pour une application, `createRagmirTools` depuis `@jcode.labs/ragmir/langchain` 
 
 ## Étapes suivantes
 
-- [RAG sans base vectorielle](/rag-without-vector-database/)
-- [Serveur MCP de Ragmir pour les agents](/mcp-rag-server/)
+- [RAG sans base vectorielle](/fr/rag-sans-base-vectorielle/)
+- [Serveur MCP de Ragmir pour les agents](/fr/serveur-mcp-rag/)
 - [Guide d’intégration des agents](/docs/agent-integration/)
-- [Comment le dépôt de Ragmir utilise Ragmir](/case-studies/ragmir-repository/)
+- [Comment le dépôt de Ragmir utilise Ragmir](/fr/etude-de-cas/depot-ragmir/)

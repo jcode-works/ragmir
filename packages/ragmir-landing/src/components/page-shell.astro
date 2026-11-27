@@ -1,7 +1,10 @@
 ---
+import { getCollection } from "astro:content"
 import { getLocalizedUrl, languages, locales, useTranslations } from "../i18n/utils"
+import { localizedHref } from "../lib/content-pages"
 import Layout from "../layouts/layout.astro"
 import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
+import { localizeProjectLinks } from "../lib/project-links"
 import AnimatedBackdrop from "./animated-backdrop.astro"
 import { ArticleCodeCopy } from "./article-code-copy"
 import { LandingNavbar } from "./landing-navbar"
@@ -34,6 +37,8 @@ const alternateLocales = locales.map((entry) => ({
   label: languages[entry],
   href: alternates[entry] ?? getLocalizedUrl("/", entry),
 }))
+const pages = await getCollection("pages")
+const projectLinks = localizeProjectLinks((path) => localizedHref(path, locale, pages))
 ---
 
 <Layout
@@ -53,6 +58,7 @@ const alternateLocales = locales.map((entry) => ({
     currentPath={Astro.url.pathname}
     currentSection={navSection}
     sidebarLogo={sidebarLogo}
+    projectLinks={projectLinks}
     localizedAgentsUrl={`${homeUrl}#agents`}
     localizedDeployUrl={`${homeUrl}#deploy`}
     localizedFaqUrl={`${homeUrl}#faq`}
@@ -78,6 +84,7 @@ const alternateLocales = locales.map((entry) => ({
   <AnimatedBackdrop>
     <Footer
       alternateLocales={alternateLocales}
+      links={projectLinks}
       locale={locale}
       localizedHomeUrl={`${homeUrl}#top`}
       translations={translations}

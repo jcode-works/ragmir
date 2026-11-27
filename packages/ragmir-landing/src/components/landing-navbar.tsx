@@ -31,7 +31,6 @@ import {
   isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
-  PROJECT_LINKS,
   type ProjectLinkKey,
   PYPI_URL,
 } from "../lib/project-links"
@@ -64,6 +63,8 @@ interface LandingNavbarProps {
   currentSection?: string
   /** The page shows the logo in its own side panel on wide screens, so the bar leaves it out there. */
   sidebarLogo?: boolean
+  /** The project links in this locale: pages of this site lead to their translation. */
+  projectLinks: Record<ProjectLinkKey, string>
 }
 
 const externalLinkProps = {
@@ -115,10 +116,10 @@ const HEADER_ICON_CLASS_NAME =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 /** The hubs, named in the bar after Home on wide screens; narrower ones reach them through the drawer. */
-const HUB_LINKS: ReadonlyArray<{ href: string; labelKey: string }> = [
-  { href: PROJECT_LINKS.guides, labelKey: "nav_guides" },
-  { href: PROJECT_LINKS.agentPlugins, labelKey: "nav_integrations" },
-  { href: PROJECT_LINKS.docs, labelKey: "footer_link_docs" },
+const HUB_LINKS: ReadonlyArray<{ key: ProjectLinkKey; labelKey: string }> = [
+  { key: "guides", labelKey: "nav_guides" },
+  { key: "agentPlugins", labelKey: "nav_integrations" },
+  { key: "docs", labelKey: "footer_link_docs" },
 ]
 
 /**
@@ -246,6 +247,7 @@ export function LandingNavbar({
   currentPath,
   currentSection,
   sidebarLogo = false,
+  projectLinks,
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
   const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
@@ -266,7 +268,7 @@ export function LandingNavbar({
   // Home, then the hubs: the bar lights the page on screen, or the hub that lists it.
   const barLinks = [
     { href: homePath, label: t("nav_home") },
-    ...HUB_LINKS.map(({ href, labelKey }) => ({ href, label: t(labelKey) })),
+    ...HUB_LINKS.map(({ key, labelKey }) => ({ href: projectLinks[key], label: t(labelKey) })),
   ]
   const drawerPageLinks: DrawerLink[] = [
     { href: homePath, label: t("nav_home"), icon: House },
@@ -284,10 +286,10 @@ export function LandingNavbar({
     title: t(section.titleKey),
     links: section.links.map(
       ({ key, icon }): DrawerLink => ({
-        href: PROJECT_LINKS[key],
+        href: projectLinks[key],
         label: t(PROJECT_LINK_LABEL_KEYS[key]),
         icon,
-        external: isExternalLink(PROJECT_LINKS[key]),
+        external: isExternalLink(projectLinks[key]),
       }),
     ),
   }))

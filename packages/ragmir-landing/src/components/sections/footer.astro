@@ -10,7 +10,7 @@ import {
   isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
-  PROJECT_LINKS,
+  type ProjectLinkKey,
   PYPI_URL,
 } from "../../lib/project-links"
 
@@ -20,9 +20,11 @@ interface Props {
   locale: string
   /** Every language, each pointing at this page in it, or at its home page when there is none. */
   alternateLocales: ReadonlyArray<{ locale: string; label: string; href: string }>
+  /** The project links in this locale: pages of this site lead to their translation. */
+  links: Record<ProjectLinkKey, string>
 }
 
-const { translations, localizedHomeUrl, locale, alternateLocales } = Astro.props
+const { translations, localizedHomeUrl, locale, alternateLocales, links } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
 const newTab = t("new_tab_label")
@@ -39,9 +41,9 @@ const sections = FOOTER_SECTIONS.map((section) => ({
       external: false,
     })),
     ...section.links.map((key) => ({
-      href: PROJECT_LINKS[key],
+      href: links[key],
       label: t(PROJECT_LINK_LABEL_KEYS[key]),
-      external: isExternalLink(PROJECT_LINKS[key]),
+      external: isExternalLink(links[key]),
     })),
   ],
 }))

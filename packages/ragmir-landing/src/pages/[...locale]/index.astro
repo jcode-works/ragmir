@@ -25,7 +25,8 @@ import {
   useTranslations,
 } from "../../i18n/utils"
 import Layout from "../../layouts/layout.astro"
-import { findPage, pageHref, pageLocation } from "../../lib/content-pages"
+import { findPage, localizedHref, pageHref, pageLocation } from "../../lib/content-pages"
+import { localizeProjectLinks } from "../../lib/project-links"
 import {
   LIBRARY_TRANSLATIONS,
   NAVBAR_TRANSLATIONS,
@@ -220,6 +221,7 @@ const deepLinkUrl = (path: string): string => {
   const location = pageLocation(page)
   return pageHref(location.path, location.locale)
 }
+const projectLinks = localizeProjectLinks((path) => localizedHref(path, locale, contentPages))
 ---
 
 <Layout
@@ -248,9 +250,11 @@ const deepLinkUrl = (path: string): string => {
       localizedTeamUrl={localizedTeamUrl}
       localizedUseCasesUrl={localizedUseCasesUrl}
       translations={pickTranslations(translations, NAVBAR_TRANSLATIONS)}
+      projectLinks={projectLinks}
     />
 
     <Hero
+      benchmarksUrl={projectLinks.benchmarks}
       translations={translations}
       locale={locale}
       localizedLibraryUrl={localizedLibraryUrl}
@@ -272,7 +276,7 @@ const deepLinkUrl = (path: string): string => {
       />
     </AnimatedBackdrop>
 
-    <Integrations translations={translations} />
+    <Integrations translations={translations} pageUrl={(path) => localizedHref(path, locale, contentPages)} />
 
     <AnimatedBackdrop>
       <Agents
@@ -293,6 +297,7 @@ const deepLinkUrl = (path: string): string => {
     <AnimatedBackdrop>
       <ClosingCta translations={translations} localizedLibraryUrl={localizedLibraryUrl} />
       <Footer
+        links={projectLinks}
         alternateLocales={alternateLocales}
         locale={locale}
         localizedHomeUrl={localizedHomeUrl}

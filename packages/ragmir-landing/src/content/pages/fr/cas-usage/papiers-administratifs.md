@@ -91,7 +91,7 @@ votre machine. Sauvegardez ce dossier comme vos autres fichiers privés.
 
 Un assistant dans le cloud fonctionne aussi, mais il reçoit les passages qu’il lit. Pour des papiers
 administratifs, cela peut inclure des numéros de compte, des salaires et des adresses. Le
-[guide local ou cloud](/local-vs-cloud-rag/) liste les points à vérifier : entraînement,
+[guide local ou cloud](/fr/rag-local-ou-cloud/) liste les points à vérifier : entraînement,
 conservation, région, accès et périmètre. Écartez de la base lue par un assistant cloud les
 documents les plus sensibles.
 
@@ -109,6 +109,6 @@ documents les plus sensibles.
 ## Étapes suivantes
 
 - [Tutoriel RAG local : documents, Ollama et CPU uniquement](/fr/rag-local/)
-- [RAG local ou cloud : modèles, matériel et vos données](/local-vs-cloud-rag/)
-- [Citations RAG : ligne, page, diapositive et cellule](/rag-citations/)
+- [RAG local ou cloud : modèles, matériel et vos données](/fr/rag-local-ou-cloud/)
+- [Citations RAG : ligne, page, diapositive et cellule](/fr/rag-citations/)
 - [Formats pris en charge](/docs/supported-formats/)

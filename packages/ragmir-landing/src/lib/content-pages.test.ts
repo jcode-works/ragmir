@@ -4,6 +4,7 @@ import {
   findPage,
   HUBS,
   hubOf,
+  localizedHref,
   pageAlternates,
   pageHref,
   pageLocation,
@@ -86,6 +87,12 @@ describe("content pages", () => {
       es: "/es/rag-local/",
     })
     expect(pageAlternates(pages[3] as ContentPage, pages)).toEqual({ en: "/agentic-rag/" })
+  })
+
+  it("should link a page in the reader's language, or in English when it is not translated", () => {
+    expect(localizedHref("local-rag", "fr", pages)).toBe("/fr/rag-local/")
+    expect(localizedHref("agentic-rag", "fr", pages)).toBe("/agentic-rag/")
+    expect(localizedHref("missing-page", "es", pages)).toBe("/missing-page/")
   })
 
   it("should list a hub's sections in a locale, translations first", () => {

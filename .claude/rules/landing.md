@@ -12,7 +12,13 @@ paths:
   collections: `src/content/pages/<locale>/<path>.md`, served at `/<path>/` in English and
   `/<locale>/<path>/` otherwise; the guides of `docs/` render at `/docs/<file>/` from their only
   copy, with their search metadata in `src/lib/docs-pages.ts`, and their Markdown is served at
-  `/docs/<file>.md`. A page may exist in fewer locales; English always exists.
+  `/docs/<file>.md`. Every long-form page exists in all four locales, under a localized path tied
+  to the English page by `translationKey`; the docs stay in English. Link pages through
+  `localizedHref` and `localizeProjectLinks`, never a hard-coded English path, and translate a new
+  or changed page in the same change.
+- An English page with translations redirects, before paint, to the reader's browser language
+  (Chinese of any script goes to `zh`); a language picked in the menu is stored as `ragmir-locale`
+  and wins. A translated page never redirects.
 - The docs use their own layout, `src/components/docs-page.astro`, rather than Starlight, which
   would take over their routes, the Markdown pipeline, and the navigation bar they share with the
   rest of the site.

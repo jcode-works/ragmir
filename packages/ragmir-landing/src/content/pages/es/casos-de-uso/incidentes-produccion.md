@@ -40,8 +40,8 @@ npx rgr sources add "docs/runbooks/**" "docs/postmortems/**" "src/**"
 npx rgr ingest
 ```
 
-Después, conecta tu agente. Las páginas de [Claude Code](/integrations/claude-code/) y
-[Codex](/integrations/codex/) explican cómo cada uno inicia el servidor MCP de Ragmir en tu equipo.
+Después, conecta tu agente. Las páginas de [Claude Code](/es/integraciones/claude-code/) y
+[Codex](/es/integraciones/codex/) explican cómo cada uno inicia el servidor MCP de Ragmir en tu equipo.
 Las skills de abajo enseñan al agente el bucle de búsqueda, ampliación y refinamiento:
 
 ```bash
@@ -90,7 +90,7 @@ indexarlo.
 El índice se queda en tu equipo en cualquiera de los dos casos. Claude Code y Codex envían al modelo
 de su proveedor los pasajes que leen. Los runbooks y el código pueden nombrar hosts internos,
 clientes o incidentes, así que elige qué carpetas entran en la base. La [guía de RAG local o en la
-nube](/local-vs-cloud-rag/) enumera qué revisar: entrenamiento, retención, región, acceso y alcance.
+nube](/es/rag-local-o-nube/) enumera qué revisar: entrenamiento, retención, región, acceso y alcance.
 
 ## Límites
 
@@ -104,7 +104,7 @@ nube](/local-vs-cloud-rag/) enumera qué revisar: entrenamiento, retención, reg
 
 ## Próximos pasos
 
-- [Claude Code con Ragmir](/integrations/claude-code/)
-- [Codex con Ragmir](/integrations/codex/)
-- [Citas RAG: línea, página, diapositiva y celda](/rag-citations/)
-- [RAG local o en la nube: modelos, hardware y tus datos](/local-vs-cloud-rag/)
+- [Claude Code con Ragmir](/es/integraciones/claude-code/)
+- [Codex con Ragmir](/es/integraciones/codex/)
+- [Citas RAG: línea, página, diapositiva y celda](/es/rag-citas/)
+- [RAG local o en la nube: modelos, hardware y tus datos](/es/rag-local-o-nube/)

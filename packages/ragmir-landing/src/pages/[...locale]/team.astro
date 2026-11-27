@@ -12,7 +12,10 @@ import {
   locales,
   useTranslations,
 } from "../../i18n/utils"
+import { getCollection } from "astro:content"
 import Layout from "../../layouts/layout.astro"
+import { localizedHref } from "../../lib/content-pages"
+import { localizeProjectLinks } from "../../lib/project-links"
 import { NAVBAR_TRANSLATIONS, pickTranslations } from "../../lib/island-translations"
 import { JCODE_URL, MAINTAINER } from "../../lib/maintainer"
 
@@ -26,6 +29,8 @@ const locale = (Astro.params.locale as string | undefined) ?? defaultLang
 const { t, translations } = await useTranslations(locale)
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const homeUrl = getLocalizedUrl("/", locale)
+const contentPages = await getCollection("pages")
+const projectLinks = localizeProjectLinks((path) => localizedHref(path, locale, contentPages))
 const pageUrl = new URL(getLocalizedUrl("/team", locale), siteBase).href
 const alternateLocales = locales.map((entry) => ({
   locale: entry,
@@ -121,6 +126,7 @@ const structuredData = [
     localizedTeamUrl={getLocalizedUrl("/team", locale)}
     localizedUseCasesUrl={`${homeUrl}#use-cases`}
     translations={pickTranslations(translations, NAVBAR_TRANSLATIONS)}
+    projectLinks={projectLinks}
   />
 
   <div class="relative overflow-hidden">
@@ -283,6 +289,7 @@ const structuredData = [
   <AnimatedBackdrop>
     <Footer
       alternateLocales={alternateLocales}
+      links={projectLinks}
       locale={locale}
       localizedHomeUrl={`${homeUrl}#top`}
       translations={translations}

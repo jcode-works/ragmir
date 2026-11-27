@@ -209,8 +209,9 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   https://ragmir.com/, French https://ragmir.com/fr/, Spanish https://ragmir.com/es/, Simplified
   Chinese https://ragmir.com/zh/. Link readers to the page in their language.
 - The [guides](https://ragmir.com/guides/), [integrations](https://ragmir.com/integrations/), and
-  [documentation](https://ragmir.com/docs/) are in English. The local RAG and agentic RAG guides
-  also exist in French and Spanish.
+  [documentation](https://ragmir.com/docs/) are in English. The local RAG and agentic RAG guides,
+  the comparison of Claude alone with Claude and Ragmir, and the incident response, paperwork,
+  and job search use cases also exist in French and Spanish.
 
 ## Guides
 

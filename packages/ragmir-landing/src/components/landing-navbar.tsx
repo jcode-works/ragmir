@@ -391,14 +391,14 @@ export function LandingNavbar({
           <div className="flex items-center gap-1">
             <nav
               aria-label={t("nav_aria_label")}
-              className="mr-3 hidden items-center gap-1 lg:flex xl:mr-5 xl:gap-2"
+              className="mr-3 hidden items-center gap-4 lg:flex xl:mr-5 xl:gap-6"
             >
               {barLinks.map(({ href, label }) => (
                 <a
                   aria-current={
                     currentPath === href ? "page" : currentSection === href ? "true" : undefined
                   }
-                  className="rounded-full px-3.5 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:bg-foreground/[0.09] [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
+                  className="rounded-sm px-2 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
                   href={href}
                   key={href}
                 >

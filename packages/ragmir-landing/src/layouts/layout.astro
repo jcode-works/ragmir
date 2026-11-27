@@ -107,7 +107,7 @@ function alternateHref(targetLocale: string): string {
         const isDark = theme !== "light"
         document.documentElement.classList.toggle("dark", isDark)
         let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]')
-        if (!colorSchemeMeta) {
+        if (!(colorSchemeMeta instanceof HTMLMetaElement)) {
           colorSchemeMeta = document.createElement("meta")
           colorSchemeMeta.name = "color-scheme"
           document.head.appendChild(colorSchemeMeta)

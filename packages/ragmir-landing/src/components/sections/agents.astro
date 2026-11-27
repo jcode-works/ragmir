@@ -6,9 +6,10 @@ import { GITHUB_URL } from "../../lib/project-links"
 
 interface Props {
   translations: Record<string, string>
+  localizedIntegrationsUrl: string
 }
 
-const { translations } = Astro.props
+const { translations, localizedIntegrationsUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 const operatingModes = [
@@ -49,7 +50,7 @@ const operatingModes = [
       </div>
       <a
         class="mt-4 inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-        href="#integrations"
+        href={localizedIntegrationsUrl}
       >
         {t("agents_plugin_more")}
         <ArrowUp class="arrow-up size-4" aria-hidden="true" />

@@ -1,3 +1,5 @@
+import type * as React from "react"
+
 interface SectionHeaderProps {
   /** Chapter number in page order, such as "003". */
   num: string

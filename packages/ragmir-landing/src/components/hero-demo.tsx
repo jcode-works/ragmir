@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
+import type * as React from "react"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { highlightCall, highlightCode, highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"

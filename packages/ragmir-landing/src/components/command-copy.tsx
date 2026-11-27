@@ -1,4 +1,5 @@
 import { Check, Copy, X } from "lucide-react"
+import type * as React from "react"
 import { useEffect, useRef, useState } from "react"
 import { highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"
@@ -62,6 +63,9 @@ async function writeCommandToClipboard(command: string): Promise<void> {
   textarea.style.left = "-9999px"
   document.body.append(textarea)
   textarea.select()
+  // The deprecated command is the only copy path where the async clipboard is missing (plain HTTP,
+  // older browsers), so it stays as the fallback.
+  // noinspection JSDeprecatedSymbols
   const copyFallback = document.execCommand.bind(document) as (commandId: string) => boolean
   const copied = copyFallback("copy")
   textarea.remove()

@@ -23,6 +23,7 @@ import {
   Users,
   X,
 } from "lucide-react"
+import type * as React from "react"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import {
   GITHUB_URL,

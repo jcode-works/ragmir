@@ -1,3 +1,4 @@
+import type * as React from "react"
 import { RAGMIR_SETUP_PROMPT } from "../content/setup-prompt"
 import { cn } from "../lib/utils"
 import { CommandCopyBox, TextCopyButton } from "./command-copy"

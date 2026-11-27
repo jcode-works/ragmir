@@ -1,3 +1,4 @@
+import type * as React from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { cn } from "../lib/utils"
 

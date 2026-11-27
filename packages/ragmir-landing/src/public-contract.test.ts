@@ -133,7 +133,9 @@ const agentIntegrationSource = readFileSync(
   fileURLToPath(new URL("../../../docs/agent-integration.md", import.meta.url)),
   "utf8",
 )
-const localizedWebPageId = /"@id": `\$\{pageUrl\}#webpage`/
+// WebStorm parses source snippets that look like JSX or TypeScript as code; a `language=TEXT`
+// comment before an assertion keeps its expected snippet plain text.
+const localizedWebPageId = /"@id": `\$\{pageUrl}#webpage`/
 
 function collectUiSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -336,9 +338,13 @@ describe("landing public contract", () => {
   })
 
   it("should show teams shipping RAG how to deploy on their own servers", () => {
-    expect(homePageSource.indexOf("<Agents translations={translations} />")).toBeLessThan(
-      homePageSource.indexOf("<Deploy translations={translations} />"),
-    )
+    // language=TEXT
+    expect(
+      homePageSource.indexOf(
+        "<Agents translations={translations} localizedIntegrationsUrl={localizedIntegrationsUrl} />",
+      ),
+    ).toBeLessThan(homePageSource.indexOf("<Deploy translations={translations} />"))
+    // language=TEXT
     expect(homePageSource.indexOf("<Deploy translations={translations} />")).toBeLessThan(
       homePageSource.indexOf("<Privacy translations={translations} />"),
     )
@@ -415,6 +421,7 @@ describe("landing public contract", () => {
     expect(teamPageSource).toContain('url: "https://github.com/jb-thery"')
   })
 
+    // language=TEXT
   it("should use generic hreflang values while keeping regional Open Graph locales", () => {
     // Chinese pages are Simplified Chinese: a script subtag, still no region.
     expect(layoutSource).toContain(
@@ -445,6 +452,7 @@ describe("landing public contract", () => {
 
   it("should let search quote full snippets and keep error pages without a canonical", () => {
     expect(layoutSource).toContain(
+    // language=TEXT
       'const INDEXABLE_ROBOTS = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"',
     )
     expect(layoutSource).toContain(
@@ -679,6 +687,7 @@ describe("landing public contract", () => {
 
   it("should keep visible localized FAQs without FAQPage structured data", () => {
     for (const messages of [en, fr, es, zh]) {
+    // language=TEXT
       expect(getFaqItems(messages)).toHaveLength(16)
     }
     expect(homePageSource).toContain("<Faq translations={translations} />")
@@ -705,6 +714,9 @@ describe("landing public contract", () => {
   })
 
   it("should merge conditional and conflicting utility classes", () => {
-    expect(cn("px-2", false && "hidden", "px-4")).toBe("px-4")
+    const classesFor = (hidden: boolean) => cn("px-2", hidden && "hidden", "px-4")
+
+    expect(classesFor(false)).toBe("px-4")
+    expect(classesFor(true)).toBe("hidden px-4")
   })
 })

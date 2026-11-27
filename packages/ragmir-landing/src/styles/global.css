@@ -342,7 +342,7 @@ textarea {
 /* The highlighter sweeps across the citation, holds, then fades. */
 @keyframes citation-mark {
   0% {
-    background-size: 0% 100%;
+    background-size: 0 100%;
     --mark-alpha: 0.26;
   }
   28% {

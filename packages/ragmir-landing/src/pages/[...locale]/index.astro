@@ -195,6 +195,7 @@ const localizedLibraryUrl = `${getLocalizedUrl("/", locale)}#library`
 const localizedFeaturesUrl = `${getLocalizedUrl("/", locale)}#capabilities`
 const localizedUseCasesUrl = `${getLocalizedUrl("/", locale)}#use-cases`
 const localizedAgentsUrl = `${getLocalizedUrl("/", locale)}#agents`
+const localizedIntegrationsUrl = `${getLocalizedUrl("/", locale)}#integrations`
 const localizedDeployUrl = `${getLocalizedUrl("/", locale)}#deploy`
 const localizedFaqUrl = `${getLocalizedUrl("/", locale)}#faq`
 const localizedTeamUrl = getLocalizedUrl("/team", locale)
@@ -252,7 +253,7 @@ const localizedTeamUrl = getLocalizedUrl("/team", locale)
     <Integrations translations={translations} />
 
     <AnimatedBackdrop>
-      <Agents translations={translations} />
+      <Agents translations={translations} localizedIntegrationsUrl={localizedIntegrationsUrl} />
     </AnimatedBackdrop>
 
     <Deploy translations={translations} />

@@ -7,6 +7,7 @@ import {
   type LucideIcon,
   PackageCheck,
 } from "lucide-react"
+import type * as React from "react"
 import { useState } from "react"
 import { cn } from "../lib/utils"
 import { TabIndicator } from "./tab-indicator"

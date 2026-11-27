@@ -45,7 +45,7 @@ const heroTitleLines = [
   aria-labelledby="hero-heading"
   class="relative z-10 min-h-dvh w-full overflow-hidden"
 >
-  <RagmirBackground client:load behindContent className="inset-0" height="100%" />
+  <RagmirBackground client:load behindContent={true} className="inset-0" height="100%" />
 
   <div class="container-wide relative z-10 grid min-h-dvh w-full items-center gap-10 px-5 pt-24 pb-28 md:grid-cols-[minmax(0,1fr)_minmax(20rem,1fr)] md:gap-10 md:px-8 lg:content-center lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14 lg:py-20">
     <div class="min-w-0 max-w-4xl">
@@ -139,7 +139,7 @@ const heroTitleLines = [
     >
       <a
         class="pointer-events-auto absolute left-1/2 top-0 inline-flex size-8 -translate-x-1/2 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:text-white active:text-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
-        href="#use-cases"
+        href={localizedUseCasesUrl}
         aria-label={t("hero_scroll_aria_link")}
       >
         <ArrowDown class="scroll-hint size-3.5" />

@@ -34,7 +34,7 @@ interface Props {
   headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
   related: readonly ArticleCard[]
   /** A hub's pages, shown as groups of cards before its text. */
-  cardGroups?: ReadonlyArray<{ title?: string; cards: readonly ArticleCard[] }>
+  cardGroups?: ReadonlyArray<{ id?: string; title?: string; cards: readonly ArticleCard[] }>
   /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
   navSection?: string
   /** The setup prompt offered before the text, the short way through the page. */
@@ -198,7 +198,7 @@ const pillClass =
             {isHub && (
               <div class="flex flex-col gap-14">
                 {cardGroups.map((group) => (
-                  <section aria-label={group.title}>
+                  <section aria-label={group.title} class="scroll-mt-28" id={group.id}>
                     {group.title && <h2 class="type-section">{group.title}</h2>}
                     <ArticleCards
                       cards={group.cards}

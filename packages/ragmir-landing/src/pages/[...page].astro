@@ -81,6 +81,8 @@ const resolve = (target: string, mark?: IntegrationMarkName): ArticleCard[] => {
 }
 
 const cardGroups = (hub?.groups ?? []).map((group) => ({
+  // A stable anchor per group, such as /guides/#use-cases, whatever the label's language.
+  id: group.labelKey.replace(/^(nav|hub_group|integrations_group)_/u, "").replaceAll("_", "-"),
   title: t(group.labelKey),
   cards: [
     ...hubPages

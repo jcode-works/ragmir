@@ -104,6 +104,7 @@ export const DOC_ORDER: readonly string[] = DOC_GROUPS.flatMap((group) => group.
 /** Pages beyond the documentation, listed at the foot of its menu; some leave the site. */
 const DOC_MENU_MORE: ReadonlyArray<{ title: string; href: string; external?: boolean }> = [
   { title: "All guides", href: "/guides/" },
+  { title: "Use cases", href: "/guides/#use-cases" },
   { title: "Integrations", href: "/integrations/" },
   { title: "Local or cloud RAG", href: "/local-vs-cloud-rag/" },
   { title: "Claude alone or with Ragmir", href: "/compare/claude-vs-rag/" },

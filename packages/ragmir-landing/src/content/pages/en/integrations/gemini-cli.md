@@ -8,7 +8,7 @@ setup: agents
 translationKey: "integrations/gemini-cli"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["local-vs-cloud-rag", "mcp-rag-server", "integrations/claude-code", "docs/agent-integration"]
+related: ["use-cases/youtube-research", "local-vs-cloud-rag", "mcp-rag-server", "docs/agent-integration"]
 logo: "gemini"
 group: "agents"
 ---

@@ -2,7 +2,7 @@
 title: "Local RAG Tutorial: Documents, Ollama, and CPU Only | Ragmir"
 description: "Build local RAG step by step: index your documents with Ragmir on the CPU, search with exact citations, and answer with an Ollama model. No GPU or API key."
 h1: "How to build local RAG on your own machine"
-summary: "Install Ragmir with Node.js 22.12 or later, index your documents on the CPU, and search them with exact citations: the default path needs no GPU, API key, or vector database. A short script then sends only the passages you select to a local model such as Ollama."
+summary: "Install Ragmir with Node.js 22.12 or later, index your documents on the CPU, and search them with exact citations. The default path needs no GPU, API key, or vector database. A short script then sends only the passages you select to a local model such as Ollama."
 section: guide
 translationKey: "local-rag"
 datePublished: 2026-11-27
@@ -10,12 +10,14 @@ dateModified: 2026-11-27
 related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "rag-vs-mcp"]
 ---
 
-Ragmir is the retrieval half of a local RAG setup. It parses your files, keeps an embedded index in
-the Git-ignored `.ragmir/` folder, and returns passages with citations to the line, PDF page,
-slide, or spreadsheet cell they come from. It does not bundle a chat or a generation model: the
-model you run writes the answer from the passages you send it. The default `local-hash` retrieval
-downloads nothing and makes no network call, so with a local model, indexing, search, and
-generation all stay on one machine.
+You can run RAG on one machine with Ragmir for retrieval and a local model for answers.
+
+Ragmir parses your files and keeps an embedded index in the Git-ignored `.ragmir/` folder. It
+returns passages with citations to the line, PDF page, slide, or spreadsheet cell they come from.
+
+Ragmir bundles no chat or generation model. The model you run writes the answer from the passages
+you send it. The default `local-hash` retrieval downloads nothing and makes no network call. With a
+local model, indexing, search, and generation all stay on one machine.
 
 ## What you need
 
@@ -38,8 +40,8 @@ npm install -D @jcode.labs/ragmir@6.20.0
 npx rgr init
 ```
 
-The install added 193 packages in 9 seconds. `rgr init` creates the basic local configuration,
-keeps Ragmir's state in the ignored `.ragmir/` folder, and ends with the next steps:
+The install added 193 packages in 2 seconds. `rgr init` creates the basic local configuration and
+keeps Ragmir's state in the ignored `.ragmir/` folder. It ends with the next steps:
 
 ```text
   - .ragmir/raw/README.md
@@ -63,10 +65,13 @@ sourcesFile=.ragmir/config.json
 added docs/**/*.md
 ```
 
-Add more globs in the same command, such as `"specs/**/*.pdf"`. Sources are folders, files, and globs relative to the project, and a leading `!` excludes. More
-than 900 file types index with no extra install, including PDF, Word, PowerPoint, Excel, and EPUB,
-and `.env` files, keys, and certificates never reach the index. Scanned PDFs need optional local
-OCR: run `rgr ocr doctor`, then `rgr ocr setup`.
+Add more globs in the same command, such as `"specs/**/*.pdf"`. Sources are folders, files, and
+globs relative to the project. A leading `!` excludes.
+
+More than 900 file types index with no extra install, including PDF, Word, PowerPoint, Excel, and
+EPUB. `.env` files, keys, and certificates never reach the index.
+
+Scanned PDFs need optional local OCR. Run `rgr ocr doctor`, then `rgr ocr setup`.
 
 ### 3. Ingest and search
 
@@ -75,31 +80,33 @@ npx rgr ingest
 ```
 
 ```text
-Done. runId=da8d592c-[...] discoveredFiles=11 supportedFiles=11 supportedBytes=190165 [...]
-indexedFiles=11 [...] chunks=256 skippedFiles=0 unsupportedFiles=0 [...] errors=0
+Done. runId=6da60ab3-[...] discoveredFiles=11 supportedFiles=11 supportedBytes=191110 [...]
+indexedFiles=11 [...] chunks=257 skippedFiles=0 unsupportedFiles=0 [...] errors=0
 ```
 
-The eleven files became 256 chunks in 0.86 seconds, with a peak of 193 MB of memory for the whole
-`npx` process. Ingestion is incremental: later runs read only new and changed files.
+The eleven files became 257 chunks. The whole `npx` process took 1.04 seconds and peaked at 194 MB
+of memory. Ingestion is incremental, so later runs read only new and changed files.
 
 ```bash
 npx rgr search "run on a server without internet access" --compact
 ```
 
 ```text
-[1] docs/server-deployment.md:L123-L138#8 chunk=8 distance=1.3394
+[1] docs/server-deployment.md:L125-L140#8 chunk=8 distance=1.3394
 ## Without internet access Build the image where the npm registry is reachable, then move it with `docker save` and `docker load`, or install from your internal npm mirror. At runtime, `local-hash` makes no network call: the container above ingests and sear...
 
-[2] docs/docker.md:L96-L105#5 chunk=5 distance=1.2474
+[2] docs/docker.md:L98-L107#5 chunk=5 distance=1.2474
 ...Without internet access, pull the image where the registry is reachable, then move it with `docker save` and `docker load`.
 
 [...]
 ```
 
-Each result carries a citation: lines here, a page for a PDF (`contracts/msa-acme-2026.pdf:p7#3`),
-and slide, sheet and cell, or section coordinates for other formats. When the evidence is weak,
-search prints nothing rather than the nearest passage, and it names the question words that no
-indexed passage holds:
+Each result carries a citation. Here it is a line range. A PDF gets a page
+(`contracts/msa-acme-2026.pdf:p7#3`), and other formats get slide, sheet and cell, or section
+coordinates.
+
+When the evidence is weak, search prints nothing instead of the nearest passage. It also names the
+question words that no indexed passage holds:
 
 ```bash
 npx rgr search "weather forecast for Lyon tomorrow" --compact
@@ -113,20 +120,21 @@ No passage matched. Rephrase the query or widen the path and context filters.
 ### 4. Expand the passage you will rely on
 
 A compact result is an excerpt. Expanding its citation returns the indexed passage with its
-neighbours, and `nextCitation` reads a long document window by window. The script below expands
-the first result with `contextRadius: 1`; a local chat that supports MCP over stdio can run the
-same loop through `rgr serve-mcp` and the `ragmir_expand` tool.
+neighbours. `nextCitation` reads a long document window by window.
+
+The script below expands the first result with `contextRadius: 1`. A local chat that supports MCP
+over stdio can run the same loop through `rgr serve-mcp` and the `ragmir_expand` tool.
 
 ### 5. Answer with a local model through Ollama
 
-Disable Ollama's cloud features with `"disable_ollama_cloud": true` in `~/.ollama/server.json`,
-then restart it, as the
+First, disable Ollama's cloud features. Set `"disable_ollama_cloud": true` in
+`~/.ollama/server.json` and restart Ollama, as the
 [Ollama FAQ](https://docs.ollama.com/faq#how-do-i-disable-ollama-cloud-features) describes. A
 localhost endpoint alone does not prove local inference, because Ollama also supports cloud models.
 Ragmir needs no Ollama dependency.
 
-Save this as `answer.mjs` in the indexed project. It retrieves candidates, expands the first
-result, and sends only those expanded passages to the model:
+Then save this as `answer.mjs` in the indexed project. It retrieves candidates and expands the first
+result. Only those expanded passages go to the model:
 
 ```js
 import { createRagmirClient } from "@jcode.labs/ragmir"
@@ -175,37 +183,31 @@ node answer.mjs "gemma4:12b-it-qat" "How do I run Ragmir on a server without int
 ```
 
 With `LLM_API`, `LLM_CHAT_URL`, and `LLM_API_KEY` unset, the script calls Ollama at
-`http://localhost:11434/api/chat`. With Ollama 0.40.16 and the `gemma4:12b-it-qat` model already
-downloaded, the run took 49 seconds and printed an answer that cites its passage, then the
+`http://localhost:11434/api/chat`. This run used Ollama 0.40.16 with the `gemma4:12b-it-qat` model
+already downloaded. It took 49 seconds and printed an answer that cites its passage, then the
 expanded sources:
 
-```text
-To run Ragmir on a server without internet access, you can use the following procedures:
+<figure>
+  <img src="/guides/local-rag-answer.webp" alt="Terminal output of node answer.mjs with gemma4:12b-it-qat. The model answers in four points (image deployment, semantic retrieval, OCR, external components), each citing docs/server-deployment.md:L125-L140#8, names one gap the evidence leaves open, then lists the three retrieved sources." width="1440" height="1565" loading="lazy" decoding="async">
+  <figcaption>The answer from this run. Every point cites the passage it comes from, and the model says what the evidence does not cover.</figcaption>
+</figure>
 
-*   **Image Deployment:** Build the image in a location where the npm registry is reachable, then move it using `docker save` and `docker load`, or install it from an internal npm mirror. At runtime, the container can be run with `--network none` because `local-hash` does not make network calls [docs/server-deployment.md:L123-L138#8].
-[...]
-Retrieved sources: [
-  'docs/server-deployment.md:L108-L121#7',
-  'docs/server-deployment.md:L123-L138#8',
-  'docs/server-deployment.md:L140-L149#9'
-]
-```
-
-The script runs one retrieval pass, not an autonomous agent: adapt the
-evidence size to the model's context window, and verify generated claims against the returned
-passages.
+The script runs one retrieval pass. It is not an autonomous agent. Adapt the evidence size to the
+model's context window, and verify generated claims against the returned passages.
 
 ## Local RAG on a CPU, and when to add a model
 
-`local-hash` ranks BM25 keyword evidence first and runs on the CPU. On Ragmir's own repository it
-put an answering file in the top 3 for 82% of 89 developer questions and in the top 10 for 99%
-without any model ([benchmarks](/benchmarks/), measured on November 27, 2026); run `rgr evaluate`
-on your own questions before relying on a number. Add a semantic model when questions use words your documents
-do not: synonyms, paraphrases, or another language.
+`local-hash` ranks BM25 keyword evidence first and runs on the CPU. On Ragmir's own repository, with
+no model, it put an answering file in the top 3 for 82% of 89 developer questions. It did so in the
+top 10 for 99% ([benchmarks](/benchmarks/), measured on November 27, 2026). Run `rgr evaluate` on
+your own questions before relying on a number.
+
+Add a semantic model when questions use words your documents do not. That covers synonyms,
+paraphrases, and another language.
 
 Install the optional `@huggingface/transformers` package, then let Ragmir install the model that
-fits the machine. The download happens once, after your approval, and normal retrieval keeps
-remote model loading disabled.
+fits the machine. The download happens once, after your approval. Normal retrieval keeps remote
+model loading disabled.
 
 ```bash
 npx rgr models list
@@ -220,10 +222,12 @@ npx rgr ingest
 | `multilingual-e5-small` | 1.5 GB | 492 MB | 3 GB and 2 CPUs |
 | `Qwen3-Embedding-0.6B` | 4 GB | 624 MB | 8 GB and 2 CPUs |
 
-A GPU stays optional: WebGPU embeds ingestion batches about twice as fast on an Apple M3 Max (see
-`ingestEmbeddingDevice` in the [configuration guide](/docs/configuration/)), and
-search stays on the CPU. To embed with a model Ollama already serves, point Ragmir at its
-OpenAI-compatible API in the configuration, then run `rgr ingest --rebuild`:
+A GPU stays optional. WebGPU embeds ingestion batches about twice as fast on an Apple M3 Max (see
+`ingestEmbeddingDevice` in the [configuration guide](/docs/configuration/)). Search stays on the
+CPU.
+
+To embed with a model Ollama already serves, point Ragmir at its OpenAI-compatible API in the
+configuration, then run `rgr ingest --rebuild`:
 
 ```json
 {
@@ -236,9 +240,11 @@ OpenAI-compatible API in the configuration, then run `rgr ingest --rebuild`:
 ## Where your data goes
 
 With a local model and a local client, the index, search, and model calls all stay on your
-machine. A local index does not make a remote conversation local: connect a cloud agent or API
-instead, and the passages you send reach that provider. Ragmir does not mask source text, so
-choose your sources accordingly.
+machine.
+
+A local index does not make a remote conversation local. If you connect a cloud agent or API, the
+passages you send reach that provider. Ragmir does not mask source text, so choose your sources
+accordingly.
 
 ## Next steps
 

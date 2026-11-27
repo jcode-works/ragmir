@@ -2,7 +2,7 @@
 title: "RAG agéntico: qué es y cuándo conviene usarlo | Ragmir"
 description: "Qué es el RAG agéntico: el agente decide cuándo buscar, reformula consultas, amplía citas y se detiene con evidencia débil. Con el bucle y un ejemplo local."
 h1: "¿Qué es el RAG agéntico y cuándo conviene usarlo?"
-summary: "El RAG agéntico pone la recuperación bajo el control del agente: decide cuándo buscar, reformula la pregunta, abre los pasajes citados que necesita y se detiene cuando la evidencia es débil, en lugar de ejecutar un único paso fijo de recuperar y luego generar. Ragmir aporta el lado de recuperación de ese bucle; el agente y su modelo se encargan del razonamiento, la respuesta y cualquier acción."
+summary: "El RAG agéntico pone la recuperación bajo el control del agente. Decide cuándo buscar, reformula la pregunta, abre los pasajes citados que necesita y se detiene cuando la evidencia es débil. Ragmir aporta el lado de recuperación. El agente y su modelo se encargan del razonamiento, la respuesta y cualquier acción."
 section: guide
 translationKey: "agentic-rag"
 datePublished: 2026-11-27
@@ -10,7 +10,11 @@ dateModified: 2026-11-27
 related: ["rag-without-vector-database", "case-studies/ragmir-repository", "benchmarks", "mcp-rag-server"]
 ---
 
-En el RAG clásico (generación aumentada por recuperación), una aplicación toma la pregunta del usuario, recupera los pasajes una sola vez y se los entrega a un modelo. En el RAG agéntico, la recuperación es una herramienta. El agente la invoca cuando necesita evidencia, cambia la redacción entre llamadas, lee un pasaje completo antes de decidir qué buscar después y puede concluir que los documentos no cubren la pregunta. Ragmir está diseñado para ese patrón: devuelve citas compactas, amplía las que el agente selecciona y no devuelve nada cuando la evidencia es débil. No ejecuta el bucle del agente ni redacta la respuesta.
+En el RAG agéntico, la recuperación es una herramienta que el agente invoca cuando necesita evidencia.
+
+En el RAG clásico (generación aumentada por recuperación), una aplicación toma la pregunta del usuario, recupera los pasajes una sola vez y se los entrega a un modelo. En el RAG agéntico, el agente busca cuando lo necesita. Cambia la redacción entre llamadas y lee un pasaje completo antes de decidir qué buscar después. También puede concluir que los documentos no cubren la pregunta.
+
+Ragmir está diseñado para ese patrón. Devuelve citas compactas, amplía las que el agente selecciona y no devuelve nada cuando la evidencia es débil. No ejecuta el bucle del agente ni redacta la respuesta.
 
 ## RAG agéntico frente a RAG clásico
 
@@ -26,20 +30,21 @@ En el RAG clásico (generación aumentada por recuperación), una aplicación to
 
 ![El bucle del RAG agéntico: el agente decide si necesita evidencia, llama a ragmir_search, informa de un hueco cuando el resultado está vacío, amplía la cita seleccionada con ragmir_expand y vuelve a buscar hasta que la evidencia basta para responder o actuar.](/diagrams/agentic-rag-loop-es.svg)
 
-En resumen, el bucle que describe la documentación de Ragmir:
+El bucle que describe la documentación de Ragmir tiene cinco pasos:
 
 1. El agente lee una sola vez la identidad, los ámbitos y la actualidad de la base, desde `ragmir://context` o `ragmir_status`.
 2. Llama a `ragmir_search` con una consulta concreta, o envía hasta cinco preguntas relacionadas en `queries`.
 3. Amplía con `ragmir_expand` la cita en la que se apoyará la respuesta.
-4. Cuando la evidencia es incompleta, reformula con `searches`, acota la búsqueda a carpetas o a un ámbito con nombre, o lista los documentos con `ragmir_sources`.
+4. Cuando la evidencia es incompleta, reformula con `searches`. También puede acotar la búsqueda a carpetas o a un ámbito con nombre, o listar los documentos con `ragmir_sources`.
 5. Responde citando cada afirmación, señala los huecos y verifica las citas antes de actuar.
 
 ## Cómo implementa Ragmir la parte de recuperación
 
-- **Varias formulaciones en una sola búsqueda.** `searches` añade hasta cinco formulaciones de la misma necesidad, fusionadas con la pregunta en un único ranking: `lex` para palabras clave (una `"frase"` es obligatoria, un `-palabra` se excluye), `vec` para una paráfrasis, o `hyde` para un pasaje redactado como podría leerse la respuesta. Cada una pesa la mitad que las listas propias de la pregunta (un pasaje `hyde` pesa un cuarto), y solo la pregunta decide si hay respuesta: las formulaciones nunca convierten una negativa en una respuesta.
+- **Varias formulaciones en una sola búsqueda.** `searches` añade hasta cinco formulaciones de la misma necesidad, fusionadas con la pregunta en un único ranking. Una formulación `lex` contiene palabras clave (una `"frase"` es obligatoria y un `-palabra` se excluye). Una formulación `vec` es una paráfrasis. Una formulación `hyde` es un pasaje redactado como podría leerse la respuesta. Cada una pesa la mitad que las listas propias de la pregunta, y un pasaje `hyde` pesa un cuarto. Solo la pregunta decide si hay respuesta, así que las formulaciones nunca convierten una negativa en una respuesta.
 - **Un contexto acotado.** La búsqueda devuelve tres citas compactas por defecto, dentro de un presupuesto de salida de 32 KB por llamada. Los pasajes que ya se devolvieron en la sesión llegan como breves stubs `seen`, de modo que una segunda búsqueda gasta su presupuesto en evidencia nueva.
 - **Ampliación bajo demanda.** `ragmir_expand` devuelve una cita con sus vecinos, hasta cinco citas a la vez, y un `nextCitation` para leer un documento largo de principio a fin.
-- **Señales que el agente puede usar.** Un resultado vacío significa que la base no tiene evidencia para la pregunta. `weakEvidence` marca un respaldo débil, `sourceStatus` marca un archivo modificado desde la indexación (`ragmir_ingest` actualiza el índice), y un aviso nombra las palabras de la pregunta que ningún pasaje indexado contiene. En el repositorio de Ragmir, entre 23 y 28 de cada 30 preguntas fuera de tema no devolvieron nada el 27 de noviembre de 2026 ([benchmarks](/benchmarks/)).
+- **Señales que el agente puede usar.** Un resultado vacío significa que la base no tiene evidencia para la pregunta. `weakEvidence` marca un respaldo débil, `sourceStatus` marca un archivo modificado desde la indexación (`ragmir_ingest` actualiza el índice) y un aviso nombra las palabras de la pregunta que ningún pasaje indexado contiene.
+- **Preguntas fuera de tema.** En el repositorio de Ragmir, entre 23 y 28 de cada 30 preguntas fuera de tema no devolvieron nada el 27 de noviembre de 2026 ([benchmarks](/benchmarks/)).
 
 Una búsqueda con formulaciones, tal como la envía el agente:
 
@@ -57,7 +62,9 @@ Una búsqueda con formulaciones, tal como la envía el agente:
 
 ## Cuándo usar RAG agéntico y cuándo basta el RAG clásico
 
-El RAG clásico basta cuando una sola búsqueda con las palabras del usuario encuentra el pasaje y la aplicación solo tiene que responder o rechazar. El asistente de contratos de la documentación de Ragmir es ese caso: `RagmirRetriever` devuelve la cláusula que responde, con su cita de página, o ningún documento cuando los contratos callan, así que la aplicación lo dice en lugar de adivinar. El ejemplo de modelo local de la documentación también es una sola pasada de recuperación, no un agente autónomo.
+El RAG clásico basta cuando una sola búsqueda con las palabras del usuario encuentra el pasaje. Entonces la aplicación solo tiene que responder o rechazar.
+
+El asistente de contratos de la documentación de Ragmir es ese caso: `RagmirRetriever` devuelve la cláusula que responde, con su cita de página, o ningún documento cuando los contratos callan, así que la aplicación lo dice en lugar de adivinar. El ejemplo de modelo local de la documentación también es una sola pasada de recuperación, no un agente autónomo.
 
 El RAG agéntico encaja en tareas en las que un solo pasaje no basta para responder:
 
@@ -66,7 +73,7 @@ El RAG agéntico encaja en tareas en las que un solo pasaje no basta para respon
 - leer un PDF largo o una especificación ventana a ventana;
 - preguntas formuladas de forma distinta a los documentos, cuando las palabras clave, la paráfrasis o la respuesta probable del agente llegan a pasajes que las palabras de la pregunta no alcanzan.
 
-En un repositorio de código pequeño, la búsqueda propia de un agente de programación suele bastar, y grep sigue siendo la herramienta para listar cada aparición o buscar una expresión regular.
+En un repositorio de código pequeño, la búsqueda propia de un agente de programación suele bastar. grep sigue siendo la herramienta para listar cada aparición o buscar una expresión regular.
 
 ## Ejecutarlo en local
 
@@ -80,7 +87,9 @@ npx rgr ingest
 npx rgr search "authentication contract" --compact
 ```
 
-Desde la CLI, `--lex`, `--vec` y `--hyde` añaden formulaciones, y `--explain` lista las formulaciones que encontraron cada resultado. Un turno del bucle, registrado el 27 de noviembre de 2026 con Ragmir 6.20.0 y las once guías de la carpeta `docs/` de Ragmir indexadas:
+Desde la CLI, `--lex`, `--vec` y `--hyde` añaden formulaciones, y `--explain` lista las formulaciones que encontraron cada resultado.
+
+Aquí tienes un turno del bucle. Se registró el 27 de noviembre de 2026 con Ragmir 6.20.0 y las once guías de la carpeta `docs/` de Ragmir indexadas:
 
 ```text
 ragmir_search({ query: "How do I run Ragmir on a server without internet access?" })
@@ -98,7 +107,7 @@ Las salidas se muestran tal como se imprimieron, en inglés.
 
 El agente leyó 4 539 bytes de respuestas para llegar al pasaje y a su rango de líneas, mientras que abrir enteros los tres archivos citados habría costado 22 014 bytes.
 
-Para una aplicación, `createRagmirTools` desde `@jcode.labs/ragmir/langchain` ofrece a un agente de LangChain.js las mismas herramientas `ragmir_search` y `ragmir_expand`, y `RagmirToolkit` hace lo mismo en Python; la [integración con LangChain](/integrations/langchain/) muestra ambas.
+Para una aplicación, `createRagmirTools` desde `@jcode.labs/ragmir/langchain` ofrece a un agente de LangChain.js las mismas herramientas `ragmir_search` y `ragmir_expand`. `RagmirToolkit` hace lo mismo en Python. La [integración con LangChain](/integrations/langchain/) muestra ambas.
 
 ## Límites
 

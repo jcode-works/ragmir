@@ -2,7 +2,7 @@
 title: "Agentic RAG: what it is and when to use it | Ragmir"
 description: "What agentic RAG is: the agent decides when to search, rewords queries, expands citations, and stops on weak evidence. With the loop and a local example."
 h1: "What is agentic RAG, and when should you use it?"
-summary: "Agentic RAG puts retrieval under the agent's control: it decides when to search, rewords the question, opens the cited passages it needs, and stops when the evidence is weak, instead of running one fixed retrieve-then-generate step. Ragmir provides the retrieval side of that loop; the agent and its model own the reasoning, the answer, and any action."
+summary: "Agentic RAG lets the agent control retrieval. It decides when to search, rewords the question, opens the cited passages it needs, and stops when the evidence is weak. Ragmir provides the retrieval side. The agent and its model own the reasoning, the answer, and any action."
 section: guide
 translationKey: "agentic-rag"
 datePublished: 2026-11-27
@@ -10,11 +10,14 @@ dateModified: 2026-11-27
 related: ["rag-without-vector-database", "case-studies/ragmir-repository", "benchmarks", "mcp-rag-server"]
 ---
 
+Agentic RAG makes retrieval a tool that the agent calls when it needs evidence.
+
 In plain retrieval-augmented generation, an application takes the user's question, retrieves
-passages once, and hands them to a model. In agentic RAG, retrieval is a tool. The agent calls it
-when it needs evidence, changes its wording between calls, reads one passage in full before
-deciding what to look for next, and can conclude that the documents do not cover the question.
-Ragmir is built for that pattern: it returns compact citations, expands the ones the agent selects,
+passages once, and hands them to a model. In agentic RAG, the agent searches when it needs to. It
+changes its wording between calls and reads one passage in full before deciding what to look for
+next. It can also conclude that the documents do not cover the question.
+
+Ragmir is built for that pattern. It returns compact citations, expands the ones the agent selects,
 and returns nothing when the evidence is weak. It does not run the agent loop or write the answer.
 
 ## Agentic RAG vs RAG
@@ -31,34 +34,36 @@ and returns nothing when the evidence is weak. It does not run the agent loop or
 
 ![The agentic RAG loop: the agent decides whether it needs evidence, calls ragmir_search, reports a gap on an empty result, expands the selected citation with ragmir_expand, and searches again until the evidence is enough to answer or act.](/diagrams/agentic-rag-loop.svg)
 
-In words, the loop Ragmir's docs describe:
+The loop that Ragmir's docs describe has five steps:
 
 1. The agent reads the base's identity, scopes, and freshness once, from `ragmir://context` or
    `ragmir_status`.
 2. It calls `ragmir_search` with a focused query, or sends up to five related questions in
    `queries`.
 3. It expands the citation the answer will rely on with `ragmir_expand`.
-4. When the evidence is incomplete, it rewords with `searches`, narrows the search to folders or a
-   named scope, or lists the documents with `ragmir_sources`.
+4. When the evidence is incomplete, it rewords with `searches`. It can also narrow the search to
+   folders or a named scope, or list the documents with `ragmir_sources`.
 5. It answers with a citation for each claim, names the gaps, and verifies citations before
    acting.
 
 ## How Ragmir implements the retrieval side
 
 - **Several formulations in one search.** `searches` adds up to five formulations of the same need,
-  fused with the question into one ranking: `lex` keywords (a `"phrase"` is required, a `-word`
-  excluded), a `vec` paraphrase, or a `hyde` passage written as the answer might read. Each weighs
-  half as much as the question's own lists (a `hyde` passage a quarter), and only the question
-  decides whether there is an answer: formulations never turn a refusal into one.
+  fused with the question into one ranking. A `lex` formulation holds keywords (a `"phrase"` is
+  required, a `-word` excluded). A `vec` formulation is a paraphrase. A `hyde` formulation is a
+  passage written as the answer might read. Each weighs half as much as the question's own lists,
+  and a `hyde` passage a quarter. Only the question decides whether there is an answer, so
+  formulations never turn a refusal into one.
 - **A bounded context.** Search returns three compact citations by default within a 32 KB output
-  budget per call. Passages already returned in the session come back as short `seen` stubs, so a
-  second search spends its budget on new evidence.
+  budget per call. Passages already returned in the session come back as short `seen` stubs. A
+  second search then spends its budget on new evidence.
 - **Expansion on demand.** `ragmir_expand` returns a citation with its neighbours, up to five
   citations at once, and a `nextCitation` to read a long document through.
 - **Signals the agent can act on.** An empty result means the base holds no evidence for the
-  question. `weakEvidence` marks thin support, `sourceStatus` marks a file changed since indexing
-  (`ragmir_ingest` refreshes the index), and a notice names the question's words that no indexed
-  passage holds. On Ragmir's own repository, 23 to 28 of 30 off-topic questions returned
+  question. `weakEvidence` marks thin support. `sourceStatus` marks a file changed since indexing
+  (`ragmir_ingest` refreshes the index). A notice names the question's words that no indexed
+  passage holds.
+- **Off-topic questions.** On Ragmir's own repository, 23 to 28 of 30 off-topic questions returned
   nothing on November 27, 2026 ([benchmarks](/benchmarks/)).
 
 One search with formulations, as the agent sends it:
@@ -77,11 +82,13 @@ One search with formulations, as the agent sends it:
 
 ## When to use agentic RAG, and when plain RAG is enough
 
-Plain RAG is enough when one search with the user's own words finds the passage and the
-application only has to answer or decline. The contract assistant in Ragmir's docs is that case:
-`RagmirRetriever` returns the clause that answers with its page citation, or no documents when the
-contracts are silent, so the application says so instead of guessing. The docs' local-model
-example is likewise one retrieval pass, not an autonomous agent.
+Plain RAG is enough when one search with the user's own words finds the passage. The application
+then only has to answer or decline.
+
+The contract assistant in Ragmir's docs is that case. `RagmirRetriever` returns the clause that
+answers with its page citation, or no documents when the contracts are silent. The application says
+so instead of guessing. The docs' local-model example is likewise one retrieval pass, not an
+autonomous agent.
 
 Agentic RAG fits tasks where one passage is not the whole answer:
 
@@ -91,13 +98,13 @@ Agentic RAG fits tasks where one passage is not the whole answer:
 - questions worded differently from the documents, where the agent's own keywords, paraphrase, or
   likely answer reach passages the question's words miss.
 
-On a small code repository, a coding agent's own search is often enough, and grep remains the tool
-to list every occurrence or match a regular expression.
+On a small code repository, a coding agent's own search is often enough. Grep remains the tool to
+list every occurrence or match a regular expression.
 
 ## Run it locally
 
-Index a project and query it from the shell. The same index serves the agents that
-`rgr setup` connects:
+Index a project and query it from the shell. The same index serves the agents that `rgr setup`
+connects:
 
 ```bash
 npm install -D @jcode.labs/ragmir@6.20.0
@@ -107,9 +114,11 @@ npx rgr ingest
 npx rgr search "authentication contract" --compact
 ```
 
-From the CLI, `--lex`, `--vec`, and `--hyde` add formulations, and `--explain` lists the
-formulations that found each result. One turn of the loop, recorded on November 27, 2026 against
-Ragmir 6.20.0 with the eleven guides of Ragmir's `docs/` folder indexed:
+From the CLI, `--lex`, `--vec`, and `--hyde` add formulations. `--explain` lists the formulations
+that found each result.
+
+Here is one turn of the loop. It was recorded on November 27, 2026 against Ragmir 6.20.0, with the
+eleven guides of Ragmir's `docs/` folder indexed:
 
 ```text
 ragmir_search({ query: "How do I run Ragmir on a server without internet access?" })
@@ -123,21 +132,21 @@ ragmir_expand({ citation: "docs/server-deployment.md:L123-L138#8" })
   network call [...]
 ```
 
-The agent read 4,539 bytes of replies to reach the passage and its line range, where opening the
-three cited files whole would have cost 22,014 bytes.
+The agent read 4,539 bytes of replies to reach the passage and its line range. Opening the three
+cited files whole would have cost 22,014 bytes.
 
 For an application, `createRagmirTools` from `@jcode.labs/ragmir/langchain` gives a LangChain.js
-agent the same `ragmir_search` and `ragmir_expand` tools, and `RagmirToolkit` does the same in
-Python; the [LangChain integration](/integrations/langchain/) shows both.
+agent the same `ragmir_search` and `ragmir_expand` tools. `RagmirToolkit` does the same in Python.
+The [LangChain integration](/integrations/langchain/) shows both.
 
 ## Limits
 
 - Ragmir does not bundle a model, run an agent, or open an HTTP port. Planning, generation, and
   actions stay in the agent or application.
-- Passages go wherever the agent's model runs: with a cloud-backed agent, the selected excerpts
+- Passages go wherever the agent's model runs. With a cloud-backed agent, the selected excerpts
   reach its provider.
 - A network-facing host owns authentication, per-user authorization, transport security, and rate
-  limits; Ragmir does not filter results per user.
+  limits. Ragmir does not filter results per user.
 - Retrieved text is evidence for the agent to weigh, never instructions to follow.
 
 ## Next steps

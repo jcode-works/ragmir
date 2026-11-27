@@ -10,12 +10,16 @@ dateModified: 2026-11-27
 related: ["docs-mcp-server", "mcp-rag-server", "integrations", "docs/agent-integration"]
 ---
 
-Both give coding agents documentation through MCP, but they start from different sources. Context7
-indexes public libraries from their repositories and websites, refreshes them automatically, and
-serves the results from its hosted service, with private sources on paid plans and a self-hosted
-deployment on its Enterprise plan. Ragmir indexes the files you select, such as code,
-specifications, PDFs, and Office documents, in one process on your machine, and returns passages
-cited to the line, page, slide, or cell. Ragmir's own documentation is listed on Context7 as
+Both give coding agents documentation through MCP, but they start from different sources.
+
+Context7 indexes public libraries from their repositories and websites. It refreshes them
+automatically and serves the results from its hosted service. Private sources need a paid plan, and
+a self-hosted deployment needs its Enterprise plan.
+
+Ragmir indexes the files you select, such as code, specifications, PDFs, and Office documents. It
+runs in one process on your machine and returns passages cited to the line, page, slide, or cell.
+
+Ragmir's own documentation is listed on Context7 as
 [/jcode-works/ragmir](https://context7.com/jcode-works/ragmir).
 
 ## Criteria compared
@@ -72,11 +76,14 @@ and [Data Privacy](https://context7.com/docs/security/data-privacy). Ragmir colu
 
 ## Use them together
 
-An agent can run both servers. Ask Context7 how a library works, and Ragmir what your own
-specification, ADR, or code says about it. The references differ: a documentation URL from
-Context7, a file with its line or page from Ragmir. Context7 also serves Ragmir itself: assistants
-that fetch library documentation find Ragmir's guides and rules as `/jcode-works/ragmir`, refreshed
-from the repository after each release.
+An agent can run both servers. Ask Context7 how a library works. Ask Ragmir what your own
+specification, ADR, or code says about it.
+
+The references differ. Context7 gives a documentation URL, and Ragmir gives a file with its line or
+page.
+
+Context7 also serves Ragmir itself. Assistants that fetch library documentation find Ragmir's
+guides and rules as `/jcode-works/ragmir`, refreshed from the repository after each release.
 
 ## Next steps
 

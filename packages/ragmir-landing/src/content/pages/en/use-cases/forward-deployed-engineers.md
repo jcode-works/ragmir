@@ -10,17 +10,22 @@ dateModified: 2026-11-27
 related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "local-rag"]
 ---
 
-This page is for forward deployed engineers who ship RAG on a customer's documents inside the
-customer's perimeter. Ragmir covers the retrieval part of that job. Parsing, embeddings, the index,
-and search run in one Node.js process on the customer's machine, so there is no embedding API,
-vector database, telemetry, or hosted store to declare in a security review. The customer's service
-or agent keeps the model, the user interface, and the access rules.
+Ragmir covers the retrieval part of shipping RAG on a customer's documents inside the customer's
+perimeter.
+
+Parsing, embeddings, the index, and search run in one Node.js process on the customer's machine.
+There is no embedding API, vector database, telemetry, or hosted store to declare in a security
+review.
+
+The customer's service or agent keeps the model, the user interface, and the access rules.
 
 ## From a laptop demo to the customer's server
 
 Start with a cited demo on a laptop, then run the same `ragmir.config.json` on the customer's
-server. Linux, macOS, and Windows are tested on every release, and Debian or Alpine containers run
-Ragmir as a non-root user with a read-only root filesystem and no network.
+server. Linux, macOS, and Windows are tested on every release.
+
+Debian or Alpine containers run Ragmir as a non-root user with a read-only root filesystem and no
+network.
 
 - Point `storageDir` at a persistent volume and mount the documents read-only.
 - `local-hash` needs no model and makes no network call. Stage a semantic model or OCR engines
@@ -35,12 +40,15 @@ checklist.
 
 ## Prove retrieval quality before production
 
-Measure retrieval on the customer's own questions before anyone relies on the answers. Collect 20
-to 50 real questions to start, from users, tickets, or agent sessions, phrased the way people ask
-them rather than copied from headings. Add hard negatives: plausible questions the documents do not
-answer, including near-domain ones that share the vocabulary but miss the fact. Ragmir must return
-nothing for them. Keep the golden file under `.ragmir/` when the questions themselves are
-confidential.
+Measure retrieval on the customer's own questions before anyone relies on the answers.
+
+Collect 20 to 50 real questions to start. Take them from users, tickets, or agent sessions, and
+phrase them the way people ask them, not as copies of headings.
+
+Add hard negatives. These are plausible questions the documents do not answer, including
+near-domain ones that share the vocabulary but miss the fact. Ragmir must return nothing for them.
+
+Keep the golden file under `.ragmir/` when the questions themselves are confidential.
 
 ```json
 {
@@ -63,25 +71,44 @@ rgr evaluate --golden ragmir.golden.json --json   # adds gates, per-category gro
 rgr evaluate --golden ragmir.golden.json --baseline before.json   # signed change per metric
 ```
 
+<figure>
+  <img src="/guides/evaluate-offline.webp" alt="Terminal running rgr evaluate in the official 6.20.0 image with --network none on an eight-question golden file. Recall@5 is 1.000, but falsePositiveRate is 1.000, the maximumFalsePositiveRate gate fails, and the two hard negatives list the files they returned." width="1440" height="1523" loading="lazy" decoding="async">
+  <figcaption>A real run on a demo corpus of eleven Markdown guides and one PDF. Every answerable question finds its file in the top 5, but both hard negatives return passages: the false-positive gate fails and the command exits with status 1. That is the case to fix before anyone relies on the answers.</figcaption>
+</figure>
+
 The report covers Recall@1/3/5/10, Precision@5, MRR@10, nDCG@10, the exact citation rate, the
 false-positive rate on hard negatives, and p50 and p95 latency. It runs against the local index, so
-the whole measurement stays inside the perimeter. When a case misses,
-`rgr search "<query>" --explain --top-k 10` shows each result's vector and keyword ranks, and
-`rgr preview --path <file> --json` shows how the expected file was chunked. Change one setting at a
-time, compare against the baseline, and keep a change only when the report improves without new
-false positives. Never edit expectations or lower thresholds to make a change pass.
+the whole measurement stays inside the perimeter.
 
-A passing suite with at least 100 cases, graded relevance, exact citations, hard negatives, and
-every threshold stores a fingerprint in the index. `rgr doctor --deep` then reports retrieval
+When a case misses, two commands help:
+
+- `rgr search "<query>" --explain --top-k 10` shows each result's vector and keyword ranks.
+- `rgr preview --path <file> --json` shows how the expected file was chunked.
+
+Change one setting at a time and compare against the baseline. Keep a change only when the report
+improves without new false positives. Never edit expectations or lower thresholds to make a change
+pass.
+
+A suite passes for verification when it meets all of these conditions:
+
+- at least 100 cases
+- graded relevance
+- exact citations
+- hard negatives
+- every threshold met
+
+A passing suite stores a fingerprint in the index. `rgr doctor --deep` then reports retrieval
 quality as verified while the golden file, corpus, model revision, retrieval profile, and index
-policy stay the same. The same `rgr evaluate` command gates CI after `rgr ingest`.
+policy stay the same.
+
+The same `rgr evaluate` command gates CI after `rgr ingest`.
 
 ## Hand over the CLI and images
 
 - **A pinned release.** The npm package in the customer's lockfile, or an exact image tag such as
   `ghcr.io/jcode-works/ragmir:6.20.0` (`6.20.0-full` adds the semantic runtime and OCR).
 - **One committed configuration.** `ragmir.config.json` ships with the deployment, so the next team
-  inherits the same sources and settings; the index, models, and documents stay out of Git.
+  inherits the same sources and settings. The index, models, and documents stay out of Git.
 - **Health and diagnosis.** `rgr status --json` reports `ready`, the base name, and the indexed file
   count; `rgr doctor` checks freshness and configuration and lists the next steps.
 - **Safe upgrades.** Start with `rgr upgrade --check`. Upgrades keep the last validated index until
@@ -95,16 +122,16 @@ policy stay the same. The same `rgr evaluate` command gates CI after `rgr ingest
   not render documents or show highlighted previews; opening the cited page belongs to the
   customer's application.
 - **No authentication or per-user access control.** Ragmir has no HTTP server and does not know the
-  users. The host owns TLS, authentication, authorization, and rate limits: give each audience its
+  users. The host owns TLS, authentication, authorization, and rate limits. Give each audience its
   own base and check access before calling `search`.
 - **No model.** Generation goes to the model the application chooses: local, self-hosted, or a
   provider that receives the passages it is sent.
 - **No compliance claim.** Exact citations, explicit source selection, and evaluation reports
-  support traceability, but they do not by themselves make a system compliant with GDPR or the EU
-  AI Act, and none of this is legal advice.
+  support traceability. They do not by themselves make a system compliant with GDPR or the EU AI
+  Act, and none of this is legal advice.
 
-Ragmir is open source under AGPL-3.0-only. JCode Works also offers a commercial license for uses the
-AGPL does not fit, such as integrating Ragmir into proprietary software or a hosted service.
+Ragmir is open source under AGPL-3.0-only. JCode Works also offers a commercial license for uses
+the AGPL does not fit, such as integrating Ragmir into proprietary software or a hosted service.
 
 ## Next steps
 

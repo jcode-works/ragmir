@@ -2,7 +2,7 @@
 title: "RAG vs MCP: Differences, Token Usage, Using Both | Ragmir"
 description: "RAG and MCP are not the same: MCP connects an agent to tools, and retrieval decides what text comes back. How they work together and what drives token usage."
 h1: "RAG vs MCP: are they the same, and can you use both?"
-summary: "No. MCP is the protocol an agent uses to call tools; RAG retrieves passages from your sources so a model can answer from them. They work together when an MCP server exposes retrieval, and then the retrieval, not the protocol, decides how much text reaches the model."
+summary: "No. MCP is the protocol an agent uses to call tools. RAG retrieves passages from your sources so a model can answer from them. They work together when an MCP server exposes retrieval, and then the retrieval, not the protocol, decides how much text reaches the model."
 section: guide
 translationKey: "rag-vs-mcp"
 datePublished: 2026-11-27
@@ -10,12 +10,19 @@ dateModified: 2026-11-27
 related: ["mcp-rag-server", "rag-citations", "local-rag", "integrations/claude-code"]
 ---
 
+RAG and MCP are different things. MCP is a protocol, and RAG is a pattern that an MCP server can
+serve.
+
 MCP, the Model Context Protocol, defines how a client such as Claude Code, Codex, or Cursor
 discovers the tools a server exposes, calls them, and receives their results. It does not decide
-which text a tool returns or how long that text is. RAG, retrieval-augmented generation, is a
-pattern: find the passages that answer a question, then let a model write from them. Ragmir is a
-retrieval layer you can reach with or without MCP: its MCP server, the `rgr` CLI, TypeScript,
-Python, LangChain, and LlamaIndex all read the same index and return the same citations.
+which text a tool returns or how long that text is.
+
+RAG, retrieval-augmented generation, finds the passages that answer a question. A model then writes
+from them.
+
+Ragmir is a retrieval layer you can reach with or without MCP. Its MCP server, the `rgr` CLI,
+TypeScript, Python, LangChain, and LlamaIndex all read the same index and return the same
+citations.
 
 ## Are RAG and MCP the same thing?
 
@@ -29,21 +36,25 @@ No. They work at different layers:
 
 ## Can RAG and MCP be used together?
 
-Yes: an MCP server can expose retrieval as tools, and the agent decides when to call them.
-Ragmir's server runs over stdio, is listed in the MCP Registry as `io.github.jcode-works/ragmir`,
-and exposes six tools. `ragmir_search`, `ragmir_expand`, `ragmir_sources`, `ragmir_status`, and
-`ragmir_audit` are read-only; `ragmir_ingest` refreshes the index and writes nothing but Ragmir's
-private index. The agent calls them in turn, as in the session measured below: one search, then
-one expansion of the passage it relies on.
+Yes. An MCP server can expose retrieval as tools, and the agent decides when to call them.
 
-The agent searches, expands the one passage it needs, and searches again when it must. Its own model reads the evidence
-and writes the answer; Ragmir only returns evidence. Install the plugin for Claude Code, Codex, or
-Cursor, or run `rgr setup --agents claude,codex` for a project MCP server: register Ragmir per
-project, never for every project.
+Ragmir's server runs over stdio. It is listed in the MCP Registry as `io.github.jcode-works/ragmir`
+and exposes six tools:
+
+- `ragmir_search`, `ragmir_expand`, `ragmir_sources`, `ragmir_status`, and `ragmir_audit` are
+  read-only.
+- `ragmir_ingest` refreshes the index and writes nothing but Ragmir's private index.
+
+The agent searches, expands the one passage it needs, and searches again when it must. The session
+measured below follows that pattern: one search, then one expansion. The agent's own model reads
+the evidence and writes the answer. Ragmir only returns evidence.
+
+Install the plugin for Claude Code, Codex, or Cursor, or run `rgr setup --agents claude,codex` for
+a project MCP server. Register Ragmir per project, never for every project.
 
 ## RAG vs MCP token usage
 
-The protocol does not decide how much a tool returns; the server behind it does. A tool that hands
+The protocol does not decide how much a tool returns. The server behind it does. A tool that hands
 back whole files fills the context with whole files. Ragmir bounds what each call returns:
 
 - `ragmir_search` starts with at most three compact citations per question, each an excerpt that
@@ -91,23 +102,23 @@ ragmir_expand({ citation: "docs/server-deployment.md:L123-L138#8" })
 | Total through Ragmir | 4,539 |
 | The three cited files read whole instead | 22,014 |
 
-Across 89 developer questions about the whole Ragmir repository, the same pattern holds: see the
-[first-pass benchmark](/benchmarks/) for the bytes an agent reads with grep and with Ragmir.
+Across 89 developer questions about the whole Ragmir repository, the same pattern holds. The
+[first-pass benchmark](/benchmarks/) shows the bytes an agent reads with grep and with Ragmir.
 
 The budget is set in bytes, not tokens, and it belongs to the MCP server. An application that calls
-the library directly gets up to the `topK` passages it asks for, so it sizes the evidence to its
+the library directly gets up to the `topK` passages it asks for. It sizes the evidence to its
 model's context window itself.
 
 ## When to use RAG, MCP, or both
 
-- **The agent's own tools** are often enough on a small code repository, and grep stays the tool to
+- **The agent's own tools** are often enough on a small code repository. Grep stays the tool to
   list every occurrence or match a regular expression.
 - **Retrieval over MCP** suits an MCP client (Claude Code, Codex, Cursor, Gemini CLI, Qwen Code, or
-  any client over stdio) that needs answers from hundreds of PDFs, Office files, or scans, or from
-  documents that use other words than the question.
-- **Retrieval without MCP** suits an application or a pipeline: `createRagmirClient()`, the
+  any client over stdio). It helps when the agent needs answers from hundreds of PDFs, Office
+  files, or scans, or from documents that use other words than the question.
+- **Retrieval without MCP** suits an application or a pipeline. `createRagmirClient()`, the
   LangChain.js retriever, and the Python packages read the same index.
-- **A remote-only chat** needs its own connector or an application that calls the library: Ragmir
+- **A remote-only chat** needs its own connector or an application that calls the library. Ragmir
   has no built-in HTTP server, and a model endpoint such as Ollama does not attach to an MCP server
   by itself.
 

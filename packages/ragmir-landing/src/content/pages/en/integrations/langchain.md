@@ -10,15 +10,20 @@ dateModified: 2026-11-27
 related: ["integrations", "integrations/llamaindex", "docs/api-reference", "docs/python"]
 ---
 
-A LangChain retriever turns a question into documents for a chain or an agent. Ragmir's retriever
-searches an index of the files you choose, built on the machine that runs Ragmir. The default
-`local-hash` retrieval runs offline on the CPU, with no GPU, embedding API, or database server: the
-index is an embedded LanceDB store in the Git-ignored `.ragmir/` folder. LangChain.js and the
-Python package read the same index, and return the same citations, as Ragmir's MCP server and CLI.
+Ragmir's retriever gives a LangChain chain or agent documents with a citation in their metadata.
+
+A LangChain retriever turns a question into documents. Ragmir's retriever searches an index of the
+files you choose, built on the machine that runs Ragmir.
+
+The default `local-hash` retrieval runs offline on the CPU. It needs no GPU, embedding API, or
+database server. The index is an embedded LanceDB store in the Git-ignored `.ragmir/` folder.
+
+LangChain.js and the Python package read the same index as Ragmir's MCP server and CLI. They return
+the same citations.
 
 ## Index the documents
 
-Index outside the request path, during setup, deployment, CI, or a scheduled job; searching never
+Index outside the request path: during setup, deployment, CI, or a scheduled job. Searching never
 indexes. From the project root:
 
 ```bash
@@ -28,8 +33,10 @@ npx --yes @jcode.labs/ragmir@6.20.0 ingest
 ```
 
 `sources add` takes more globs, such as `"contracts/**/*.pdf"`, to index PDFs, Office files, or code
-next to the Markdown. Ingestion is incremental: unchanged files are reused, and the previous index
-stays searchable until the new one passes validation.
+next to the Markdown.
+
+Ingestion is incremental. Unchanged files are reused. The previous index stays searchable until the
+new one passes validation.
 
 ## LangChain.js retriever
 
@@ -55,8 +62,8 @@ try {
 }
 ```
 
-Run on November 27, 2026 with Ragmir 6.20.0 and `@langchain/core` 1.5.1, over the eleven guides
-of Ragmir's `docs/` folder, it printed each citation and the start of its passage:
+Run on November 27, 2026 with Ragmir 6.20.0 and `@langchain/core` 1.5.1, over the eleven guides of
+Ragmir's `docs/` folder, it printed each citation and the start of its passage:
 
 ```text
 docs/server-deployment.md:L123-L138#8 ## Without internet access
@@ -71,12 +78,16 @@ Without Node.js, the client runs the official image, so Dock
 ```
 
 Each document keeps `source`, `citation`, line or page ranges, `contextPath`, `weakEvidence`, and
-`sourceStatus` in its metadata. A question the sources cannot answer returns an empty array, so the
-chain can say so instead of answering from unrelated text.
+`sourceStatus` in its metadata.
+
+A question the sources cannot answer returns an empty array. The chain can then say so instead of
+answering from unrelated text.
 
 The retriever accepts the same search options as the client's `search`, such as `includePaths`,
-`scope`, or `searches`, except `explain` and `signal`. Pass `projectRoot` instead of `client` to let
-it open its own client, then call `retriever.close()` during shutdown.
+`scope`, or `searches`. `explain` and `signal` are the exceptions.
+
+Pass `projectRoot` instead of `client` to let the retriever open its own client. Then call
+`retriever.close()` during shutdown.
 
 ## Python retriever
 
@@ -101,8 +112,8 @@ docs/python.md:L211-L218#12 ## Without Node.js  Without Node.js, the client runs
 docs/agent-integration.md:L43-L54#6 ## Choose where inference runs  | Setup | Where evidence goes | What y
 ```
 
-The package needs Python 3.11 or later, and Node.js 22.12 or later or Docker, because it drives
-Ragmir's own engine. Prefer it to `langchain-mcp-adapters`, which is no longer maintained.
+The package needs Python 3.11 or later. It drives Ragmir's own engine, so it also needs Node.js
+22.12 or later, or Docker. Prefer it to `langchain-mcp-adapters`, which is no longer maintained.
 
 ## RAG with citations in LangChain and LangGraph agents
 
@@ -120,21 +131,24 @@ agent = create_agent(
 result = agent.invoke({"messages": [{"role": "user", "content": "What is the refund policy?"}]})
 ```
 
-This agent calls Anthropic's API, so it needs your key; it was not run for this page.
+This agent calls Anthropic's API, so it needs your key. It was not run for this page.
 
-`ragmir_search` answers the model with numbered citations and passage text, flags weak matches and
-changed files, and keeps the documents as the tool message artifact. `ragmir_expand` reads one
-citation with its neighbours and the next citation to read on. In LangChain.js,
-`createRagmirTools({ client })` gives `createAgent` and LangGraph agents the same two tools. The
-tools pass LangChain's standard retriever and tool test suites.
+The toolkit has two tools:
+
+- `ragmir_search` answers the model with numbered citations and passage text. It flags weak matches
+  and changed files, and keeps the documents as the tool message artifact.
+- `ragmir_expand` reads one citation with its neighbours and the next citation to read on.
+
+In LangChain.js, `createRagmirTools({ client })` gives `createAgent` and LangGraph agents the same
+two tools. The tools pass LangChain's standard retriever and tool test suites.
 
 ## Limits
 
 - Ragmir calls no model and opens no port. Your application chooses the model, writes the prompt,
-  and decides where passages go; a hosted model receives the passages you send it.
-- Ragmir does not filter results per user. Authenticate and authorize the caller before searching,
-  and give each audience its own base.
-- Open one client per project root in a long-running process and close it at shutdown. A retriever
+  and decides where passages go. A hosted model receives the passages you send it.
+- Ragmir does not filter results per user. Authenticate and authorize the caller before searching.
+  Give each audience its own base.
+- In a long-running process, open one client per project root and close it at shutdown. A retriever
   never closes a client you passed in.
 - Check passages flagged `weakEvidence` (`weak_evidence` in Python) before relying on them.
 

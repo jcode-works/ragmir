@@ -2,7 +2,7 @@
 title: "Self-Hosted RAG on a VPS or On-Premise Server | Ragmir"
 description: "Run Ragmir on a VPS or on-premise server with the slim or full Docker image: where the index and models live, how to share a base, and a deployment checklist."
 h1: "Self-hosted RAG on your VPS or on-premise server"
-summary: "Ragmir is a retrieval layer you host yourself: it parses, indexes, and searches your documents on your server and returns cited passages to the service or agent that calls it. Your service keeps TLS, authentication, per-user access, rate limits, and the model."
+summary: "Ragmir is a retrieval layer you host yourself. It parses, indexes, and searches your documents on your server and returns cited passages to the service or agent that calls it. Your service keeps TLS, authentication, per-user access, rate limits, and the model."
 section: guide
 translationKey: "self-hosted-rag"
 datePublished: 2026-11-27
@@ -10,11 +10,14 @@ dateModified: 2026-11-27
 related: ["air-gapped-rag", "local-rag", "use-cases/forward-deployed-engineers", "rag-citations"]
 ---
 
-Ragmir runs wherever Node.js 22.12 runs, or in Docker on amd64 and arm64: a VPS, an on-premise
-server, a CI runner, or a container. It is a library and a CLI, not a hosted service: it opens no
-port, needs no account, and the default `local-hash` provider makes no network call. That makes it
-a retrieval layer rather than a chat platform. It ships no chat interface, user accounts, or model,
-and it works next to whatever writes the answers: a local Ollama model, your own vLLM server, or a
+Ragmir runs wherever Node.js 22.12 runs, or in Docker on amd64 and arm64. That includes a VPS, an
+on-premise server, a CI runner, or a container.
+
+Ragmir is a library and a CLI, not a hosted service. It opens no port and needs no account. The
+default `local-hash` provider makes no network call.
+
+It is a retrieval layer, not a chat platform. It ships no chat interface, user accounts, or model.
+It works next to whatever writes the answers: a local Ollama model, your own vLLM server, or a
 hosted API that receives the passages you send.
 
 ## What runs where
@@ -34,10 +37,13 @@ hosted API that receives the passages you send.
 | `ghcr.io/jcode-works/ragmir:full` | The same, plus the semantic model runtime, Tesseract OCR (English, French, German, Spanish, Italian, Portuguese), Poppler, and antiword |
 
 Both images are published for `linux/amd64` and `linux/arm64` with SBOM and provenance
-attestations, run as the unprivileged `node` user, and use `/workspace` as the working directory.
-Each release publishes `X.Y.Z`, `X.Y`, `X`, and `latest` tags, plus `-full` variants: pin an exact
-version in production, such as `6.20.0` or `6.20.0-full`. Mount the project and pass your user ID
-so the files Ragmir writes belong to you:
+attestations. They run as the unprivileged `node` user and use `/workspace` as the working
+directory.
+
+Each release publishes `X.Y.Z`, `X.Y`, `X`, and `latest` tags, plus `-full` variants. Pin an exact
+version in production, such as `6.20.0` or `6.20.0-full`.
+
+Mount the project and pass your user ID so the files Ragmir writes belong to you:
 
 ```bash
 alias rgr='docker run --rm -it -v "$PWD:/workspace" --user "$(id -u):$(id -g)" ghcr.io/jcode-works/ragmir'
@@ -47,11 +53,17 @@ rgr ingest
 rgr search "release approval" --compact
 ```
 
-For a locked-down run, add `--read-only --tmpfs /tmp --network none`: the slim image needs no
-network after it is pulled. To bake a configuration into your own image and pin dependencies with
-a lockfile, start from the Dockerfile in the [server guide](/docs/server-deployment/), which was
-checked on Debian and Alpine as a non-root user, with a read-only root filesystem and no network
-access.
+For a locked-down run, add `--read-only --tmpfs /tmp --network none`. The slim image needs no
+network after it is pulled.
+
+<figure>
+  <img src="/guides/search-offline.webp" alt="Terminal running ghcr.io/jcode-works/ragmir:6.20.0 with --network none on a mounted project. The search returns specs/nist-sp-800-63b-4.pdf:p25#56 with the passage on periodic password changes." width="1440" height="555" loading="lazy" decoding="async">
+  <figcaption>The official 6.20.0 image searching a mounted project's index with <code>--network none</code>.</figcaption>
+</figure>
+
+To bake a configuration into your own image and pin dependencies with a lockfile, start from the
+Dockerfile in the [server guide](/docs/server-deployment/). It was checked on Debian and Alpine as
+a non-root user, with a read-only root filesystem and no network access.
 
 ## Where your data lives
 
@@ -81,27 +93,33 @@ Git.
 ## Keep the index fresh
 
 Run `rgr ingest` from cron, a systemd timer, or your CI after the documents change. Ingestion is
-incremental and resumable: unchanged files are reused, a changed file that fails to parse keeps its
-last good evidence and is reported as stale, and a rebuild keeps the previous index active until its
-replacement passes validation. Searches keep working while an ingest runs.
+incremental and resumable:
+
+- Unchanged files are reused.
+- A changed file that fails to parse keeps its last good evidence and is reported as stale.
+- A rebuild keeps the previous index active until its replacement passes validation.
+
+Searches keep working while an ingest runs.
 
 ## Share a base across machines and teams
 
 - **One writer per machine.** Ragmir serializes writers with a lock under `storageDir`, and readers
-  stay available. The lock does not coordinate machines, so never share one writable index over
-  NFS or SMB: give each host its own index, or let one host write and copy the result.
+  stay available. The lock does not coordinate machines. Never share one writable index over NFS
+  or SMB. Give each host its own index, or let one host write and copy the result.
 - **Sources travel through Git or file sync.** Commit `ragmir.config.json`, then run `rgr ingest`
   on each workstation.
 - **Read-only for agents.** `"mcpIngest": false` keeps a shared deployment read-only for MCP
   clients.
-- **One base per audience.** Ragmir does not filter results per user: give each audience its own
+- **One base per audience.** Ragmir does not filter results per user. Give each audience its own
   base and check access before calling `search`.
 
 ## Serve retrieval to your service or agent
 
 An agent on the same machine launches `rgr serve-mcp` over stdio, from the project folder or with
-`docker run -i ... serve-mcp`. Your own service embeds one client per project root in a
-long-running process and calls it after its own authentication and authorization checks:
+`docker run -i ... serve-mcp`.
+
+Your own service embeds one client per project root in a long-running process. It calls the client
+after its own authentication and authorization checks:
 
 ```ts
 import { createRagmirClient } from "@jcode.labs/ragmir"
@@ -119,9 +137,10 @@ process.once("SIGTERM", () => {
 })
 ```
 
-Returned passages contain document text, so log citations rather than passages when the corpus is
-confidential. Python services get the same calls from `pip install ragmir`
-([Python guide](/docs/python/)).
+Returned passages contain document text. Log citations instead of passages when the corpus is
+confidential.
+
+Python services get the same calls from `pip install ragmir` ([Python guide](/docs/python/)).
 
 ## On-premise deployment checklist
 
@@ -133,8 +152,8 @@ confidential. Python services get the same calls from `pip install ragmir`
 5. Review the config, then approve its commands and endpoints with `rgr trust --yes`, or set
    `RAGMIR_TRUST_PROJECT_CONFIG=1` in an image whose configuration you build and review yourself.
 6. Schedule `rgr ingest` after the documents change.
-7. Health-check with `rgr status --json`, which reports `ready`, the base name, and the indexed file
-   count; `rgr doctor` checks freshness and `rgr audit --unsupported` lists skipped files.
+7. Health-check with `rgr status --json`. It reports `ready`, the base name, and the indexed file
+   count. `rgr doctor` checks freshness, and `rgr audit --unsupported` lists skipped files.
 8. Measure with `rgr evaluate --golden golden.json` on real questions, including hard negatives
    that must return nothing.
 9. Keep TLS, authentication, authorization, and rate limits in your service.

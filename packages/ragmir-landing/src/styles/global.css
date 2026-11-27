@@ -809,6 +809,7 @@ header[data-hidden] .logo-text {
   background: var(--card);
 }
 
+/* A screenshot of a real run, with its caption under it. */
 .prose-article figure {
   margin-block: 2rem;
 }

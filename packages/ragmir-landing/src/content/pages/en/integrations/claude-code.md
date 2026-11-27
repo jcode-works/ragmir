@@ -10,12 +10,20 @@ dateModified: 2026-11-27
 related: ["integrations", "mcp-rag-server", "integrations/codex", "docs/agent-integration"]
 ---
 
-Claude Code reads files and runs grep, which works on a few text files. The Ragmir plugin gives it a
-knowledge base it can cite: an index of the files you choose, built on your machine, and MCP tools
-that return passages cited to the exact line, PDF page, slide, or spreadsheet cell. The plugin
-bundles the `/ragmir:index` command, the retrieval skill (`/ragmir:ragmir`), and an MCP server with
-five read-only tools and `ragmir_ingest`. Its server runs a pinned Ragmir release from npm against
-the project Claude Code has open, with no account, API key, or hosted store.
+Install the Ragmir plugin, index a project once, and Claude Code can search it with citations.
+
+Claude Code reads files and runs grep. That works on a few text files. The plugin adds an index of
+the files you choose, built on your machine. MCP tools return passages cited to the exact line, PDF
+page, slide, or spreadsheet cell.
+
+The plugin bundles three things:
+
+- the `/ragmir:index` command
+- the retrieval skill (`/ragmir:ragmir`)
+- an MCP server with five read-only tools and `ragmir_ingest`
+
+The server runs a pinned Ragmir release from npm against the project Claude Code has open. It needs
+no account, API key, or hosted store.
 
 ## Install the Claude Code RAG plugin
 
@@ -53,10 +61,11 @@ npx --yes @jcode.labs/ragmir@6.20.0 sources add "docs/**/*.md" "specs/**/*.pdf" 
 npx --yes @jcode.labs/ragmir@6.20.0 ingest
 ```
 
-Skip `rgr setup --agents claude` in a project that uses the plugin: it registers a second,
-project-level server. Without the plugin, that command is the alternative. Claude Code then starts
-the server declared in `.mcp.json` only after you approve it, and `rgr doctor` reports
-`approval=pending` until you do.
+Skip `rgr setup --agents claude` in a project that uses the plugin, because it registers a second,
+project-level server. Without the plugin, that command is the alternative.
+
+Claude Code starts the server declared in `.mcp.json` only after you approve it. Until then,
+`rgr doctor` reports `approval=pending`.
 
 ## What Claude Code gains over grep and file reads
 
@@ -67,14 +76,14 @@ the server declared in `.mcp.json` only after you approve it, and `rgr doctor` r
 | Context window | Whole files, read again in every session | Three compact citations by default within 32 KB per call; passages already seen return as one-line stubs |
 | Not in the documents | Partial matches can still become an answer | Nothing returned when the evidence is weak |
 
-On a small code repository, Claude Code's own search is often enough, and grep stays the tool to
-list every occurrence or match a regular expression. Ragmir returns ranked passages.
+On a small code repository, Claude Code's own search is often enough. Grep stays the tool to list
+every occurrence or match a regular expression. Ragmir returns ranked passages.
 
 ## A search, then one expanded citation
 
-This session ran on November 27, 2026 against Ragmir 6.20.0 from npm, with the eleven guides of
-Ragmir's `docs/` folder indexed in a clean project (11 files, 256 chunks, indexed in under a
-second). The replies are JSON; the lines below keep their citations and headings.
+This session ran on November 27, 2026 against Ragmir 6.20.0 from npm. The project was clean and
+held the eleven guides of Ragmir's `docs/` folder (11 files, 256 chunks, indexed in under a
+second). The replies are JSON. The lines below keep their citations and headings.
 
 ```text
 ragmir_search({ query: "How do I run Ragmir on a server without internet access?" })
@@ -93,27 +102,32 @@ ragmir_expand({ citation: "docs/server-deployment.md:L123-L138#8" })
 ```
 
 Claude read 4.5 KB to reach the answer and its source line range. Opening the three cited files
-whole would have cost 22 KB. In a longer task, passages already returned come back as short `seen`
-stubs, so a second search spends its budget on new evidence. For a single question, the plugin's
-`answer` prompt (`/mcp__plugin_ragmir_ragmir__answer`) asks Claude to cite every claim and to say
-so when the documents hold no evidence.
+whole would have cost 22 KB.
+
+In a longer task, passages already returned come back as short `seen` stubs. A second search then
+spends its budget on new evidence.
+
+For a single question, use the plugin's `answer` prompt (`/mcp__plugin_ragmir_ragmir__answer`). It
+asks Claude to cite every claim and to say so when the documents hold no evidence.
 
 ## Keep the knowledge base current
 
 A result whose file changed after indexing carries `sourceStatus`. Claude can then call
-`ragmir_ingest`, which reads only new and changed files and keeps the previous index searchable
-until the new one passes validation. To refresh the index after commits, merges, and checkouts, run
+`ragmir_ingest`. It reads only new and changed files. The previous index stays searchable until the
+new one passes validation.
+
+To refresh the index after commits, merges, and checkouts, run
 `npx --yes @jcode.labs/ragmir@6.20.0 hooks install` from the project root.
 
 ## Limits
 
 - The plugin needs local files. It runs in Claude Code, not in the Claude web, desktop chat, or
   mobile apps.
-- Ragmir returns evidence and Claude writes the answer, so the excerpts Claude reads go to its
-  model provider. A local index does not make the conversation local.
-- Ragmir cannot borrow Claude's model for its own ranking: Claude models produce no embeddings, and
+- Ragmir returns evidence and Claude writes the answer. The excerpts Claude reads go to its model
+  provider, so a local index does not make the conversation local.
+- Ragmir cannot borrow Claude's model for its own ranking. Claude models produce no embeddings, and
   Claude Code does not support MCP sampling.
-- `ragmir_ingest` refuses while local OCR or another external extractor is configured; run the
+- `ragmir_ingest` refuses while local OCR or another external extractor is configured. Run the
   ingest from a terminal instead.
 - There is no interface for document previews. Citations point to the files themselves.
 

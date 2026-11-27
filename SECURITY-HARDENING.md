@@ -39,6 +39,22 @@ passages and needs the same protection as the documents. See the
   and runs with the operator's filesystem and process authority. Ragmir does not sandbox an
   arbitrary executable or prevent it from accessing the network.
 
+## Dependency advisories without a fixed release
+
+Checked on November 27, 2026, two advisories in Ragmir's dependencies have no fixed release yet:
+
+- **CVE-2026-122146 in `fflate` 0.8.3 and earlier.** It concerns `unzipSync`, which Ragmir uses to
+  read the Office, EPUB, and Figma files of the sources you select. Ragmir decompresses only the
+  text entries it reads and rejects the file when one declares more than 25 MB, when they declare
+  more than 50 MB together, or when there are more than 512 of them; these checks read the sizes
+  the archive itself declares. No public exploit is known. Until a fixed release exists, index
+  these formats only from sources you trust, or run ingestion in an isolated container.
+- **CVE-2026-112366 in `picomatch` 4.0.7 and earlier.** It concerns crafted glob patterns. Ragmir
+  matches only the globs of its own configuration, never MCP input or indexed content, so reaching
+  it requires write access to the configuration.
+
+Ragmir moves to a fixed release of each dependency as soon as one exists.
+
 ## Inspect a workspace
 
 ```bash

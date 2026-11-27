@@ -951,6 +951,19 @@ header[data-hidden] .logo-text {
   min-width: 9rem;
 }
 
+/* A row header names its row like a first cell: same rule above it, same weight. */
+.prose-article tbody th {
+  border-top: 1px solid var(--border);
+  color: inherit;
+  font-weight: inherit;
+  vertical-align: top;
+}
+
+/* The empty corner above the row headers is a plain cell with no rule above it. */
+.prose-article thead td {
+  border-top: 0;
+}
+
 /* A file name or an option in a table stays whole; the table scrolls sideways when it must. */
 .prose-article :is(th, td) code {
   overflow-wrap: normal;

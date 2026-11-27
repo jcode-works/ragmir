@@ -19,15 +19,13 @@ interface Props {
   structuredData: Record<string, unknown>[]
   /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
   navSection?: string
-  /** The page shows the logo in its own side panel on wide screens. */
-  sidebarLogo?: boolean
 }
 
 /*
  * The frame of every long-form page, the guides and the documentation alike: head, navigation bar,
  * copy buttons on the code blocks of `#article-body`, and the footer.
  */
-const { title, description, locale, alternates, structuredData, navSection, sidebarLogo } = Astro.props
+const { title, description, locale, alternates, structuredData, navSection } = Astro.props
 const { t, translations } = await useTranslations(locale)
 const homeUrl = getLocalizedUrl("/", locale)
 const pageLocales = locales.filter((entry) => alternates[entry] !== undefined)
@@ -57,7 +55,6 @@ const projectLinks = localizeProjectLinks((path) => localizedHref(path, locale, 
     locale={locale}
     currentPath={Astro.url.pathname}
     currentSection={navSection}
-    sidebarLogo={sidebarLogo}
     projectLinks={projectLinks}
     localizedAgentsUrl={`${homeUrl}#agents`}
     localizedDeployUrl={`${homeUrl}#deploy`}

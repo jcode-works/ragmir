@@ -78,14 +78,7 @@ rgr ocr setup
 
 ## 各客户端如何启动它
 
-| 客户端 | 设置方式 |
-| --- | --- |
-| Claude Code | `/plugin install ragmir --marketplace jcode-works/ragmir`，然后执行 `/ragmir:index`；或执行 `rgr setup --agents claude` |
-| OpenAI Codex | `codex plugin marketplace add jcode-works/ragmir`，然后执行 `codex plugin add ragmir@ragmir`；或执行 `rgr setup --agents codex` |
-| Cursor | 将插件文件夹 `plugins/ragmir` 复制到 `~/.cursor/plugins/local/ragmir`，直到它被收录进 Cursor 插件市场 |
-| Gemini CLI | `gemini extensions install https://github.com/jcode-works/ragmir` |
-| Qwen Code | `qwen extensions install jcode-works/ragmir:ragmir` |
-| Kimi、OpenCode、Cline | `rgr setup --agents kimi,opencode,cline` |
+Claude Code、Codex、Cursor、Gemini CLI 和 Qwen Code 以插件或扩展的形式安装 Ragmir，而 `rgr setup --agents kimi,opencode,cline` 为 Kimi、OpenCode 和 Cline 做好准备。每个客户端的确切步骤见[集成页面](/zh/integrations/)。
 
 插件和扩展会针对智能体当前打开的项目，运行从 npm 固定版本的 Ragmir 发布版本。其他支持通过 stdio 使用 MCP 的客户端，可采用以下条目，并按其文档中的格式进行调整：
 

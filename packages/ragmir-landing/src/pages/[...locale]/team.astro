@@ -1,6 +1,7 @@
 ---
 import { ArrowUpRight } from "@lucide/astro"
 import { RagmirBackground } from "../../components/ragmir-background"
+import AnimatedBackdrop from "../../components/animated-backdrop.astro"
 import Footer from "../../components/sections/footer.astro"
 import { LandingNavbar } from "../../components/landing-navbar"
 import {
@@ -290,10 +291,13 @@ const structuredData = [
     })
   </script>
 
-  <Footer
-    alternateLocales={alternateLocales}
-    locale={locale}
-    localizedHomeUrl={`${homeUrl}#top`}
-    translations={translations}
-  />
+  <!-- The footer sits on the animated dot field, as it does on the home page. -->
+  <AnimatedBackdrop>
+    <Footer
+      alternateLocales={alternateLocales}
+      locale={locale}
+      localizedHomeUrl={`${homeUrl}#top`}
+      translations={translations}
+    />
+  </AnimatedBackdrop>
 </Layout>

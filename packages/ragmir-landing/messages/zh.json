@@ -511,5 +511,6 @@
   "home_link_local_rag": "本地 RAG 教程",
   "home_link_self_hosted": "自托管 RAG 指南",
   "home_link_air_gapped": "隔离网络 RAG 指南",
-  "home_link_agentic_rag": "了解智能体式 RAG"
+  "home_link_agentic_rag": "了解智能体式 RAG",
+  "skip_to_content": "跳转到主要内容"
 }

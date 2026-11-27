@@ -32,7 +32,9 @@ and returns nothing when the evidence is weak. It does not run the agent loop or
 
 ## The agent loop
 
-![The agentic RAG loop: the agent decides whether it needs evidence, calls ragmir_search, reports a gap on an empty result, expands the selected citation with ragmir_expand, and searches again until the evidence is enough to answer or act.](/diagrams/agentic-rag-loop.svg)
+<figure>
+  <img src="/diagrams/agentic-rag-loop.svg" alt="The agentic RAG loop: the agent decides whether it needs evidence, calls ragmir_search, reports a gap on an empty result, expands the selected citation with ragmir_expand, and searches again until the evidence is enough to answer or act." width="800" height="560" loading="lazy" decoding="async">
+</figure>
 
 The loop that Ragmir's docs describe has five steps:
 

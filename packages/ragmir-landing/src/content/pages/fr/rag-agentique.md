@@ -28,7 +28,9 @@ Ragmir est conçu pour ce schéma : il renvoie des citations compactes, dévelop
 
 ## La boucle de l’agent
 
-![La boucle du RAG agentique : l’agent décide s’il a besoin de preuves, appelle ragmir_search, signale un manque quand le résultat est vide, développe la citation retenue avec ragmir_expand, puis relance une recherche jusqu’à ce que les preuves suffisent pour répondre ou agir.](/diagrams/agentic-rag-loop-fr.svg)
+<figure>
+  <img src="/diagrams/agentic-rag-loop-fr.svg" alt="La boucle du RAG agentique : l’agent décide s’il a besoin de preuves, appelle ragmir_search, signale un manque quand le résultat est vide, développe la citation retenue avec ragmir_expand, puis relance une recherche jusqu’à ce que les preuves suffisent pour répondre ou agir." width="800" height="560" loading="lazy" decoding="async">
+</figure>
 
 En clair, la boucle décrite dans la documentation de Ragmir :
 

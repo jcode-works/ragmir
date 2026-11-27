@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions"
 import "../styles/global.css"
-import { defaultLang, getLocalizedUrl, locales } from "../i18n/utils"
+import { defaultLang, getLocalizedUrl, locales, useTranslations } from "../i18n/utils"
 
 interface Props {
   title?: string
@@ -20,6 +20,8 @@ interface Props {
   availableLocales?: readonly string[] | string[]
   /** Root-relative URL of each locale's version, for a page whose path differs between locales. */
   alternatePaths?: Readonly<Record<string, string>>
+  /** Id of the element the skip link jumps to, past the navigation bar. */
+  skipTarget?: string
 }
 
 // Full snippets, which also bound what AI Overviews and AI Mode may quote, and large image and video
@@ -41,7 +43,9 @@ const {
   canonicalOverride,
   availableLocales = locales,
   alternatePaths,
+  skipTarget = "main-content",
 } = Astro.props
+const { t } = await useTranslations(locale)
 
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const canonicalURL = canonicalOverride
@@ -195,6 +199,12 @@ function alternateHref(targetLocale: string): string {
     <slot name="head" />
   </head>
   <body class="relative min-h-dvh">
+    <a
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:font-bold focus:text-background focus:text-sm"
+      href={`#${skipTarget}`}
+    >
+      {t("skip_to_content")}
+    </a>
     <slot />
   </body>
 </html>

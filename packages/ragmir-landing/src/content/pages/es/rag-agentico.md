@@ -28,7 +28,9 @@ Ragmir está diseñado para ese patrón. Devuelve citas compactas, amplía las q
 
 ## El bucle del agente
 
-![El bucle del RAG agéntico: el agente decide si necesita evidencia, llama a ragmir_search, informa de un hueco cuando el resultado está vacío, amplía la cita seleccionada con ragmir_expand y vuelve a buscar hasta que la evidencia basta para responder o actuar.](/diagrams/agentic-rag-loop-es.svg)
+<figure>
+  <img src="/diagrams/agentic-rag-loop-es.svg" alt="El bucle del RAG agéntico: el agente decide si necesita evidencia, llama a ragmir_search, informa de un hueco cuando el resultado está vacío, amplía la cita seleccionada con ragmir_expand y vuelve a buscar hasta que la evidencia basta para responder o actuar." width="800" height="560" loading="lazy" decoding="async">
+</figure>
 
 El bucle que describe la documentación de Ragmir tiene cinco pasos:
 

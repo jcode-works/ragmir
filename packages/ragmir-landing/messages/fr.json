@@ -511,5 +511,6 @@
   "home_link_local_rag": "Tutoriel RAG local",
   "home_link_self_hosted": "Guide du RAG auto-hébergé",
   "home_link_air_gapped": "Guide du RAG en réseau isolé",
-  "home_link_agentic_rag": "Comprendre le RAG agentique"
+  "home_link_agentic_rag": "Comprendre le RAG agentique",
+  "skip_to_content": "Aller au contenu"
 }

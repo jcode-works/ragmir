@@ -1,5 +1,7 @@
 # CLI reference
 
+> On the web: [ragmir.com/docs/cli-reference](https://ragmir.com/docs/cli-reference/)
+
 Use `rgr` in the repository that owns the knowledge base. `rgr --help` and `rgr <command> --help`
 are the source of truth for option details.
 

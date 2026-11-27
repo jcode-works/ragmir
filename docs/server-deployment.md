@@ -1,5 +1,7 @@
 # Run Ragmir on a server
 
+> On the web: [ragmir.com/docs/server-deployment](https://ragmir.com/docs/server-deployment/)
+
 Ragmir runs wherever Node.js 22.12 runs: a VPS, an on-premise server, a customer network without
 internet access, a CI runner, or a container. It is a library and a CLI, not a hosted service: it
 opens no port, needs no account, and the default `local-hash` provider makes no network call. Your

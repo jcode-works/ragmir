@@ -1,13 +1,16 @@
 ---
-import { ArrowUpRight } from "@lucide/astro"
+import DeepLink from "../deep-link.astro"
+import { ArrowRight } from "@lucide/astro"
 import { PROJECT_LINKS } from "../../lib/project-links"
 import { cardTag, SectionHeader } from "../section-header"
 
 interface Props {
   translations: Record<string, string>
+  /** The page that covers this section's subject, in the visitor's language when it exists. */
+  deepLinkUrl: string
 }
 
-const { translations } = Astro.props
+const { translations, deepLinkUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 const deployItems = [
@@ -58,13 +61,16 @@ const deployItems = [
       <span class="font-bold">{t("deploy_owns_label")}</span>
       <span class="font-mono text-foreground/75 text-xs">{t("deploy_owns_items")}</span>
     </p>
-    <a
-      class="inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-      href={PROJECT_LINKS.serverGuide}
-    >
-      {t("deploy_guide_link")}
-      <ArrowUpRight class="arrow-out size-4" aria-hidden="true" />
-    </a>
+    <div class="flex flex-wrap gap-2">
+      <a
+        class="inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+        href={PROJECT_LINKS.serverGuide}
+      >
+        {t("deploy_guide_link")}
+        <ArrowRight class="arrow-forward size-4" aria-hidden="true" />
+      </a>
+      <DeepLink href={deepLinkUrl} label={t("home_link_self_hosted")} tone="inset" />
+    </div>
   </div>
 </section>
 

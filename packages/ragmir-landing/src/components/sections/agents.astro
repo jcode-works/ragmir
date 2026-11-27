@@ -1,15 +1,17 @@
 ---
-import { ArrowUp, ArrowUpRight } from "@lucide/astro"
+import DeepLink from "../deep-link.astro"
+import { ArrowRight, ArrowUp } from "@lucide/astro"
 import { CommandCopyBox } from "../command-copy"
 import { cardTag, SectionHeader } from "../section-header"
-import { GITHUB_URL } from "../../lib/project-links"
 
 interface Props {
   translations: Record<string, string>
   localizedIntegrationsUrl: string
+  /** The page that covers this section's subject, in the visitor's language when it exists. */
+  deepLinkUrl: string
 }
 
-const { translations, localizedIntegrationsUrl } = Astro.props
+const { translations, localizedIntegrationsUrl, deepLinkUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 const operatingModes = [
@@ -63,10 +65,10 @@ const operatingModes = [
       <div class="mt-auto pt-5">
         <a
           class="inline-flex h-10 w-fit shrink-0 items-center gap-2 rounded-full bg-background px-4 text-sm font-bold text-foreground transition-colors hover:bg-[var(--inset-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-          href={`${GITHUB_URL}/blob/main/docs/agent-integration.md`}
+          href="/docs/agent-integration/"
         >
           {t("agents_model_link")}
-          <ArrowUpRight class="arrow-out size-4" aria-hidden="true" />
+          <ArrowRight class="arrow-forward size-4" aria-hidden="true" />
         </a>
       </div>
     </div>
@@ -89,5 +91,8 @@ const operatingModes = [
         </li>
       ))}
     </ol>
+    <div class="mt-6">
+      <DeepLink href={deepLinkUrl} label={t("home_link_local_rag")} />
+    </div>
   </div>
 </section>

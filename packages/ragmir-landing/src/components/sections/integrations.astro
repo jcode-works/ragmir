@@ -1,8 +1,8 @@
 ---
-import { ArrowUpRight, Bot, Library, Puzzle, SquareTerminal } from "@lucide/astro"
+import { ArrowRight, ArrowUpRight, Bot, Library, Puzzle, SquareTerminal } from "@lucide/astro"
 import { INTEGRATION_LOGOS, type IntegrationLogoKey } from "../../content/integration-logos"
 import { SectionHeader } from "../section-header"
-import { GITHUB_URL, NPM_URL } from "../../lib/project-links"
+import { isExternalLink, NPM_URL } from "../../lib/project-links"
 
 interface Props {
   translations: Record<string, string>
@@ -11,9 +11,10 @@ interface Props {
 const { translations } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
+// The guides of `docs/` and the integration pages are pages of this site.
 const docsUrl = (file: string, anchor?: string): string =>
-  `${GITHUB_URL}/blob/main/docs/${file}${anchor ? `#${anchor}` : ""}`
-const pluginsUrl = docsUrl("agent-integration.md", "plugins-and-extensions-for-coding-agents")
+  `/docs/${file.replace(/\.md$/u, "")}/${anchor ? `#${anchor}` : ""}`
+const integrationUrl = (page: string): string => `/integrations/${page}/`
 
 interface Integration {
   /** Anchor of the card, `#integration-<id>`, which the hero's "Works with" logos link to. */
@@ -29,11 +30,11 @@ const groups: { title: string; items: Integration[] }[] = [
   {
     title: t("integrations_group_agents"),
     items: [
-      { id: "claude-code", name: "Claude Code", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "claude" },
-      { id: "codex", name: "OpenAI Codex", kind: t("integrations_kind_plugin"), href: pluginsUrl, fallback: "terminal" },
-      { id: "cursor", name: "Cursor", kind: t("integrations_kind_plugin"), href: pluginsUrl, logo: "cursor" },
-      { id: "gemini-cli", name: "Gemini CLI", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "gemini" },
-      { id: "qwen-code", name: "Qwen Code", kind: t("integrations_kind_extension"), href: pluginsUrl, logo: "qwen" },
+      { id: "claude-code", name: "Claude Code", kind: t("integrations_kind_plugin"), href: integrationUrl("claude-code"), logo: "claude" },
+      { id: "codex", name: "OpenAI Codex", kind: t("integrations_kind_plugin"), href: integrationUrl("codex"), fallback: "terminal" },
+      { id: "cursor", name: "Cursor", kind: t("integrations_kind_plugin"), href: integrationUrl("cursor"), logo: "cursor" },
+      { id: "gemini-cli", name: "Gemini CLI", kind: t("integrations_kind_extension"), href: integrationUrl("gemini-cli"), logo: "gemini" },
+      { id: "qwen-code", name: "Qwen Code", kind: t("integrations_kind_extension"), href: integrationUrl("gemini-cli"), logo: "qwen" },
       {
         id: "more-agents",
         name: "Kimi, OpenCode, Cline",
@@ -50,11 +51,11 @@ const groups: { title: string; items: Integration[] }[] = [
         id: "langchain-js",
         name: "LangChain.js",
         kind: t("integrations_kind_retriever"),
-        href: docsUrl("api-reference.md", "langchainjs-retriever-and-agent-tools"),
+        href: integrationUrl("langchain"),
         logo: "langchain",
       },
-      { id: "langchain-python", name: "LangChain", kind: t("integrations_kind_python"), href: docsUrl("python.md", "langchain-and-langgraph"), logo: "langchain" },
-      { id: "llamaindex", name: "LlamaIndex", kind: t("integrations_kind_python"), href: docsUrl("python.md", "llamaindex"), fallback: "library" },
+      { id: "langchain-python", name: "LangChain", kind: t("integrations_kind_python"), href: integrationUrl("langchain"), logo: "langchain" },
+      { id: "llamaindex", name: "LlamaIndex", kind: t("integrations_kind_python"), href: integrationUrl("llamaindex"), fallback: "library" },
       { id: "typescript", name: "TypeScript", kind: t("integrations_kind_library"), href: docsUrl("api-reference.md"), logo: "typescript" },
     ],
   },
@@ -146,10 +147,17 @@ const groups: { title: string; items: Integration[] }[] = [
                     <span class="block font-bold text-sm leading-5">{item.name}</span>
                     <span class="block text-muted-foreground text-xs leading-4">{item.kind}</span>
                   </span>
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    class="arrow-out ml-auto size-4 shrink-0 self-start text-muted-foreground"
-                  />
+                  {isExternalLink(item.href) ? (
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      class="arrow-out ml-auto size-4 shrink-0 self-start text-muted-foreground"
+                    />
+                  ) : (
+                    <ArrowRight
+                      aria-hidden="true"
+                      class="arrow-forward ml-auto size-4 shrink-0 self-start text-muted-foreground"
+                    />
+                  )}
                 </a>
               </li>
             )
@@ -161,9 +169,9 @@ const groups: { title: string; items: Integration[] }[] = [
 
   <a
     class="mx-auto mt-10 flex w-fit h-11 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-    href={pluginsUrl}
+    href="/integrations/"
   >
     {t("integrations_all_link")}
-    <ArrowUpRight class="arrow-out size-4" aria-hidden="true" />
+    <ArrowRight class="arrow-forward size-4" aria-hidden="true" />
   </a>
 </section>

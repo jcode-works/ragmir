@@ -3,7 +3,7 @@ import path from "node:path"
 import { getCollection, render } from "astro:content"
 import ArticlePage from "../../components/article-page.astro"
 import { useTranslations } from "../../i18n/utils"
-import { DOC_ORDER, DOC_PAGES } from "../../lib/docs-pages"
+import { DOC_ORDER, DOC_PAGES, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
 
 export async function getStaticPaths() {
@@ -19,12 +19,10 @@ if (!meta) {
 const { t } = await useTranslations("en")
 const { Content, headings } = await render(entry)
 const docs = await getCollection("docs")
-// A guide's own H1 names its page; `scripts/docs-pages-plugin.mjs` removes it from the body.
-const titleOf = (id: string): string =>
-  docs
-    .find((doc) => doc.id === id)
-    ?.body?.match(/^# (.+)$/mu)?.[1]
-    ?.trim() ?? id
+const titleOf = (id: string): string => {
+  const doc = docs.find((candidate) => candidate.id === id)
+  return doc ? docTitle(doc) : id
+}
 const h1 = titleOf(entry.id)
 // `filePath` is relative to the landing package, where Astro builds.
 const dates = (entry.filePath && gitDates(path.resolve(entry.filePath))) || {
@@ -50,7 +48,7 @@ const sideNav = {
   h1={h1}
   summary={meta.summary}
   locale="en"
-  pageLocales={["en"]}
+  alternates={{ en: `/docs/${entry.id}/` }}
   path={`docs/${entry.id}`}
   kicker="Docs"
   articleType="TechArticle"

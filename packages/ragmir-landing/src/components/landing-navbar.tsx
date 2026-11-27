@@ -5,6 +5,7 @@ import {
   Briefcase,
   ChevronRight,
   CircleHelp,
+  Compass,
   Download,
   FileCode,
   Gauge,
@@ -81,6 +82,7 @@ const DRAWER_SECTIONS: ReadonlyArray<{
     titleKey: "nav_section_docs",
     links: [
       { key: "docs", icon: BookOpen },
+      { key: "guides", icon: Compass },
       { key: "apiReference", icon: FileCode },
       { key: "supportedFormats", icon: Layers },
       { key: "serverGuide", icon: Server },

@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content"
 import AnimatedBackdrop from "../../components/animated-backdrop.astro"
 import { CommandCopyToast } from "../../components/command-copy-toast"
 import { FloatingCta } from "../../components/floating-cta"
@@ -24,11 +25,13 @@ import {
   useTranslations,
 } from "../../i18n/utils"
 import Layout from "../../layouts/layout.astro"
+import { findPage, pageHref, pageLocation } from "../../lib/content-pages"
 import {
   LIBRARY_TRANSLATIONS,
   NAVBAR_TRANSLATIONS,
   pickTranslations,
 } from "../../lib/island-translations"
+import { JCODE_URL, MAINTAINER } from "../../lib/maintainer"
 import { PROJECT_LINKS } from "../../lib/project-links"
 
 export function getStaticPaths() {
@@ -53,15 +56,18 @@ const structuredData = [
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://ragmir.com/#organization",
-    name: "JCode Works",
-    url: "https://jcode.works",
-    founder: {
-      "@type": "Person",
-      "@id": "https://ragmir.com/#jb-thery",
-      name: "Jean-Baptiste Thery",
-      url: "https://github.com/jb-thery",
-      sameAs: ["https://github.com/jb-thery"],
+    // The same entity as the Organization of jcode.works: its name, URL, logo, and profiles.
+    name: "jCode",
+    alternateName: "JCode Works",
+    legalName: "JCODE",
+    url: JCODE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${JCODE_URL}/assets/logo-mark.png`,
+      width: 600,
+      height: 600,
     },
+    founder: { "@type": "Person", ...MAINTAINER },
     knowsAbout: [
       "local-first retrieval",
       "agentic RAG workflows",
@@ -74,7 +80,12 @@ const structuredData = [
       "RAG evaluation",
       "retrieval for coding agents",
     ],
-    sameAs: ["https://github.com/jcode-works"],
+    sameAs: [
+      "https://github.com/jcode-works",
+      "https://www.linkedin.com/in/jean-baptiste-thery",
+      "https://www.malt.fr/profile/jeanbaptistethery",
+      "https://www.npmjs.com/package/@jcode.labs/ragmir",
+    ],
   },
   {
     "@context": "https://schema.org",
@@ -160,6 +171,8 @@ const structuredData = [
       PROJECT_LINKS.pypi,
       PROJECT_LINKS.agentSkills,
       PROJECT_LINKS.context7,
+      "https://glama.ai/mcp/servers/jcode-works/ragmir",
+      "https://mcpmarket.com/server/ragmir",
     ],
     publisher: {
       "@id": "https://ragmir.com/#organization",
@@ -199,6 +212,14 @@ const localizedIntegrationsUrl = `${getLocalizedUrl("/", locale)}#integrations`
 const localizedDeployUrl = `${getLocalizedUrl("/", locale)}#deploy`
 const localizedFaqUrl = `${getLocalizedUrl("/", locale)}#faq`
 const localizedTeamUrl = getLocalizedUrl("/team", locale)
+// Each section links to the page that covers its subject, in this locale when it is translated.
+const contentPages = await getCollection("pages")
+const deepLinkUrl = (path: string): string => {
+  const page = findPage(path, locale, contentPages)
+  if (!page) throw new Error(`The home page links to a missing page: ${path}`)
+  const location = pageLocation(page)
+  return pageHref(location.path, location.locale)
+}
 ---
 
 <Layout
@@ -235,13 +256,13 @@ const localizedTeamUrl = getLocalizedUrl("/team", locale)
       localizedUseCasesUrl={localizedUseCasesUrl}
     />
 
-    <UseCases translations={translations} />
+    <UseCases translations={translations} deepLinkUrl={deepLinkUrl("use-cases/forward-deployed-engineers")} />
 
     <AnimatedBackdrop>
-      <Capabilities translations={translations} />
+      <Capabilities translations={translations} deepLinkUrl={deepLinkUrl("rag-citations")} />
     </AnimatedBackdrop>
 
-    <Comparison translations={translations} />
+    <Comparison translations={translations} deepLinkUrl={deepLinkUrl("benchmarks")} />
 
     <AnimatedBackdrop>
       <LibrarySection
@@ -253,16 +274,20 @@ const localizedTeamUrl = getLocalizedUrl("/team", locale)
     <Integrations translations={translations} />
 
     <AnimatedBackdrop>
-      <Agents translations={translations} localizedIntegrationsUrl={localizedIntegrationsUrl} />
+      <Agents
+        translations={translations}
+        localizedIntegrationsUrl={localizedIntegrationsUrl}
+        deepLinkUrl={deepLinkUrl("local-rag")}
+      />
     </AnimatedBackdrop>
 
-    <Deploy translations={translations} />
+    <Deploy translations={translations} deepLinkUrl={deepLinkUrl("self-hosted-rag")} />
 
     <AnimatedBackdrop>
-      <Privacy translations={translations} />
+      <Privacy translations={translations} deepLinkUrl={deepLinkUrl("air-gapped-rag")} />
     </AnimatedBackdrop>
 
-    <Faq translations={translations} />
+    <Faq translations={translations} deepLinkUrl={deepLinkUrl("agentic-rag")} />
 
     <AnimatedBackdrop>
       <ClosingCta translations={translations} localizedLibraryUrl={localizedLibraryUrl} />

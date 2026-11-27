@@ -3,6 +3,8 @@
  * site gives each one a unique title and description, a summary, and its place in the docs menu.
  * The guides are written in English only.
  */
+import type { CollectionEntry } from "astro:content"
+
 export interface DocPage {
   title: string
   description: string
@@ -98,3 +100,8 @@ export const DOC_ORDER: readonly string[] = [
   "troubleshooting",
   "migration",
 ]
+
+/** A guide's title: its own H1, which the docs pages plugin removes from the rendered body. */
+export function docTitle(entry: CollectionEntry<"docs">): string {
+  return entry.body?.match(/^# (.+)$/mu)?.[1]?.trim() ?? entry.id
+}

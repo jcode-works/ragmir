@@ -3,11 +3,17 @@ import { defaultLang, getLocalizedUrl, locales } from "../i18n/utils"
 
 export type ContentPage = CollectionEntry<"pages">
 
-/** The hub page of each section that has one, by the hub's site path. */
-export const HUB_SECTIONS: Readonly<Record<string, ContentPage["data"]["section"]>> = {
-  integrations: "integration",
-  "use-cases": "use-case",
-  "case-studies": "case-study",
+type Section = ContentPage["data"]["section"]
+
+/** The hub pages, by site path: the sections each one lists and the key of its short label. */
+export const HUBS: Readonly<Record<string, { sections: readonly Section[]; labelKey: string }>> = {
+  integrations: { sections: ["integration"], labelKey: "nav_integrations" },
+  guides: { sections: ["guide", "use-case", "comparison"], labelKey: "nav_guides" },
+}
+
+/** The site path of the hub that lists a section, if one does. */
+export function hubOf(section: Section): string | undefined {
+  return Object.entries(HUBS).find(([, hub]) => hub.sections.includes(section))?.[0]
 }
 
 /** The locale and the site path of a page, read from its file path `<locale>/<path>.md`. */
@@ -24,49 +30,55 @@ export function pageHref(path: string, locale: string): string {
   return getLocalizedUrl(`/${path}`, locale)
 }
 
-/** The locales a page exists in, in the site's locale order. */
-export function pageLocales(entry: ContentPage, all: readonly ContentPage[]): string[] {
-  const found = new Set(
-    all
-      .filter((candidate) => candidate.data.translationKey === entry.data.translationKey)
-      .map((candidate) => pageLocation(candidate).locale),
-  )
-  return locales.filter((locale) => found.has(locale))
-}
-
-/** The page at a site path in a locale, or its English version when it is not translated. */
-function findPage(
+/**
+ * The page at an English site path in a locale, or the English page when it is not translated. A
+ * translation may live at another path (`fr/rag-local` for `local-rag`): its `translationKey` ties
+ * it to the English page.
+ */
+export function findPage(
   path: string,
   locale: string,
   all: readonly ContentPage[],
 ): ContentPage | undefined {
-  const at = (wanted: string) =>
-    all.find((entry) => {
-      const location = pageLocation(entry)
-      return location.path === path && location.locale === wanted
-    })
-  return at(locale) ?? at(defaultLang)
-}
-
-/** The pages listed under a page's `related`, resolved in its locale and skipping unknown paths. */
-export function relatedPages(entry: ContentPage, all: readonly ContentPage[]): ContentPage[] {
-  const { locale } = pageLocation(entry)
-  return entry.data.related.flatMap((path) => {
-    const page = findPage(path, locale, all)
-    return page ? [page] : []
+  const english = all.find((entry) => {
+    const location = pageLocation(entry)
+    return location.locale === defaultLang && location.path === path
   })
+  if (!english || locale === defaultLang) return english
+  return (
+    all.find(
+      (entry) =>
+        pageLocation(entry).locale === locale &&
+        entry.data.translationKey === english.data.translationKey,
+    ) ?? english
+  )
 }
 
-/** The pages of one section in a locale, English ones filling the untranslated gaps. */
+/** The root-relative URL of each locale's version of a page, by locale. */
+export function pageAlternates(
+  entry: ContentPage,
+  all: readonly ContentPage[],
+): Record<string, string> {
+  return Object.fromEntries(
+    all
+      .filter((candidate) => candidate.data.translationKey === entry.data.translationKey)
+      .map((candidate) => {
+        const location = pageLocation(candidate)
+        return [location.locale, pageHref(location.path, location.locale)]
+      }),
+  )
+}
+
+/** The pages of some sections in a locale, English ones filling the untranslated gaps. */
 export function sectionPages(
-  section: ContentPage["data"]["section"],
+  sections: readonly Section[],
   locale: string,
   all: readonly ContentPage[],
 ): ContentPage[] {
   const paths = [
     ...new Set(
       all
-        .filter((entry) => entry.data.section === section)
+        .filter((entry) => sections.includes(entry.data.section))
         .map((entry) => pageLocation(entry).path),
     ),
   ].sort()

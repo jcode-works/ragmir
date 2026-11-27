@@ -2,7 +2,7 @@
 import path from "node:path"
 import { getCollection } from "astro:content"
 import ArticlePage from "../../components/article-page.astro"
-import { DOC_ORDER, DOC_PAGES } from "../../lib/docs-pages"
+import { DOC_ORDER, DOC_PAGES, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
 
 const docs = await getCollection("docs")
@@ -13,7 +13,7 @@ const guides = DOC_ORDER.flatMap((id) => {
     ? [
         {
           id,
-          title: doc.body?.match(/^# (.+)$/mu)?.[1]?.trim() ?? id,
+          title: docTitle(doc),
           summary: meta.summary,
           dates: doc.filePath ? gitDates(path.resolve(doc.filePath)) : null,
         },
@@ -32,7 +32,7 @@ const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
   h1="Ragmir documentation"
   summary="The guides that ship with Ragmir, rendered from the repository's docs folder so they always match the current release."
   locale="en"
-  pageLocales={["en"]}
+  alternates={{ en: "/docs/" }}
   path="docs"
   kicker="Docs"
   articleType="TechArticle"

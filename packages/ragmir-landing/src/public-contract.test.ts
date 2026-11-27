@@ -181,7 +181,7 @@ describe("landing public contract", () => {
     expect([fr.hero_proof_recall_value, fr.hero_proof_speed_value]).toEqual(["94 %", "36 ms"])
     expect(en.hero_proof_speed_label).toContain("30,171-chunk monorepo")
     expect(heroSource).toContain('t("hero_proof_recall_value")')
-    expect(PROJECT_LINKS.benchmarks).toBe("https://github.com/jcode-works/ragmir#benchmarks")
+    expect(PROJECT_LINKS.benchmarks).toBe("/benchmarks/")
     expect(heroSource).toContain("PROJECT_LINKS.benchmarks")
   })
 
@@ -339,16 +339,11 @@ describe("landing public contract", () => {
   })
 
   it("should show teams shipping RAG how to deploy on their own servers", () => {
+    expect(homePageSource.indexOf("<Agents")).toBeGreaterThan(0)
     // language=TEXT
-    expect(
-      homePageSource.indexOf(
-        "<Agents translations={translations} localizedIntegrationsUrl={localizedIntegrationsUrl} />",
-      ),
-    ).toBeLessThan(homePageSource.indexOf("<Deploy translations={translations} />"))
+    expect(homePageSource.indexOf("<Agents")).toBeLessThan(homePageSource.indexOf("<Deploy "))
     // language=TEXT
-    expect(homePageSource.indexOf("<Deploy translations={translations} />")).toBeLessThan(
-      homePageSource.indexOf("<Privacy translations={translations} />"),
-    )
+    expect(homePageSource.indexOf("<Deploy ")).toBeLessThan(homePageSource.indexOf("<Privacy "))
     expect(deploySource).toContain('id="deploy"')
     expect(deploySource).toContain("PROJECT_LINKS.serverGuide")
     expect(PROJECT_LINKS.serverGuide).toBe("/docs/server-deployment/")
@@ -426,8 +421,9 @@ describe("landing public contract", () => {
       'const hreflangLocaleMap: Record<string, string> = {\n  en: "en",\n  fr: "fr",\n  es: "es",\n  zh: "zh-Hans",',
     )
     expect(astroConfigSource).toContain(
-      'locales: {\n                en: "en",\n                fr: "fr",\n                es: "es",\n                zh: "zh-Hans",',
+      'const sitemapLanguages = { en: "en", fr: "fr", es: "es", zh: "zh-Hans" }',
     )
+    expect(astroConfigSource).toContain("locales: sitemapLanguages")
     expect(layoutSource).toContain('en: "en_US"')
     expect(layoutSource).toContain('fr: "fr_FR"')
     expect(layoutSource).toContain('es: "es_ES"')
@@ -536,7 +532,7 @@ describe("landing public contract", () => {
     expect(en.demo_chat_model_options).toContain("self-hosted")
     expect(fr.demo_chat_model_options).toContain("auto-hébergé")
     expect(coreCliSource).toContain('.command("ocr")')
-    expect(agentsSource).toContain("docs/agent-integration.md")
+    expect(agentsSource).toContain('href="/docs/agent-integration/"')
   })
 
   it("should keep hero terminal stories aligned with the current CLI and MCP contracts", () => {
@@ -688,7 +684,7 @@ describe("landing public contract", () => {
       expect(getFaqItems(messages)).toHaveLength(16)
     }
     // language=TEXT
-    expect(homePageSource).toContain("<Faq translations={translations} />")
+    expect(homePageSource).toContain("<Faq translations={translations} deepLinkUrl=")
     expect(homePageSource).not.toContain('"@type": "FAQPage"')
     expect(homePageSource).not.toContain("mainEntity: faqItems.map")
   })

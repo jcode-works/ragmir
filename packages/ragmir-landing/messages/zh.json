@@ -503,5 +503,13 @@
   "article_section_case_study": "案例研究",
   "article_section_benchmark": "基准测试",
   "article_section_hub": "概览",
-  "article_section_hub_integrations": "集成"
+  "nav_guides": "指南",
+  "footer_link_use_case": "面向 forward deployed engineers",
+  "footer_link_case_study": "案例研究",
+  "home_link_citations": "了解引用机制",
+  "home_link_benchmarks": "查看基准测试",
+  "home_link_local_rag": "本地 RAG 教程",
+  "home_link_self_hosted": "自托管 RAG 指南",
+  "home_link_air_gapped": "隔离网络 RAG 指南",
+  "home_link_agentic_rag": "了解智能体式 RAG"
 }

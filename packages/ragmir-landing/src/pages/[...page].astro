@@ -4,13 +4,15 @@ import ArticlePage from "../components/article-page.astro"
 import { getLocalizedUrl, useTranslations } from "../i18n/utils"
 import {
   type ContentPage,
-  HUB_SECTIONS,
+  findPage,
+  HUBS,
+  hubOf,
   pageHref,
-  pageLocales,
+  pageAlternates,
   pageLocation,
-  relatedPages,
   sectionPages,
 } from "../lib/content-pages"
+import { DOC_PAGES, docTitle } from "../lib/docs-pages"
 
 export async function getStaticPaths() {
   const entries = await getCollection("pages")
@@ -34,14 +36,16 @@ const { t } = await useTranslations(locale)
 const { Content, headings } = await render(entry)
 const { data } = entry
 
-// A hub page lists the pages of its section after its own text.
-const hubSection = data.section === "hub" ? HUB_SECTIONS[path] : undefined
-const hubPages = hubSection ? sectionPages(hubSection, locale, all) : []
+// A hub page lists the pages of its sections after its own text.
+const hub = data.section === "hub" ? HUBS[path] : undefined
+const hubPages = hub ? sectionPages(hub.sections, locale, all) : []
+const parentHub = hubOf(data.section)
+const parent = parentHub ? findPage(parentHub, locale, all) : undefined
 
 const breadcrumbs = [
   { name: "Ragmir", href: getLocalizedUrl("/", locale) },
-  ...(data.section === "integration"
-    ? [{ name: t("article_section_hub_integrations"), href: pageHref("integrations", locale) }]
+  ...(parentHub && parent
+    ? [{ name: t(HUBS[parentHub]?.labelKey ?? "nav_guides"), href: pageHref(parentHub, pageLocation(parent).locale) }]
     : []),
   { name: data.h1, href: pageHref(path, locale) },
 ]
@@ -54,6 +58,19 @@ const toLink = (page: ContentPage) => {
     summary: page.data.summary,
   }
 }
+
+// `related` names site paths, or `docs/<guide>` for a guide rendered from the repository's docs.
+const docs = await getCollection("docs")
+const related = data.related.flatMap((target) => {
+  if (target.startsWith("docs/")) {
+    const id = target.slice("docs/".length)
+    const doc = docs.find((candidate) => candidate.id === id)
+    const meta = DOC_PAGES[id]
+    return doc && meta ? [{ title: docTitle(doc), href: `/${target}/`, summary: meta.summary }] : []
+  }
+  const page = findPage(target, locale, all)
+  return page ? [toLink(page)] : []
+})
 ---
 
 <ArticlePage
@@ -62,7 +79,7 @@ const toLink = (page: ContentPage) => {
   h1={data.h1}
   summary={data.summary}
   locale={locale}
-  pageLocales={pageLocales(entry, all)}
+  alternates={pageAlternates(entry, all)}
   path={path}
   kicker={t(`article_section_${data.section.replace("-", "_")}`)}
   articleType={data.section === "case-study" ? "Article" : "TechArticle"}
@@ -70,7 +87,7 @@ const toLink = (page: ContentPage) => {
   datePublished={data.datePublished}
   dateModified={data.dateModified}
   headings={headings}
-  related={relatedPages(entry, all).map(toLink)}
+  related={related}
 >
   <Content />
   {hubPages.length > 0 && (

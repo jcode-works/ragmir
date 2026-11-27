@@ -32,8 +32,8 @@ interface Props {
   h1: string
   summary: string
   locale: string
-  /** Locales this page exists in; hreflang and the language menu list only these. */
-  pageLocales: readonly string[]
+  /** Root-relative URL of each locale's version; hreflang and the language menu list only these. */
+  alternates: Readonly<Record<string, string>>
   /** Site path without locale or slashes, such as `integrations/claude-code`. */
   path: string
   kicker: string
@@ -55,7 +55,7 @@ const {
   h1,
   summary,
   locale,
-  pageLocales,
+  alternates,
   path,
   kicker,
   articleType,
@@ -71,14 +71,13 @@ const {
 const { t, translations } = await useTranslations(locale)
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const homeUrl = getLocalizedUrl("/", locale)
-const pageUrl = new URL(getLocalizedUrl(`/${path}`, locale), siteBase).href
-const alternateLocales = locales
-  .filter((entry) => pageLocales.includes(entry))
-  .map((entry) => ({
-    locale: entry,
-    label: languages[entry],
-    href: getLocalizedUrl(`/${path}`, entry),
-  }))
+const pageUrl = new URL(alternates[locale] ?? getLocalizedUrl(`/${path}`, locale), siteBase).href
+const pageLocales = locales.filter((entry) => alternates[entry] !== undefined)
+const alternateLocales = pageLocales.map((entry) => ({
+  locale: entry,
+  label: languages[entry],
+  href: alternates[entry] ?? getLocalizedUrl(`/${path}`, entry),
+}))
 const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
   dateStyle: "long",
   timeZone: "UTC",
@@ -140,6 +139,7 @@ const pillClass =
   ogType="article"
   ogImageAlt={t("seo_image_alt")}
   availableLocales={pageLocales}
+  alternatePaths={alternates}
   structuredData={structuredData}
 >
   <LandingNavbar

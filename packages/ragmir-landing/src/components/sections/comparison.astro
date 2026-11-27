@@ -1,11 +1,14 @@
 ---
+import DeepLink from "../deep-link.astro"
 import { SectionHeader } from "../section-header"
 
 interface Props {
   translations: Record<string, string>
+  /** The page that covers this section's subject, in the visitor's language when it exists. */
+  deepLinkUrl: string
 }
 
-const { translations } = Astro.props
+const { translations, deepLinkUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 // What changes when a coding agent searches a document corpus through Ragmir instead of its own
@@ -68,4 +71,8 @@ const grid = "grid grid-cols-2 gap-x-4 lg:grid-cols-[11rem_minmax(0,1fr)_minmax(
   <p class="mx-auto mt-6 max-w-2xl text-center text-muted-foreground text-sm leading-6">
     {t("comparison_enough_text")}
   </p>
+
+  <div class="mt-10 flex justify-center">
+    <DeepLink href={deepLinkUrl} label={t("home_link_benchmarks")} />
+  </div>
 </section>

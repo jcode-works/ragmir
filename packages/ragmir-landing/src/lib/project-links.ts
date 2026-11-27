@@ -1,6 +1,6 @@
 // Public project destinations. The hero, the mobile drawer, and the footer read this one list, so
-// a link added or moved here reaches every surface at once. The guides of `docs/` are pages of this
-// site; everything else leaves it.
+// a link added or moved here reaches every surface at once. The guides of `docs/`, the long-form
+// pages, and the benchmarks are pages of this site; everything else leaves it.
 export const GITHUB_URL = "https://github.com/jcode-works/ragmir"
 export const NPM_URL = "https://www.npmjs.com/package/@jcode.labs/ragmir"
 export const PYPI_URL = "https://pypi.org/project/ragmir/"
@@ -9,6 +9,9 @@ export const PROJECT_LINKS = {
   github: GITHUB_URL,
   npm: NPM_URL,
   docs: "/docs/",
+  guides: "/guides/",
+  useCase: "/use-cases/forward-deployed-engineers/",
+  caseStudy: "/case-studies/ragmir-repository/",
   apiReference: "/docs/api-reference/",
   supportedFormats: "/docs/supported-formats/",
   serverGuide: "/docs/server-deployment/",
@@ -17,17 +20,17 @@ export const PROJECT_LINKS = {
   pypi: PYPI_URL,
   agentSkills: "https://skills.sh/jcode-works/ragmir",
   context7: "https://context7.com/jcode-works/ragmir",
-  benchmarks: `${GITHUB_URL}#benchmarks`,
+  benchmarks: "/benchmarks/",
   releases: `${GITHUB_URL}/releases/latest`,
   changelog: `${GITHUB_URL}/blob/main/CHANGELOG.md`,
   license: `${GITHUB_URL}/blob/main/LICENSE`,
   commercialLicense: `${GITHUB_URL}/blob/main/COMMERCIAL-LICENSE.md`,
   privacy: `${GITHUB_URL}/blob/main/PRIVACY.md`,
   security: `${GITHUB_URL}/blob/main/SECURITY.md`,
-  claudePlugin: `${GITHUB_URL}/tree/main/plugins/ragmir`,
-  agentPlugins: `${GITHUB_URL}/blob/main/docs/agent-integration.md#plugins-and-extensions-for-coding-agents`,
-  langchainRetriever: `${GITHUB_URL}/blob/main/docs/api-reference.md#langchainjs-retriever-and-agent-tools`,
-  mcpGuide: `${GITHUB_URL}/blob/main/docs/agent-integration.md#connect-an-agent-through-mcp`,
+  claudePlugin: "/integrations/claude-code/",
+  agentPlugins: "/integrations/",
+  langchainRetriever: "/integrations/langchain/",
+  mcpGuide: "/mcp-rag-server/",
 } as const
 
 export type ProjectLinkKey = keyof typeof PROJECT_LINKS
@@ -42,6 +45,9 @@ export const PROJECT_LINK_LABEL_KEYS: Record<ProjectLinkKey, string> = {
   github: "nav_github",
   npm: "footer_link_npm",
   docs: "footer_link_docs",
+  guides: "nav_guides",
+  useCase: "footer_link_use_case",
+  caseStudy: "footer_link_case_study",
   apiReference: "footer_link_api",
   supportedFormats: "footer_link_formats",
   serverGuide: "footer_link_server_guide",
@@ -100,6 +106,9 @@ export const FOOTER_SECTIONS: readonly FooterSection[] = [
     titleKey: "nav_section_docs",
     links: [
       "docs",
+      "guides",
+      "useCase",
+      "caseStudy",
       "apiReference",
       "supportedFormats",
       "serverGuide",

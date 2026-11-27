@@ -18,6 +18,8 @@ interface Props {
   structuredData?: Record<string, unknown> | Record<string, unknown>[]
   canonicalOverride?: string
   availableLocales?: readonly string[] | string[]
+  /** Root-relative URL of each locale's version, for a page whose path differs between locales. */
+  alternatePaths?: Readonly<Record<string, string>>
 }
 
 // Full snippets, which also bound what AI Overviews and AI Mode may quote, and large image and video
@@ -38,6 +40,7 @@ const {
   structuredData,
   canonicalOverride,
   availableLocales = locales,
+  alternatePaths,
 } = Astro.props
 
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
@@ -82,6 +85,8 @@ function getImageType(imageUrl: string): string {
 }
 
 function alternateHref(targetLocale: string): string {
+  const explicitPath = alternatePaths?.[targetLocale]
+  if (explicitPath) return new URL(explicitPath, siteBase).href
   const currentPath = Astro.url.pathname
   const prefixedLocale = locales.find(
     (entry) =>

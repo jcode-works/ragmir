@@ -503,5 +503,13 @@
   "article_section_case_study": "Étude de cas",
   "article_section_benchmark": "Benchmarks",
   "article_section_hub": "Vue d’ensemble",
-  "article_section_hub_integrations": "Intégrations"
+  "nav_guides": "Guides",
+  "footer_link_use_case": "Pour les forward deployed engineers",
+  "footer_link_case_study": "Étude de cas",
+  "home_link_citations": "Comprendre les citations",
+  "home_link_benchmarks": "Voir les benchmarks",
+  "home_link_local_rag": "Tutoriel RAG local",
+  "home_link_self_hosted": "Guide du RAG auto-hébergé",
+  "home_link_air_gapped": "Guide du RAG en réseau isolé",
+  "home_link_agentic_rag": "Comprendre le RAG agentique"
 }

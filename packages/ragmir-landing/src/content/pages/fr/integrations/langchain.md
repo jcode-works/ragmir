@@ -148,8 +148,73 @@ La boîte à outils compte deux outils :
 - `ragmir_expand` lit une citation avec ses voisins, ainsi que la citation suivante à lire.
 
 Dans LangChain.js, `createRagmirTools({ client })` donne aux agents `createAgent` et LangGraph les
-deux mêmes outils. Ces outils passent les suites de tests standard de LangChain pour les retrievers
-et les outils.
+deux mêmes outils. Le retriever Python et les outils passent les suites de tests standard de
+LangChain.
+
+## Recettes au quotidien
+
+Ces recettes utilisent le paquet Python. Les appels du retriever ont été vérifiés le 27 novembre
+2026 sur l’index du dépôt de Ragmir lui-même.
+
+### Restreindre une recherche
+
+Les options du retriever s’appliquent aussi à chaque appel, si bien qu’un seul retriever peut servir
+toutes les questions :
+
+```python
+retriever = RagmirRetriever(project_root="/path/to/project", k=3)
+documents = retriever.invoke("run on a server without internet access", include_paths=["docs"])
+```
+
+`scope` fonctionne de la même façon avec un scope nommé défini dans `ragmir.config.json`.
+
+### Répondre avec des citations, ou signaler l’absence de preuve
+
+Une question que les documents ne couvrent pas renvoie une liste vide. Indiquez-le au modèle et
+donnez-lui chaque citation à côté de son passage :
+
+```python
+from langchain.chat_models import init_chat_model
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+def with_citations(documents):
+    if not documents:
+        return "NO EVIDENCE"
+    return "\n\n".join(f"[{d.metadata['citation']}]\n{d.page_content}" for d in documents)
+
+prompt = ChatPromptTemplate.from_template(
+    "Answer from the context only and cite each claim with its [citation]. If the context is "
+    "NO EVIDENCE, say the documents do not cover the question.\n\n"
+    "Context:\n{context}\n\nQuestion: {question}"
+)
+chain = (
+    {"context": retriever | with_citations, "question": RunnablePassthrough()}
+    | prompt
+    | init_chat_model("anthropic:claude-sonnet-5-5")
+    | StrOutputParser()
+)
+print(chain.invoke("How do I run Ragmir on a server without internet access?"))
+```
+
+Cette chaîne appelle l’API d’Anthropic et n’a pas été exécutée pour cette page. Tout modèle de chat
+peut la remplacer.
+
+### Actualiser l’index quand les documents changent
+
+Lancez l’actualisation depuis une étape de déploiement ou une tâche planifiée, et non dans le chemin
+de requête :
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+Elle ne lit que les fichiers nouveaux ou modifiés, et l’ancien index répond jusqu’à ce que le
+nouveau passe la validation.
 
 ## Limites
 

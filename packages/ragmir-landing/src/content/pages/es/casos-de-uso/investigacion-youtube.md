@@ -1,6 +1,6 @@
 ---
 title: "RAG para YouTube: guiones con citas de tus fuentes | Ragmir"
-description: "Usa Ragmir como mesa de investigación de tu canal de YouTube: indexa libros, estudios y subtítulos previos, revisa guiones con fuentes citadas y mantén un wiki al día."
+description: "Usa Ragmir como mesa de investigación de tu canal de YouTube: indexa libros, estudios y subtítulos, revisa guiones con fuentes citadas y mantén un wiki al día."
 h1: "RAG para creadores de YouTube: investigación, guiones y un wiki con tus fuentes"
 summary: "Indexa una vez los libros, estudios, artículos y archivos de subtítulos detrás de tus vídeos. Tu asistente de IA responde entonces preguntas de investigación con citas, revisa un guión contra tus fuentes y mantiene un wiki de temas que crece de un vídeo al siguiente. Ragmir busca y cita; no escribe, graba ni publica."
 section: use-case

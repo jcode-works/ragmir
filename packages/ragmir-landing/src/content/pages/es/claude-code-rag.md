@@ -1,6 +1,6 @@
 ---
 title: "RAG en Claude Code: grep o un índice local, medidos | Ragmir"
-description: "¿Usa RAG Claude Code? Busca con grep y lee archivos. Medimos esa primera pasada frente al servidor MCP de Ragmir con 89 preguntas y después mostramos cómo añadir RAG."
+description: "¿Usa RAG Claude Code? Busca con grep y lee archivos. Medimos esa pasada frente al servidor MCP de Ragmir con 89 preguntas y mostramos cómo añadir RAG."
 h1: "¿Usa Claude Code RAG? Grep frente a un índice local"
 summary: "Claude Code no mantiene un índice de tu código. Carga CLAUDE.md y después busca con grep y find, y lee archivos según avanza. En 89 preguntas sobre el repositorio de Ragmir, una primera pasada con grep ordenó los archivos que responden casi tan bien como el servidor MCP de Ragmir. El agente leyó una mediana de 71 KiB hasta llegar a uno, frente a menos de 5 KiB con Ragmir."
 section: guide
@@ -29,9 +29,9 @@ agents](https://www.anthropic.com/engineering/effective-context-engineering-for-
 Anthropic, 29 de septiembre de 2025).
 
 La [referencia de herramientas](https://code.claude.com/docs/en/tools-reference) actual añade dos
-detalles. En macOS, Linux y WSL, Claude busca con `find` y `grep` a través de la herramienta Bash.
-En Windows se mantienen las herramientas Glob y Grep. Grep se basa en ripgrep. No se construye ni se
-consulta ningún índice de embeddings.
+detalles. En macOS, Linux y WSL, Claude busca con `find` y `grep` a través de la herramienta Bash
+de forma predeterminada. En Windows, las herramientas dedicadas Glob y Grep, basadas en ripgrep,
+siguen siendo las predeterminadas. No se construye ni se consulta ningún índice de embeddings.
 
 Este diseño tiene ventajas reales. Nada queda desactualizado, los identificadores exactos se
 encuentran siempre y no hay nada que instalar. Sus costes aparecen en otro lugar: en cuánto lee el

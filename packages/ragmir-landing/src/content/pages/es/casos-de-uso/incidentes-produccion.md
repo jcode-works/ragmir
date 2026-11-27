@@ -1,5 +1,5 @@
 ---
-title: "RAG para incidentes: diagnóstico con citas antes de corregir | Ragmir"
+title: "RAG para incidentes: diagnóstico citado y corrección | Ragmir"
 description: "Basa una corrección de guardia en tus runbooks, postmortems y código: Claude Code o Codex diagnostica el incidente con citas de Ragmir y después añade una prueba."
 h1: "RAG para respuesta a incidentes: diagnostica con tus runbooks y añade una prueba"
 summary: "Indexa una sola vez tus runbooks, los informes de incidentes anteriores y el código fuente. Cuando se dispara un incidente, tu agente de código lo diagnostica a partir de esos documentos, cita cada fuente y solo entonces cambia el código y añade una prueba. Ragmir encuentra y cita; el agente razona y edita."

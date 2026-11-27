@@ -34,7 +34,7 @@ related: ["local-rag", "air-gapped-rag", "self-hosted-rag", "docs/agent-integrat
 | 语义检索，`multilingual-e5-small` | 1.5 GB 内存，下载 492 MB | 3 GB 内存和 2 个 CPU |
 | 语义检索，`Qwen3-Embedding-0.6B` | 4 GB 内存，下载 624 MB | 8 GB 内存和 2 个 CPU |
 
-这些数字来自 Ragmir README 中的[系统要求](https://github.com/jcode-works/ragmir#system-requirements)。请对照你自己的机器进行核对，包括容器的内存限制：
+这些数字来自 Ragmir README 中的[系统要求](https://github.com/jcode-works/ragmir#system-requirements)。在安装了 Ragmir 的项目中，请对照你自己的机器进行核对，包括容器的内存限制：
 
 ```bash
 npx rgr models list

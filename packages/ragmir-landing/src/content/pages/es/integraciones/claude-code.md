@@ -75,6 +75,63 @@ servidor a nivel de proyecto. Sin el plugin, ese comando es la alternativa.
 Claude Code inicia el servidor declarado en `.mcp.json` solo después de que lo apruebes. Hasta
 entonces, `rgr doctor` informa de `approval=pending`.
 
+## Úsalo día a día
+
+Pide en lenguaje sencillo. La skill de recuperación hace que Claude busque en el índice antes de
+responder una pregunta sobre el proyecto. Menciona Ragmir en la petición para asegurarte de que lo
+haga. Estas peticiones cubren casi todo el día a día.
+
+### Responder una pregunta con sus fuentes
+
+```prompt
+Usa Ragmir: ¿cómo revertimos una versión que ha fallado? Cita el archivo y las líneas de cada paso.
+```
+
+Claude busca, abre con `ragmir_expand` las una o dos citas que necesita y responde con citas como
+`docs/release.md:L40-L58`.
+
+### Buscar en una carpeta o en un tipo de archivo
+
+```prompt
+Busca solo los PDF de specs/ con Ragmir: ¿qué tiempo de respuesta promete el contrato?
+```
+
+La carpeta o el glob se convierte en `includePaths`, de modo que el código y otros documentos no
+compiten con el contrato.
+
+### Revisar los documentos antes de un cambio
+
+```prompt
+Antes de cambiar la política de reintentos, usa Ragmir para encontrar lo que dicen los documentos y los registros de decisiones sobre los reintentos, y enumera lo que el cambio contradiría.
+```
+
+### Leer un documento largo en orden
+
+```prompt
+Lee docs/migration.md con Ragmir desde el principio y enumera cada cambio incompatible con su cita.
+```
+
+El agente expande el primer pasaje y sigue `nextCitation` ventana a ventana, en lugar de cargar el
+archivo completo de una vez.
+
+### Encontrar lo que le falta al índice
+
+```prompt
+Usa Ragmir para listar los PDF indexados y luego audita las fuentes para detectar archivos que faltan o están desactualizados.
+```
+
+`ragmir_sources` enumera los documentos, y `ragmir_audit` compara los archivos del disco con el
+índice.
+
+### Actualizar tras una edición
+
+```prompt
+He actualizado docs/release.md. Actualiza el índice de Ragmir y vuelve a responder.
+```
+
+El agente llama a `ragmir_ingest`, que lee solo los archivos nuevos o modificados. El índice
+anterior sigue disponible para buscar hasta que el nuevo supere la validación.
+
 ## Lo que Claude Code gana frente a grep y a la lectura de archivos
 
 | | Claude Code por sí solo | Con Ragmir |
@@ -82,7 +139,7 @@ entonces, `rgr doctor` informa de `approval=pending`.
 | PDF, Office y escaneos | Se abren uno a uno; grep no puede buscar dentro de ellos | Se indexan una vez; los escaneos pasan por OCR local opcional, y cada pasaje se cita a su línea, página, diapositiva o celda |
 | Palabras distintas | Solo coinciden las palabras exactas | Hasta cinco reformulaciones fusionadas en una búsqueda, y un aviso que nombra las palabras que ningún archivo contiene |
 | Ventana de contexto | Archivos completos, leídos de nuevo en cada sesión | Tres citas compactas por defecto, dentro de 32 KB por llamada; los pasajes ya vistos regresan como avisos breves `seen` |
-| Lo que no está en los documentos | Una coincidencia parcial puede acabar convertida en respuesta | No se devuelve nada cuando la evidencia es débil |
+| Lo que no está en los documentos | Una coincidencia parcial puede acabar convertida en respuesta | No se devuelve nada cuando ningún pasaje contiene evidencia real; los pasajes débiles se marcan con `weakEvidence` |
 
 En un repositorio de código pequeño, la búsqueda de Claude Code suele bastar. Grep sigue siendo la
 herramienta para listar todas las apariciones o para buscar con una expresión regular. Ragmir

@@ -101,7 +101,7 @@ npx rgr search "run on a server without internet access" --compact
 
 每个结果都带有引用。这里的引用是行范围。PDF 的引用为页码（`contracts/msa-acme-2026.pdf:p7#3`），其他格式则使用幻灯片、工作表与单元格，或章节坐标。
 
-当证据较弱时，搜索不会输出最接近的段落，而是什么也不输出。它还会列出已索引段落中没有包含的问题词：
+当没有任何段落包含真实证据时，搜索不会输出最接近的段落，而是什么也不输出。它还会列出已索引段落中没有包含的问题词：
 
 ```bash
 npx rgr search "weather forecast for Lyon tomorrow" --compact

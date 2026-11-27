@@ -81,15 +81,15 @@ point d’accès compatible OpenAI. Le texte des passages et les requêtes parte
 
 Le 27 novembre 2026, `pnpm bench:competitors` a soumis 89 questions de développeurs, 30 questions
 hors sujet et 40 questions proches du domaine sur 287 fichiers du dépôt de Ragmir, dans Ragmir et
-dans d’autres bibliothèques de recherche locales. Les [benchmarks](/fr/benchmarks/) donnent le
+dans d’autres bibliothèques de recherche locales. Les [benchmarks](/fr/benchmarks/#contre-dautres-piles-de-recherche) donnent le
 tableau complet, un graphique et le rapport brut.
 
 Sans aucun modèle, Ragmir a classé un fichier de réponse dans le top 3 plus souvent (82 %) que le
 pipeline LangChain.js avec un modèle d’embedding (70 %). Il n’a aussi rien renvoyé pour la plupart
 des questions hors sujet.
 
-Ajouter le modèle a fait passer le top 3 de 82 à 87 %. Il a aussi augmenté les refus pour les
-questions hors sujet et proches du domaine.
+Ajouter `mxbai-embed-xsmall-v1` a fait passer le top 3 de 82 à 87 %. Il a aussi augmenté les refus
+pour les questions hors sujet et proches du domaine.
 
 ## Compromis à peser
 

@@ -1,6 +1,6 @@
 ---
 title: "RAG sin base vectorial, GPU ni clave de API | Ragmir"
-description: "Cuándo basta la búsqueda BM25 por palabras clave, con embeddings locales opcionales: cómo funciona la ruta predeterminada de Ragmir, qué ha medido y sus contrapartidas."
+description: "Cuándo basta BM25 por palabras clave, con embeddings locales opcionales: cómo funciona la ruta predeterminada de Ragmir, qué ha medido y sus contrapartidas."
 h1: "RAG sin base vectorial: cuándo basta la búsqueda por palabras clave"
 summary: "RAG necesita un índice de búsqueda, no un servidor de base de datos vectorial. La recuperación predeterminada de Ragmir, local-hash, ordena primero la evidencia por palabras clave BM25 en un índice integrado bajo la carpeta .ragmir del proyecto. No necesita modelo de embeddings, GPU ni clave de API. En el propio repositorio de Ragmir colocó un archivo de respuesta entre los 3 primeros en el 82 % de 89 preguntas de desarrolladores, y entre los 10 primeros en el 99 %. Añade un modelo local de embeddings cuando las preguntas usen palabras que tus documentos no usan."
 section: guide
@@ -83,14 +83,14 @@ con OpenAI. El texto de los pasajes y las consultas se envía a ese endpoint.
 El 27 de noviembre de 2026, `pnpm bench:competitors` planteó 89 preguntas de desarrolladores, 30
 preguntas fuera de tema y 40 preguntas de dominio cercano sobre 287 archivos del repositorio de
 Ragmir, en Ragmir y en otras bibliotecas locales de recuperación. Los
-[benchmarks](/es/benchmarks/) ofrecen la tabla completa, un gráfico y el informe sin procesar.
+[benchmarks](/es/benchmarks/#frente-a-otras-pilas-de-recuperación) ofrecen la tabla completa, un gráfico y el informe sin procesar.
 
 Sin ningún modelo, Ragmir colocó un archivo de respuesta en el top 3 con más frecuencia (82 %)
 que el pipeline de LangChain.js con un modelo de embeddings (70 %). Además, no devolvió nada en
 la mayoría de las preguntas fuera de tema.
 
-Añadir el modelo subió el top 3 del 82 al 87 %. También aumentó los rechazos de preguntas fuera
-de tema y de dominio cercano.
+Añadir `mxbai-embed-xsmall-v1` subió el top 3 del 82 al 87 %. También aumentó los rechazos de
+preguntas fuera de tema y de dominio cercano.
 
 ## Compromisos que conviene valorar
 

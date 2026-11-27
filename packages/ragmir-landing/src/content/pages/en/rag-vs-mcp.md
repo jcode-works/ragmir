@@ -74,8 +74,8 @@ back whole files fills the context with whole files. Ragmir bounds what each cal
   evidence id), and they do not count toward `topK`.
 - The agent expands only what it will rely on: `ragmir_expand` returns the full text of one
   citation and its bounded neighbours, or up to five citations in one budget.
-- When the evidence is weak, search returns nothing, so an off-topic question costs an empty
-  result.
+- When no passage holds real evidence, search returns nothing, so an off-topic question costs an
+  empty result. A thin passage that does come back carries `weakEvidence`.
 
 ```json
 { "queries": ["release approval", "rollback owner"], "scope": "docs", "maxBytes": 4096 }

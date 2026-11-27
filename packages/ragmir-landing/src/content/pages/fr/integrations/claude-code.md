@@ -1,6 +1,6 @@
 ---
 title: "Plugin RAG pour Claude Code avec recherche locale citée | Ragmir"
-description: "Ajoutez un RAG à Claude Code avec le plugin Ragmir : installez-le, indexez un projet, puis obtenez des passages cités à la ligne, la page, la diapositive ou la cellule."
+description: "Ajoutez un RAG à Claude Code avec le plugin Ragmir : installez-le, indexez un projet, puis obtenez des passages cités à la ligne, page, diapositive ou cellule."
 h1: "Comment ajouter un RAG à Claude Code"
 summary: "Installez le plugin Ragmir avec une seule commande, puis lancez /ragmir:index une fois dans chaque projet. Claude Code peut alors chercher dans votre code, vos spécifications, vos PDF et vos fichiers Office, et citer chaque passage à sa ligne, sa page, sa diapositive ou sa cellule, tout en gardant l’index sur votre machine."
 section: integration
@@ -77,6 +77,63 @@ l’alternative.
 Claude Code ne lance le serveur déclaré dans `.mcp.json` qu’après votre approbation. Jusque-là,
 `rgr doctor` affiche `approval=pending`.
 
+## Utiliser le plugin au quotidien
+
+Posez vos questions en langage courant. La compétence de recherche demande à Claude d’interroger
+l’index avant de répondre à une question sur le projet. Mentionnez Ragmir dans la demande pour en
+être sûr. Ces demandes couvrent l’essentiel du quotidien.
+
+### Répondre avec ses sources
+
+```prompt
+Utilisez Ragmir : comment annuler une mise en production ratée ? Citez le fichier et les lignes derrière chaque étape.
+```
+
+Claude effectue la recherche, ouvre la ou les citations dont il a besoin avec `ragmir_expand`,
+et répond en citant des références telles que `docs/release.md:L40-L58`.
+
+### Chercher dans un dossier ou un type de fichier
+
+```prompt
+Cherchez uniquement dans les PDF sous specs/ avec Ragmir : quel délai de réponse le contrat promet-il ?
+```
+
+Le dossier ou le glob devient `includePaths`, afin que le code et les autres documents ne
+concurrencent pas le contrat.
+
+### Vérifier les documents avant une modification
+
+```prompt
+Avant de modifier la politique de nouvelles tentatives, utilisez Ragmir pour trouver ce que les documents et les décisions consignées disent des nouvelles tentatives, et listez ce que la modification contredirait.
+```
+
+### Lire un long document dans l’ordre
+
+```prompt
+Lisez docs/migration.md avec Ragmir depuis le début et listez chaque changement incompatible avec sa citation.
+```
+
+L’agent développe le premier passage et suit `nextCitation` fenêtre par fenêtre, au lieu de charger
+tout le fichier d’un coup.
+
+### Trouver ce qui manque à l’index
+
+```prompt
+Utilisez Ragmir pour lister les PDF indexés, puis auditez les sources pour repérer les fichiers manquants ou obsolètes.
+```
+
+`ragmir_sources` liste les documents, et `ragmir_audit` compare les fichiers sur le disque avec
+l’index.
+
+### Rafraîchir après une modification
+
+```prompt
+J’ai mis à jour docs/release.md. Rafraîchissez l’index Ragmir, puis répondez à nouveau.
+```
+
+L’agent appelle `ragmir_ingest`, qui ne lit que les fichiers nouveaux ou modifiés. L’index précédent
+reste consultable tant que le nouveau n’a pas passé la validation.
+
 ## Ce que Claude Code gagne par rapport à grep et à la lecture de fichiers
 
 | | Claude Code seul | Avec Ragmir |
@@ -84,7 +141,7 @@ Claude Code ne lance le serveur déclaré dans `.mcp.json` qu’après votre app
 | PDF, Office, scans | Ouverts un à un ; grep ne peut pas chercher à l’intérieur | Indexés une fois, les scans passent par l’OCR local facultatif, et chaque passage est cité à sa ligne, sa page, sa diapositive ou sa cellule |
 | Autres formulations | Seuls les mots exacts correspondent | Jusqu’à cinq reformulations fusionnées dans une même recherche, et un avertissement qui nomme les mots qu’aucun fichier ne contient |
 | Fenêtre de contexte | Fichiers entiers, relus à chaque session | Trois citations compactes par défaut, dans la limite de 32 Ko par appel ; les passages déjà vus reviennent sous forme de rappels d’une ligne |
-| Absent des documents | Une correspondance partielle peut encore devenir une réponse | Rien n’est renvoyé quand les preuves sont faibles |
+| Absent des documents | Une correspondance partielle peut encore devenir une réponse | Rien n’est renvoyé quand aucun passage ne contient de preuve réelle ; les passages faibles sont signalés par `weakEvidence` |
 
 Sur un petit dépôt de code, la recherche native de Claude Code suffit souvent. Grep reste l’outil
 pour lister toutes les occurrences ou pour chercher une expression régulière. Ragmir renvoie des

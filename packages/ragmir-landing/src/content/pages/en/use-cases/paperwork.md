@@ -1,6 +1,6 @@
 ---
 title: "Private RAG for paperwork: local AI with page proof | Ragmir"
-description: "Index bank statements, payslips, contracts, and tax notices on your own computer. A local model answers and points to the exact page, and nothing leaves your machine."
+description: "Index bank statements, payslips, contracts, and tax notices on your own computer. A local model answers and cites the exact page, and nothing leaves your machine."
 h1: "Handle your paperwork with a local AI that points to the exact page"
 summary: "Keep bank statements, payslips, contracts, certificates, and notices in one folder on your computer. Ragmir indexes them there, and a local model such as Ollama answers questions or assembles a file with the exact page as proof. No document is sent to a cloud service."
 section: use-case

@@ -40,8 +40,8 @@ mots que vos documents n’utilisent pas, comme des synonymes ou une autre langu
 | Sémantique, `Qwen3-Embedding-0.6B` | 4 GB de mémoire, téléchargement de 624 MB | 8 GB et 2 CPU |
 
 Ces valeurs proviennent des [prérequis système](https://github.com/jcode-works/ragmir#system-requirements)
-du README de Ragmir. Vérifiez-les sur votre propre machine, en tenant compte de la limite de
-mémoire d’un conteneur :
+du README de Ragmir. Dans un projet qui installe Ragmir, vérifiez-les sur votre propre machine, en
+tenant compte de la limite de mémoire d’un conteneur :
 
 ```bash
 npx rgr models list

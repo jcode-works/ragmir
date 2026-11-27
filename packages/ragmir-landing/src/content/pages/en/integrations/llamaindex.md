@@ -100,9 +100,61 @@ docs/python.md:L211-L218#12
 docs/agent-integration.md:L43-L54#6
 ```
 
-From the node metadata, only the citation and its context path reach the LLM prompt.
+From the node metadata, the source path, the citation, and the context path reach the LLM prompt,
+with `source_status` when a file changed after indexing. Line and page ranges and the
+weak-evidence flag stay out.
 
 Nodes keep Ragmir's ranking order and have no similarity score. Read their order, not a score.
+
+## Everyday recipes
+
+The retriever calls below were checked on November 27, 2026 against the index of Ragmir's own
+repository.
+
+### Look at the evidence without an LLM
+
+`retrieve` returns the cited nodes alone. It is the quickest way to check what a question finds:
+
+```python
+from llama_index.retrievers.ragmir import RagmirRetriever
+
+retriever = RagmirRetriever("/path/to/project", similarity_top_k=4)
+for node in retriever.retrieve("How do I run Ragmir on a server without internet access?"):
+    print(node.node.metadata["citation"], node.node.get_content()[:60])
+```
+
+### Search only some files
+
+`include_paths` and `exclude_paths` take folders, files, or globs. `scope` takes a named scope from
+`ragmir.config.json`:
+
+```python
+contracts = RagmirRetriever("/path/to/project", include_paths=["contracts/**/*.pdf"])
+```
+
+### Say when the documents hold nothing
+
+A question the documents do not cover returns no node. Check it before trusting the response:
+
+```python
+response = engine.query("What is the refund policy for enterprise plans?")
+if not response.source_nodes:
+    print("The documents do not cover this question.")
+```
+
+### Refresh the index when documents change
+
+Run the refresh from a deployment step or a scheduled job, with the `ragmir` client:
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+It reads only new and changed files, and the previous index answers until the new one passes
+validation.
 
 ## What the retriever brings to local files
 
@@ -111,8 +163,9 @@ Nodes keep Ragmir's ranking order and have no similarity score. Read their order
 - Citations follow each format. `docs/runbook.md:L12-L18#3` cites lines, and
   `contracts/msa-acme-2026.pdf:p7#3` cites a PDF page. Other formats use slide, sheet and cell, or
   named-section coordinates.
-- Search returns nothing when the evidence is weak. A question the documents do not cover can then
-  be answered as such, instead of from the nearest passage.
+- Search returns nothing when no passage holds real evidence, and a thin passage carries
+  `weak_evidence`. A question the documents do not cover can then be answered as such, instead of
+  from the nearest passage.
 - The default `local-hash` retrieval needs no embedding API or GPU. A local semantic model is
   optional.
 

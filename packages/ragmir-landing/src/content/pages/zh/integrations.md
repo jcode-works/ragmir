@@ -13,7 +13,7 @@ notes:
     cards:
       - title: "Kimi、OpenCode 和 Cline"
         text: "Ragmir 的安装命令会在你运行它的项目中，用一条命令同时为这三者完成准备。"
-        command: "npx rgr setup --agents kimi,opencode,cline"
+        command: "npx --yes @jcode.labs/ragmir setup --agents kimi,opencode,cline"
       - title: "任何通过 stdio 使用 MCP 的客户端"
         text: "从通用入口启动服务器。MCP Registry 将其登记为 io.github.jcode-works/ragmir。"
         command: "node .ragmir/run.cjs serve-mcp"

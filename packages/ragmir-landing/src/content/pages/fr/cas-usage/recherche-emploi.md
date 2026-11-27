@@ -1,6 +1,6 @@
 ---
-title: "RAG pour l’emploi : lettres de motivation citant vos preuves | Ragmir"
-description: "Indexez vos CV, bilans annuels et rapports de projet, rapprochez une offre de vos propres preuves et rédigez des lettres sans rien inventer, chaque affirmation citée."
+title: "RAG pour l’emploi : lettres citant vos preuves | Ragmir"
+description: "Indexez vos CV, bilans annuels et rapports de projet, rapprochez une offre de vos preuves et rédigez des lettres sans rien inventer, chaque affirmation citée."
 h1: "Recherche d’emploi avec RAG : confronter une offre à vos preuves, sans rien inventer"
 summary: "Indexez tous vos CV, bilans annuels et rapports de projet. Confrontez ensuite une offre d’emploi à vos propres preuves, et rédigez une lettre de motivation où chaque affirmation renvoie à la page dont elle provient. Ragmir trouve et cite ; l’assistant rédige, et vous décidez de ce qui part."
 section: use-case

@@ -1,6 +1,6 @@
 ---
 title: "Retriever local de LangChain con citas | Ragmir"
-description: "Usa Ragmir como retriever local de LangChain en JavaScript o Python: cada documento incluye una cita exacta en sus metadatos, y herramientas de búsqueda para LangGraph."
+description: "Usa Ragmir como retriever local de LangChain en JavaScript o Python: cada documento lleva una cita exacta en sus metadatos, y herramientas para LangGraph."
 h1: "Retriever local de LangChain con citas"
 summary: "RagmirRetriever devuelve documentos de LangChain cuyos metadatos contienen una cita exacta, tanto en LangChain.js como en Python. Busca en un índice creado en tu máquina, no devuelve nada cuando los documentos no tienen evidencia e incluye herramientas de búsqueda y ampliación para agentes de LangChain y LangGraph."
 section: integration
@@ -146,8 +146,73 @@ El toolkit tiene dos herramientas:
 - `ragmir_expand` lee una cita con sus vecinos y la siguiente cita que conviene leer.
 
 En LangChain.js, `createRagmirTools({ client })` da a `createAgent` y a los agentes de LangGraph las
-mismas dos herramientas. Las herramientas superan las suites de pruebas estándar de LangChain para
-retrievers y herramientas.
+mismas dos herramientas. El retriever y las herramientas de Python superan las suites de pruebas
+estándar de LangChain.
+
+## Recetas cotidianas
+
+Estas recetas usan el paquete de Python. Las llamadas al retriever se comprobaron el 27 de
+noviembre de 2026 contra el índice del propio repositorio de Ragmir.
+
+### Acota una búsqueda
+
+Las opciones del retriever también funcionan por llamada, así que un único retriever puede atender
+cualquier pregunta:
+
+```python
+retriever = RagmirRetriever(project_root="/path/to/project", k=3)
+documents = retriever.invoke("run on a server without internet access", include_paths=["docs"])
+```
+
+`scope` funciona igual con un ámbito con nombre definido en `ragmir.config.json`.
+
+### Responde con citas, o indica que no hay evidencia
+
+Una pregunta que los documentos no cubren devuelve una lista vacía. Indícaselo al modelo y dale
+cada cita junto a su pasaje:
+
+```python
+from langchain.chat_models import init_chat_model
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+def with_citations(documents):
+    if not documents:
+        return "NO EVIDENCE"
+    return "\n\n".join(f"[{d.metadata['citation']}]\n{d.page_content}" for d in documents)
+
+prompt = ChatPromptTemplate.from_template(
+    "Answer from the context only and cite each claim with its [citation]. If the context is "
+    "NO EVIDENCE, say the documents do not cover the question.\n\n"
+    "Context:\n{context}\n\nQuestion: {question}"
+)
+chain = (
+    {"context": retriever | with_citations, "question": RunnablePassthrough()}
+    | prompt
+    | init_chat_model("anthropic:claude-sonnet-5-5")
+    | StrOutputParser()
+)
+print(chain.invoke("How do I run Ragmir on a server without internet access?"))
+```
+
+Esta cadena llama a la API de Anthropic y no se ejecutó para esta página. Cualquier modelo de chat
+sirve en su lugar.
+
+### Actualiza el índice cuando cambien los documentos
+
+Ejecuta la actualización desde un paso de despliegue o un trabajo programado, no en la ruta de las
+peticiones:
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+Solo lee los archivos nuevos y modificados, y el índice anterior sigue respondiendo hasta que el
+nuevo supera la validación.
 
 ## Límites
 

@@ -69,6 +69,53 @@ confianza.
 Elige una sola ruta por proyecto. Junto al plugin, `rgr setup --agents codex` registraría un segundo
 servidor.
 
+## Úsalo en el día a día
+
+Pregunta con palabras sencillas, y menciona Ragmir cuando la respuesta deba salir de los archivos del
+proyecto. Entonces Codex busca antes de escribir. Estas peticiones cubren casi todo el día a día.
+
+### Responde una pregunta con sus fuentes
+
+```prompt
+Usa Ragmir: ¿cómo revertimos un despliegue fallido? Cita el archivo y las líneas de cada paso.
+```
+
+Codex busca, lee la cita en la que se apoya con `ragmir_expand` y responde con citas como
+`docs/release.md:L40-L58`.
+
+### Haz preguntas relacionadas juntas
+
+```prompt
+Con Ragmir, responde todo junto: ¿quién aprueba una versión, quién es responsable de la reversión y dónde está el calendario de guardias?
+```
+
+Codex puede enviar las tres preguntas en una sola llamada a `ragmir_search`. Comparten un mismo
+presupuesto de salida, y un pasaje que responde a dos de ellas aparece una sola vez.
+
+### Busca en una carpeta o en un tipo de archivo
+
+```prompt
+Busca solo los PDF de specs/ con Ragmir: ¿qué tiempo de respuesta garantiza el contrato?
+```
+
+La carpeta o el glob se convierten en `includePaths`, así que el código y otros documentos no compiten
+con el contrato.
+
+### Revisa los documentos antes de un cambio
+
+```prompt
+Antes de cambiar la política de reintentos, usa Ragmir para encontrar qué dicen los documentos y los registros de decisiones sobre los reintentos, y enumera lo que el cambio contradiría.
+```
+
+### Actualiza tras una edición
+
+```prompt
+Actualicé docs/release.md. Refresca el índice de Ragmir y luego responde otra vez.
+```
+
+El agente llama a `ragmir_ingest`, que lee solo los archivos nuevos y modificados. El índice anterior
+sigue siendo buscable hasta que el nuevo pasa la validación.
+
 ## Mantén el servidor limitado a un proyecto
 
 Evita `~/.codex/config.toml`. Un servidor registrado allí responde a todos los espacios de trabajo

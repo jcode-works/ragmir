@@ -74,8 +74,8 @@ borne ce que chaque appel renvoie :
   (citation, chemin, identifiant de preuve), et ne comptent pas dans `topK`.
 - L’agent ne développe que ce sur quoi il s’appuiera : `ragmir_expand` renvoie le texte intégral
   d’une citation et de ses voisins bornés, ou jusqu’à cinq citations dans un même budget.
-- Lorsque les preuves sont faibles, la recherche ne renvoie rien : une question hors sujet ne coûte
-  donc qu’un résultat vide.
+- Lorsqu’aucun passage ne contient de preuve réelle, la recherche ne renvoie rien : une question hors
+  sujet ne coûte donc qu’un résultat vide. Un passage maigre qui revient malgré tout porte `weakEvidence`.
 
 ```json
 { "queries": ["release approval", "rollback owner"], "scope": "docs", "maxBytes": 4096 }

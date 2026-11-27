@@ -21,7 +21,7 @@ el camino.
 | --- | --- | --- | --- |
 | Instalación | Nada que instalar | Subir los archivos a un proyecto | Instalar Ragmir, indexar una vez y conectarlo por MCP o con el plugin |
 | Cómo encuentra el texto | grep y find, y después archivos completos | Archivos completos, o una búsqueda en el conocimiento del proyecto cuando superan la ventana de contexto | Un índice local devuelve pasajes ordenados con citas |
-| PDF, archivos de Office y escaneos | grep no puede buscar dentro de ellos | Se suben como cualquier otro archivo | Se buscan como texto, con cita a la página, la diapositiva o la celda; los escaneos, con OCR local |
+| PDF, archivos de Office y escaneos | Se abren uno a uno; grep no puede buscar dentro de ellos | Se suben como cualquier otro archivo | Se buscan como texto, con cita a la página, la diapositiva o la celda; los escaneos, con OCR local |
 | Adónde van los documentos | Claude los lee en tu equipo y envía a su proveedor de modelos lo que lee | Se suben a Anthropic | El índice se queda en tu equipo; Claude recibe los pasajes que lee |
 | Texto leído por respuesta | Una mediana de 71,4 KiB con una primera pasada de grep | No medido | Una mediana de 4,7 a 4,8 KiB |
 | Preguntas que los documentos no responden | grep seguía encontrando archivos en 28 de 30 | No medido | No se devuelve nada en 23 a 28 de 30 |

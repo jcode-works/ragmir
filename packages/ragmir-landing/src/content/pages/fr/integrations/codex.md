@@ -1,6 +1,6 @@
 ---
 title: "RAG pour Codex via MCP : documentation locale du projet | Ragmir"
-description: "Donnez à OpenAI Codex un accès cité à la documentation du projet, avec le plugin Ragmir ou un serveur MCP : installez, indexez une fois, puis cherchez avec citations."
+description: "Donnez à OpenAI Codex un accès cité à la documentation du projet, avec le plugin Ragmir ou un serveur MCP : installez, indexez, puis cherchez avec citations."
 h1: "Comment donner à Codex accès à la documentation du projet"
 summary: "Ajoutez le plugin Ragmir à OpenAI Codex, ou enregistrez le serveur MCP de Ragmir dans le fichier .codex/config.toml du projet, puis indexez le projet une fois. Codex cherche alors dans vos spécifications, vos ADR, vos PDF et votre code grâce à des outils locaux, et cite chaque passage qu’il utilise."
 section: integration
@@ -69,6 +69,54 @@ approuvé.
 
 Choisissez une seule voie par projet. À côté du plugin, `rgr setup --agents codex` enregistrerait un
 second serveur.
+
+## Utiliser Ragmir au quotidien
+
+Posez vos questions en langage courant, et nommez Ragmir lorsque la réponse doit provenir des
+fichiers du projet. Codex cherche alors avant de rédiger. Ces demandes couvrent la plupart des
+journées.
+
+### Répondre à une question avec ses sources
+
+```prompt
+Utilisez Ragmir : comment revenir en arrière après une version échouée ? Citez le fichier et les lignes derrière chaque étape.
+```
+
+Codex cherche, lit la citation sur laquelle il s’appuie avec `ragmir_expand`, et répond avec des
+citations telles que `docs/release.md:L40-L58`.
+
+### Poser plusieurs questions liées ensemble
+
+```prompt
+Avec Ragmir, répondez ensemble : qui approuve une version, qui est responsable du retour arrière, et où se trouve le planning d’astreinte ?
+```
+
+Codex peut envoyer les trois questions dans un seul appel `ragmir_search`. Elles partagent un même
+budget de sortie, et un passage qui répond à deux d’entre elles n’apparaît qu’une fois.
+
+### Chercher dans un dossier ou un type de fichier
+
+```prompt
+Cherchez uniquement les PDF sous specs/ avec Ragmir : quel temps de réponse le contrat garantit-il ?
+```
+
+Le dossier ou le glob devient `includePaths`, afin que le code et les autres documents ne fassent
+pas concurrence au contrat.
+
+### Vérifier les documents avant une modification
+
+```prompt
+Avant de modifier la politique de nouvelles tentatives, utilisez Ragmir pour trouver ce que la documentation et les registres de décision disent des nouvelles tentatives, et listez ce que la modification contredirait.
+```
+
+### Actualiser l’index après une modification
+
+```prompt
+J’ai mis à jour docs/release.md. Actualisez l’index Ragmir, puis répondez à nouveau.
+```
+
+L’agent appelle `ragmir_ingest`, qui ne lit que les fichiers nouveaux et modifiés. L’ancien index
+reste interrogeable jusqu’à ce que le nouveau passe la validation.
 
 ## Limiter le serveur à un seul projet
 

@@ -1,5 +1,5 @@
 ---
-title: "RAG pour les incidents : diagnostic sourcé, puis correctif | Ragmir"
+title: "RAG pour incidents : diagnostic sourcé, puis correctif | Ragmir"
 description: "Ancrez un correctif d’astreinte dans vos runbooks, post-mortems et code : Claude Code ou Codex diagnostique avec citations Ragmir, puis corrige et ajoute un test."
 h1: "Diagnostiquer à partir de vos runbooks, puis corriger avec un test"
 summary: "Indexez une fois vos runbooks, vos rapports d’incidents passés et votre code source. Quand un incident se déclenche, votre agent de code le diagnostique à partir de ces documents, cite chaque source, et seulement ensuite modifie le code et ajoute un test. Ragmir trouve et cite ; l’agent raisonne et modifie."

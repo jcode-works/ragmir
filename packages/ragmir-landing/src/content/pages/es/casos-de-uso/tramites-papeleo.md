@@ -1,6 +1,6 @@
 ---
 title: "RAG privado para trámites: IA local con prueba de página | Ragmir"
-description: "Indexa extractos bancarios, nóminas, contratos y avisos fiscales en tu propio ordenador. Un modelo local responde y señala la página exacta, y nada sale de tu equipo."
+description: "Indexa extractos bancarios, nóminas, contratos y avisos fiscales en tu ordenador. Un modelo local responde y señala la página exacta, y nada sale del equipo."
 h1: "Gestiona tus trámites con una IA local que señala la página exacta"
 summary: "Guarda extractos bancarios, nóminas, contratos, certificados y avisos en una sola carpeta de tu ordenador. Ragmir los indexa allí, y un modelo local como Ollama responde preguntas o reúne un expediente con la página exacta como prueba. Ningún documento se envía a un servicio en la nube."
 section: use-case

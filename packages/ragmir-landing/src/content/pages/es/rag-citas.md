@@ -1,5 +1,5 @@
 ---
-title: "Citas en RAG: líneas, páginas, diapositivas y celdas exactas | Ragmir"
+title: "Citas RAG: líneas, páginas, diapositivas y celdas | Ragmir"
 description: "Cómo es una cita de RAG verificable: coordenadas de línea, página de PDF, diapositiva, celda, elemento de EPUB o sección según el formato, y cómo Ragmir la verifica."
 h1: "RAG con citas: fuentes exactas que puedes comprobar"
 summary: "Una cita de RAG indica el pasaje de origen que respalda una respuesta. Ragmir cita cada pasaje con su ruta en el proyecto y una coordenada nativa: líneas, una página de PDF, una diapositiva, un rango de hoja y celdas, un elemento del lomo de un EPUB o una sección con nombre. Solo emite una coordenada cuando puede verificarla."

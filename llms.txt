@@ -208,20 +208,58 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   each page linked to its translations by reciprocal hreflang. Localized home pages: English
   https://ragmir.com/, French https://ragmir.com/fr/, Spanish https://ragmir.com/es/, Simplified
   Chinese https://ragmir.com/zh/. Link readers to the page in their language.
+- The [guides](https://ragmir.com/guides/), [integrations](https://ragmir.com/integrations/), and
+  [documentation](https://ragmir.com/docs/) are in English. The local RAG and agentic RAG guides
+  also exist in French and Spanish.
+
+## Guides
+
+- [Local RAG tutorial](https://ragmir.com/local-rag/): index documents on the CPU, search with
+  exact citations, and answer with a local Ollama model, with the outputs of a dated run.
+- [Agentic RAG](https://ragmir.com/agentic-rag/): the agent decides when to search, rewords
+  queries, expands citations, and stops on weak evidence.
+- [RAG MCP server](https://ragmir.com/mcp-rag-server/): the tools and limits of Ragmir's local MCP
+  server, how each coding agent starts it, and how to compare servers.
+- [Docs MCP server](https://ragmir.com/docs-mcp-server/): a local MCP server over your own
+  documentation, complementary to Context7.
+- [RAG vs MCP](https://ragmir.com/rag-vs-mcp/): how the protocol and retrieval differ and work
+  together.
+- [Does Claude Code use RAG?](https://ragmir.com/claude-code-rag/): grep against a local index on
+  89 measured developer questions.
+- [RAG citations](https://ragmir.com/rag-citations/): line, page, slide, cell, and section
+  coordinates per format.
+- [RAG without a vector database](https://ragmir.com/rag-without-vector-database/): when BM25
+  keyword search with optional local embeddings is enough.
+- [Self-hosted RAG](https://ragmir.com/self-hosted-rag/) and
+  [air-gapped RAG](https://ragmir.com/air-gapped-rag/): Docker images, offline staging, and a
+  deployment checklist.
+- [RAG for forward deployed engineers](https://ragmir.com/use-cases/forward-deployed-engineers/):
+  ship and evaluate retrieval inside a customer's perimeter.
+- [Benchmarks](https://ragmir.com/benchmarks/) and the
+  [case study of Ragmir's own repository](https://ragmir.com/case-studies/ragmir-repository/):
+  dated, reproducible results with their raw reports.
+- [Ragmir and Context7](https://ragmir.com/compare/context7/): a dated, sourced comparison.
+- Integrations: [Claude Code](https://ragmir.com/integrations/claude-code/),
+  [Codex](https://ragmir.com/integrations/codex/), [Cursor](https://ragmir.com/integrations/cursor/),
+  [Gemini CLI and Qwen Code](https://ragmir.com/integrations/gemini-cli/),
+  [LangChain](https://ragmir.com/integrations/langchain/), and
+  [LlamaIndex](https://ragmir.com/integrations/llamaindex/).
 
 ## Documentation
 
-- [Quick start](https://github.com/jcode-works/ragmir/blob/main/docs/quick-start.md)
-- [CLI reference](https://github.com/jcode-works/ragmir/blob/main/docs/cli-reference.md)
-- [API reference](https://github.com/jcode-works/ragmir/blob/main/docs/api-reference.md)
-- [Configuration](https://github.com/jcode-works/ragmir/blob/main/docs/configuration.md)
-- [Supported formats](https://github.com/jcode-works/ragmir/blob/main/docs/supported-formats.md)
-- [Agent integration: local, self-hosted, or cloud](https://github.com/jcode-works/ragmir/blob/main/docs/agent-integration.md)
-- [Run on a server or in a container](https://github.com/jcode-works/ragmir/blob/main/docs/server-deployment.md)
-- [Run Ragmir with Docker](https://github.com/jcode-works/ragmir/blob/main/docs/docker.md)
-- [Use Ragmir from Python](https://github.com/jcode-works/ragmir/blob/main/docs/python.md)
-- [Migration](https://github.com/jcode-works/ragmir/blob/main/docs/migration.md)
-- [Troubleshooting](https://github.com/jcode-works/ragmir/blob/main/docs/troubleshooting.md)
+Each guide of the repository's `docs/` folder, rendered on the site from the same file:
+
+- [Quick start](https://ragmir.com/docs/quick-start/) (`docs/quick-start.md`)
+- [CLI reference](https://ragmir.com/docs/cli-reference/) (`docs/cli-reference.md`)
+- [API reference](https://ragmir.com/docs/api-reference/) (`docs/api-reference.md`)
+- [Configuration](https://ragmir.com/docs/configuration/) (`docs/configuration.md`)
+- [Supported formats](https://ragmir.com/docs/supported-formats/) (`docs/supported-formats.md`)
+- [Agent integration: local, self-hosted, or cloud](https://ragmir.com/docs/agent-integration/) (`docs/agent-integration.md`)
+- [Run on a server or in a container](https://ragmir.com/docs/server-deployment/) (`docs/server-deployment.md`)
+- [Run Ragmir with Docker](https://ragmir.com/docs/docker/) (`docs/docker.md`)
+- [Use Ragmir from Python](https://ragmir.com/docs/python/) (`docs/python.md`)
+- [Migration](https://ragmir.com/docs/migration/) (`docs/migration.md`)
+- [Troubleshooting](https://ragmir.com/docs/troubleshooting/) (`docs/troubleshooting.md`)
 
 ## Distribution
 

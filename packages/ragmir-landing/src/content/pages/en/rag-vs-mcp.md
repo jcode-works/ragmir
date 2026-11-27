@@ -4,6 +4,7 @@ description: "RAG and MCP are not the same: MCP connects an agent to tools, and 
 h1: "RAG vs MCP: are they the same, and can you use both?"
 summary: "No. MCP is the protocol an agent uses to call tools. RAG retrieves passages from your sources so a model can answer from them. They work together when an MCP server exposes retrieval, and then the retrieval, not the protocol, decides how much text reaches the model."
 section: guide
+setup: agents
 translationKey: "rag-vs-mcp"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

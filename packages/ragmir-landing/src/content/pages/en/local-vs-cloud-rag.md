@@ -4,6 +4,7 @@ description: "Run RAG fully local, on your own server, or with a cloud AI: the m
 h1: "Local or cloud RAG: which models to run, and where your documents go"
 summary: "Ragmir's index always stays on the machine that runs it. What changes is the model that writes the answers: on your machine, on your server, or at a cloud provider that receives the passages you send. Here is the configuration and the hardware for each setup, and what to check before documents reach a cloud model."
 section: guide
+setup: local
 translationKey: "local-vs-cloud-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

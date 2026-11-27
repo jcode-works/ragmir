@@ -4,6 +4,7 @@ description: "What a checkable RAG citation looks like: line, PDF page, slide, c
 h1: "RAG with citations: exact sources you can check"
 summary: "A RAG citation names the source passage behind an answer. Ragmir cites each passage by its project path plus a native coordinate: lines, a PDF page, a slide, a sheet and cell range, an EPUB spine item, or a named section. It emits a coordinate only when it can verify it."
 section: guide
+setup: agents
 translationKey: "rag-citations"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

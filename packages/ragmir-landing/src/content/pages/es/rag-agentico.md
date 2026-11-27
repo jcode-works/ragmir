@@ -4,6 +4,7 @@ description: "Qué es el RAG agéntico: el agente decide cuándo buscar, reformu
 h1: "¿Qué es el RAG agéntico y cuándo conviene usarlo?"
 summary: "El RAG agéntico pone la recuperación bajo el control del agente. Decide cuándo buscar, reformula la pregunta, abre los pasajes citados que necesita y se detiene cuando la evidencia es débil. Ragmir aporta el lado de recuperación. El agente y su modelo se encargan del razonamiento, la respuesta y cualquier acción."
 section: guide
+setup: agents
 translationKey: "agentic-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

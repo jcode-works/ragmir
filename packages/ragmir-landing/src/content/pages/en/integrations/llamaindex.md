@@ -4,6 +4,7 @@ description: "Install llama-index-retrievers-ragmir to give a LlamaIndex query e
 h1: "LlamaIndex retriever for local files"
 summary: "The llama-index-retrievers-ragmir package adds a RagmirRetriever that LlamaIndex query engines accept. It searches a Ragmir index of your local files, built and queried on your machine, and every node carries the passage's citation."
 section: integration
+setup: app
 translationKey: "integrations/llamaindex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

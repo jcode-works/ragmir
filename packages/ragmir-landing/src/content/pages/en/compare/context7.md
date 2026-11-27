@@ -4,6 +4,7 @@ description: "A dated, sourced comparison of Ragmir and Context7: what each inde
 h1: "Ragmir and Context7: how they compare and work together"
 summary: "Context7 serves current, version-specific documentation for public libraries from a hosted service. Ragmir indexes your own files on your machine and returns exact citations. They cover different sources, and one coding agent can use both."
 section: comparison
+setup: agents
 translationKey: "compare/context7"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

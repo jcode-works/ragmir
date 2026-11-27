@@ -4,6 +4,7 @@ description: "Use Ragmir as a local LangChain retriever in JavaScript or Python,
 h1: "LangChain local retriever with citations"
 summary: "RagmirRetriever returns LangChain documents whose metadata holds an exact citation, in LangChain.js and in Python. It searches an index built on your machine, returns nothing when the documents hold no evidence, and comes with search and expand tools for LangChain and LangGraph agents."
 section: integration
+setup: app
 translationKey: "integrations/langchain"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

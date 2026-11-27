@@ -4,6 +4,7 @@ description: "Créez un RAG local pas à pas : indexez vos documents sur CPU ave
 h1: "Comment construire un RAG local sur votre propre machine"
 summary: "Installez Ragmir avec Node.js 22.12 ou plus récent, indexez vos documents sur CPU et cherchez-les avec des citations exactes. Le chemin par défaut n’exige ni GPU, ni clé API, ni base vectorielle. Un court script envoie ensuite seulement les passages sélectionnés à un modèle local comme Ollama."
 section: guide
+setup: local
 translationKey: "local-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

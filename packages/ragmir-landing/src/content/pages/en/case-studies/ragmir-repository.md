@@ -4,6 +4,7 @@ description: "How Ragmir's repository indexes its own code and docs for coding a
 h1: "How Ragmir's own repository uses Ragmir"
 summary: "Ragmir's repository indexes its own code and docs with a committed ragmir.config.json, and coding agents query that base before relying on memory or broad file scans. On November 27, 2026, an answering file reached the top 10 for 88 or 89 of 89 developer questions, and an agent read under 5 KiB to reach it. Most questions about features Ragmir lacks still returned passages."
 section: case-study
+setup: agents
 translationKey: "case-studies/ragmir-repository"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

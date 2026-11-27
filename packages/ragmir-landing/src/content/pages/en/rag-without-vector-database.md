@@ -4,6 +4,7 @@ description: "When BM25 keyword search plus optional local embeddings is enough 
 h1: "RAG without a vector database: when keyword search is enough"
 summary: "RAG needs a search index, not a vector database server. Ragmir's default local-hash retrieval ranks BM25 keyword evidence first in an embedded index under the project's .ragmir folder. It needs no embedding model, GPU, or API key. On Ragmir's own repository it put an answering file in the top 3 for 82% of 89 developer questions and in the top 10 for 99%. Add a local embedding model when questions use words your documents do not."
 section: guide
+setup: agents
 translationKey: "rag-without-vector-database"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

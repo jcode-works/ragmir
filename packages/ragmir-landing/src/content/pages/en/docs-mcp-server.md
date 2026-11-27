@@ -4,6 +4,7 @@ description: "Run a local docs MCP server over your own Markdown, PDFs, Office f
 h1: "A docs MCP server for your own documentation"
 summary: "Ragmir indexes the documentation in your repository or folders on your machine and serves it to coding agents through a local MCP server. It works offline by default and cites lines, pages, slides, or cells. It complements Context7, which serves public library documentation."
 section: use-case
+setup: agents
 translationKey: "docs-mcp-server"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

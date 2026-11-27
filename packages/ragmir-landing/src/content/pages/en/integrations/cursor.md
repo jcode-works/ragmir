@@ -4,6 +4,7 @@ description: "Connect Cursor to Ragmir's local MCP server with the plugin folder
 h1: "Cursor RAG MCP: search your documentation with citations"
 summary: "Cursor's agent can call Ragmir's local MCP server to search a project's documentation, code, PDFs, and Office files. Install the Ragmir plugin folder or add one entry to .cursor/mcp.json, index the project, and every result comes back with a citation."
 section: integration
+setup: agents
 translationKey: "integrations/cursor"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

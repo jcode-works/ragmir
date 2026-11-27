@@ -4,6 +4,7 @@ description: "Ship RAG on a customer's documents inside their network: index on 
 h1: "RAG for forward deployed engineers, inside the customer's perimeter"
 summary: "Index the customer's documents on their own infrastructure, measure retrieval on their questions before anyone relies on the answers, and leave a pinned CLI, Docker image, and committed configuration behind. The customer's application keeps the interface, authentication, and per-user access."
 section: use-case
+setup: agents
 translationKey: "use-cases/forward-deployed-engineers"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

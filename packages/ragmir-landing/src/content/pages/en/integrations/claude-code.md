@@ -4,6 +4,7 @@ description: "Add RAG to Claude Code with the Ragmir plugin: install it, index a
 h1: "How to add RAG to Claude Code"
 summary: "Install the Ragmir plugin with one command, then run /ragmir:index once in each project. Claude Code can then search your code, specifications, PDFs, and Office files and cite each passage to its line, page, slide, or cell, while the index stays on your machine."
 section: integration
+setup: agents
 translationKey: "integrations/claude-code"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

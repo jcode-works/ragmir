@@ -4,6 +4,7 @@ description: "Does Claude Code use RAG? It greps and reads files. We measured th
 h1: "Does Claude Code use RAG? Grep versus a local index"
 summary: "Claude Code keeps no index of your code. It loads CLAUDE.md, then searches with grep and find and reads files as it goes. On 89 questions about Ragmir's repository, a grep first pass ranked answering files about as well as Ragmir's MCP server. The agent read a median of 71 KiB to reach one, against under 5 KiB through Ragmir."
 section: guide
+setup: agents
 translationKey: "claude-code-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

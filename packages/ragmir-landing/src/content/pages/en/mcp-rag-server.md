@@ -4,6 +4,7 @@ description: "What a RAG MCP server is, the tools and limits of Ragmir's local s
 h1: "A local RAG MCP server for your code and documents"
 summary: "A RAG MCP server gives an AI agent search tools over an index of documents. Ragmir's server runs on your machine over stdio and indexes code, Markdown, PDFs, and Office files. Each search returns three compact citations within a 32 KB budget, so the agent expands only the passages it needs."
 section: guide
+setup: agents
 translationKey: "mcp-rag-server"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

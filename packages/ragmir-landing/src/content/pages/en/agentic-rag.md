@@ -4,6 +4,7 @@ description: "What agentic RAG is: the agent decides when to search, rewords que
 h1: "What is agentic RAG, and when should you use it?"
 summary: "Agentic RAG lets the agent control retrieval. It decides when to search, rewords the question, opens the cited passages it needs, and stops when the evidence is weak. Ragmir provides the retrieval side. The agent and its model own the reasoning, the answer, and any action."
 section: guide
+setup: agents
 translationKey: "agentic-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

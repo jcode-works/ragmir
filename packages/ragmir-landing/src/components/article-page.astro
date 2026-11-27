@@ -1,6 +1,7 @@
 ---
 import { ArrowRight, ArrowUpRight } from "@lucide/astro"
 import type { IntegrationMarkName } from "../content/integration-logos"
+import type { SetupVariant } from "../content/setup-prompts"
 import { getLocalizedUrl, languageTag, useTranslations } from "../i18n/utils"
 import { MAINTAINER } from "../lib/maintainer"
 import { articleSchema, type Crumb } from "../lib/page-schema"
@@ -11,6 +12,7 @@ import Breadcrumbs from "./breadcrumbs.astro"
 import IntegrationMark from "./integration-mark.astro"
 import PageShell from "./page-shell.astro"
 import { RagmirBackground } from "./ragmir-background"
+import SetupPromptCard from "./setup-prompt-card.astro"
 
 interface Props {
   title: string
@@ -34,6 +36,8 @@ interface Props {
   cardGroups?: ReadonlyArray<{ title?: string; cards: readonly ArticleCard[] }>
   /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
   navSection?: string
+  /** The setup prompt offered before the text, the short way through the page. */
+  setup?: SetupVariant
 }
 
 const {
@@ -53,6 +57,7 @@ const {
   related,
   cardGroups = [],
   navSection,
+  setup,
 } = Astro.props
 
 const { t } = await useTranslations(locale)
@@ -69,8 +74,12 @@ const hasBody = Astro.slots.has("default")
 const hasLead = Astro.slots.has("lead")
 // A hub lists its pages instead: a contents list would point past the cards.
 const sections = isHub ? [] : headings.filter((heading) => heading.depth === 2)
-const hasContents = sections.length > 1
-const contents = sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text }))
+// The setup card opens the text, so it opens the contents list too.
+const contents = [
+  ...(setup ? [{ href: "#setup-prompt", title: t("setup_title") }] : []),
+  ...sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text })),
+]
+const hasContents = contents.length > 1
 const libraryUrl = `${homeUrl}#library`
 const relatedColumns = related.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"
 const structuredData = articleSchema({
@@ -151,8 +160,10 @@ const pillClass =
           </div>
         )}
 
-        {(hasBody || isHub || hasLead) && (
+        {(hasBody || isHub || hasLead || setup) && (
           <div class="mt-10 min-w-0 [grid-area:body] lg:mt-12">
+            {setup && <SetupPromptCard class="mb-14" locale={locale} variant={setup} />}
+
             {hasLead && (
               <div class="mb-14">
                 <slot name="lead" />

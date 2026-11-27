@@ -4,6 +4,7 @@ description: "Ragmir's retrieval measured on its public repository against grep,
 h1: "RAG retrieval benchmarks you can rerun"
 summary: "On 89 developer questions about Ragmir's public repository, Ragmir 6.20.0's code put an answering file in the top 10 for 99 to 100% of them and returned nothing for 23 to 28 of 30 off-topic questions. A coding agent's grep first pass ranked files about as well but read a median of 71 KiB to reach an answer, against under 5 KiB through Ragmir. Measured on November 27, 2026."
 section: benchmark
+setup: agents
 translationKey: "benchmarks"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

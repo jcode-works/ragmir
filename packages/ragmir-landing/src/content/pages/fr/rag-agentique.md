@@ -4,6 +4,7 @@ description: "RAG agentique : l’agent décide quand chercher, reformule, déve
 h1: "Qu’est-ce que le RAG agentique, et quand faut-il l’utiliser ?"
 summary: "Le RAG agentique laisse l’agent contrôler la recherche. Il décide quand chercher, reformule la question, ouvre les passages cités dont il a besoin et s’arrête lorsque les preuves sont faibles. Ragmir fournit la partie recherche. L’agent et son modèle assurent le raisonnement, la réponse et toute action."
 section: guide
+setup: agents
 translationKey: "agentic-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

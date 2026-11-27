@@ -4,6 +4,7 @@ description: "Use Ragmir as the research desk of a YouTube channel: index books,
 h1: "RAG for YouTube creators: research, scripts, and a wiki from your sources"
 summary: "Index the books, papers, articles, and caption files behind your videos once. Your AI assistant then answers research questions with citations, checks a script against your sources, and keeps a wiki of topics that grows from one video to the next. Ragmir finds and cites; it does not write, record, or publish."
 section: use-case
+setup: creator
 translationKey: "use-cases/youtube-research"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

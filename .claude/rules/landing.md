@@ -16,6 +16,10 @@ paths:
 - The docs use their own layout, `src/components/docs-page.astro`, rather than Starlight, which
   would take over their routes, the Markdown pipeline, and the navigation bar they share with the
   rest of the site.
+- Every guide, use case, and integration page sets `setup:` in its front matter: the card before
+  its text offers one of the prompts in `src/content/setup-prompts.ts`, whose `agents` prompt is
+  the canonical setup prompt, then explains what the agent does. Keep each prompt's commands true
+  to the docs, and keep the manual steps on the page.
 - Titles and body text use the type scale in `src/styles/global.css` (`type-title`,
   `type-section`, `type-subsection`, `type-lead`), the home hero apart; do not size headings
   with ad hoc text utilities.

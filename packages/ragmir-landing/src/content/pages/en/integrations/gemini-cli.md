@@ -4,6 +4,7 @@ description: "Install Ragmir as a Gemini CLI or Qwen Code extension: a local MCP
 h1: "Gemini CLI extension for RAG, also for Qwen Code"
 summary: "One command installs Ragmir as a Gemini CLI or Qwen Code extension. It starts a local MCP server in the workspace and loads a context file that tells the model how to search, expand, and cite your project's files."
 section: integration
+setup: agents
 translationKey: "integrations/gemini-cli"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

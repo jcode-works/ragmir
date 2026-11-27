@@ -4,6 +4,7 @@ description: "Give OpenAI Codex cited access to your project documentation with 
 h1: "How to give Codex access to project documentation"
 summary: "Add the Ragmir plugin to OpenAI Codex, or register Ragmir's MCP server in the project's .codex/config.toml, then index the project once. Codex then searches your specifications, ADRs, PDFs, and code through local tools and cites each passage it uses."
 section: integration
+setup: agents
 translationKey: "integrations/codex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

@@ -2,6 +2,7 @@ import { defineCollection } from "astro:content"
 import { glob } from "astro/loaders"
 import { z } from "astro/zod"
 import { INTEGRATION_MARK_NAMES } from "./content/integration-logos"
+import { SETUP_VARIANTS } from "./content/setup-prompts"
 
 /** Kinds of long-form pages; each one picks its JSON-LD type and its breadcrumb parent. */
 export const PAGE_SECTIONS = [
@@ -35,6 +36,8 @@ const pages = defineCollection({
     logo: z.enum(INTEGRATION_MARK_NAMES).optional(),
     /** The group of the integrations hub that lists the page: coding agents or frameworks. */
     group: z.enum(["agents", "frameworks"]).optional(),
+    /** The setup prompt the page offers before its text, from `src/content/setup-prompts.ts`. */
+    setup: z.enum(SETUP_VARIANTS).optional(),
   }),
 })
 

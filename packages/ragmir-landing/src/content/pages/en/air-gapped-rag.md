@@ -4,6 +4,7 @@ description: "Run RAG without internet access: stage Ragmir's image or npm packa
 h1: "Air-gapped RAG: run retrieval without internet access"
 summary: "Ragmir's default retrieval makes no network call. Retrieval in an air-gapped network needs only what you stage in advance: the Docker image or the npm package, plus an optional semantic model and OCR engines. After that, ingestion, search, and evaluation run with the network off."
 section: guide
+setup: offline
 translationKey: "air-gapped-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

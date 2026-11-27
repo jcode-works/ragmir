@@ -4,6 +4,7 @@ description: "Run Ragmir on a VPS or on-premise server with the slim or full Doc
 h1: "Self-hosted RAG on your VPS or on-premise server"
 summary: "Ragmir is a retrieval layer you host yourself. It parses, indexes, and searches your documents on your server and returns cited passages to the service or agent that calls it. Your service keeps TLS, authentication, per-user access, rate limits, and the model."
 section: guide
+setup: server
 translationKey: "self-hosted-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27

@@ -1,8 +1,9 @@
 ---
 import path from "node:path"
 import { getCollection } from "astro:content"
-import ArticlePage from "../../components/article-page.astro"
 import { ArrowUpRight } from "@lucide/astro"
+import ArticleCards from "../../components/article-cards.astro"
+import DocsPage from "../../components/docs-page.astro"
 import { useTranslations } from "../../i18n/utils"
 import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
@@ -37,17 +38,15 @@ const cardGroups = DOC_GROUPS.map((group) => ({
     return guide ? [{ title: guide.title, href: `/docs/${id}/`, summary: guide.summary }] : []
   }),
 }))
+const first = guides[0]
 ---
 
-<ArticlePage
+<DocsPage
   title="Ragmir documentation: guides and references | Ragmir docs"
   description="Every Ragmir guide in one place: quick start, agents and MCP, the rgr CLI and TypeScript API, Python, configuration, formats, servers, Docker, and troubleshooting."
   h1="Ragmir documentation"
   summary="The guides that ship with Ragmir, rendered from the repository's docs folder so they always match the current release."
-  locale="en"
-  alternates={{ en: "/docs/" }}
   path="docs"
-  articleType="TechArticle"
   breadcrumbs={[
     { name: "Ragmir", href: "/" },
     { name: "Docs", href: "/docs/" },
@@ -55,13 +54,11 @@ const cardGroups = DOC_GROUPS.map((group) => ({
   datePublished={published.length > 0 ? earliest : new Date()}
   dateModified={modified.length > 0 ? latest : new Date()}
   headings={[]}
-  related={[]}
-  cardGroups={cardGroups}
-  sideNav={{ label: t("nav_section_docs"), groups: docsMenu(titleOf, undefined) }}
-  navSection="/docs/"
+  menu={docsMenu(titleOf, undefined)}
+  next={first ? { title: first.title, href: `/docs/${first.id}/` } : undefined}
 >
-  <aside class="rounded-xl bg-card p-6 md:p-8" slot="lead">
-    <h2 class="font-black text-xl leading-snug">Give these docs to your coding agent</h2>
+  <aside class="rounded-xl bg-card p-6 md:p-8">
+    <h2 class="type-subsection">Give these docs to your coding agent</h2>
     <p class="mt-2 max-w-2xl text-muted-foreground text-sm leading-6">
       Context7 indexes Ragmir's documentation from the repository, so an agent connected to Context7
       can look up a command or an option while it works, without leaving your editor.
@@ -77,4 +74,13 @@ const cardGroups = DOC_GROUPS.map((group) => ({
       <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
     </a>
   </aside>
-</ArticlePage>
+
+  <div class="mt-14 flex flex-col gap-14">
+    {cardGroups.map((group) => (
+      <section aria-label={group.title}>
+        <h2 class="type-section">{group.title}</h2>
+        <ArticleCards cards={group.cards} class="mt-6 sm:grid-cols-2" cta={t("article_card_cta")} />
+      </section>
+    ))}
+  </div>
+</DocsPage>

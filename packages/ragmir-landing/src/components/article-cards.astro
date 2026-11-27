@@ -25,16 +25,23 @@ const { cards, cta, class: className } = Astro.props
   {cards.map((card) => (
     <li>
       <a
-        class="group flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+        class="group flex h-full gap-3 rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
         href={card.href}
       >
-        {card.mark && <IntegrationMark class="mb-5 size-7 shrink-0 text-foreground" mark={card.mark} />}
-        <span class="font-black text-lg leading-snug">{card.title}</span>
-        <span class="mt-2 text-muted-foreground text-sm leading-6">{card.summary}</span>
-        <!-- The whole card is the link; this line only shows that it leads somewhere. -->
-        <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-foreground text-sm">
-          {cta}
-          <ArrowRight class="arrow-forward size-4 text-muted-foreground" />
+        <!-- The mark keeps the title's line height, so it centres on the first line of the title. -->
+        {card.mark && (
+          <span class="flex h-[1lh] shrink-0 items-center text-lg leading-snug">
+            <IntegrationMark class="size-6 text-foreground" mark={card.mark} />
+          </span>
+        )}
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span class="font-black text-lg leading-snug">{card.title}</span>
+          <span class="mt-2 text-[13px] text-muted-foreground leading-5">{card.summary}</span>
+          <!-- The whole card is the link; this line only shows that it leads somewhere. -->
+          <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-[13px] text-foreground">
+            {cta}
+            <ArrowRight class="arrow-forward size-3.5 text-muted-foreground" />
+          </span>
         </span>
       </a>
     </li>

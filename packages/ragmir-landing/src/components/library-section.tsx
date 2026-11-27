@@ -95,7 +95,7 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
 
       <Card className="mx-auto min-w-0 max-w-3xl overflow-hidden">
         <CardHeader className="gap-2 p-5 pb-0 md:p-6 md:pb-0">
-          <CardTitle className="font-black text-xl">{t("quickstart_title")}</CardTitle>
+          <CardTitle className="type-subsection">{t("quickstart_title")}</CardTitle>
           <CardDescription className="leading-6">{t("quickstart_text")}</CardDescription>
         </CardHeader>
         <CardContent className="grid min-w-0 gap-4 p-5 md:p-6">

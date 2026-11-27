@@ -31,7 +31,7 @@ export function SectionHeader({
         <span>{label}</span>
         <span aria-hidden="true" className="hidden h-px w-10 bg-foreground/40 md:block" />
       </p>
-      <h2 className="display mt-6 text-balance text-3xl md:text-5xl" id={id}>
+      <h2 className="type-title mt-6" id={id}>
         {title}
       </h2>
       {text && (

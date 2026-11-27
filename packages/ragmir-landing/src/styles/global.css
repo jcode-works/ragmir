@@ -266,11 +266,60 @@ textarea {
   }
 }
 
-/* Display titles and tabular figures, as on the WorkoutGen landing. */
-.display {
+/*
+ * One type scale for every page, the hero apart. Each step names a job: a page or chapter title, a
+ * section inside a page, a subsection or feature block, and the lead under a title. Markdown
+ * headings take the same steps, so a section reads the same size on a guide, a hub, the docs, or
+ * the home page.
+ */
+.type-title {
   font-weight: 900;
-  line-height: 0.95;
+  font-size: 2rem;
+  line-height: 1.05;
   letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.type-section,
+.prose-article h2 {
+  font-weight: 900;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.type-subsection,
+.prose-article h3 {
+  font-weight: 800;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.type-lead {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+@media (min-width: 48rem) {
+  .type-title {
+    font-size: 2.5rem;
+  }
+
+  .type-section,
+  .prose-article h2 {
+    font-size: 1.625rem;
+  }
+
+  .type-subsection,
+  .prose-article h3 {
+    font-size: 1.25rem;
+  }
+
+  .type-lead {
+    font-size: 1.125rem;
+  }
 }
 
 /*
@@ -284,8 +333,8 @@ textarea {
     ui-sans-serif, system-ui, sans-serif;
 }
 
-:lang(zh) .display {
-  line-height: 1.2;
+:lang(zh) :is(.type-title, .type-section, .prose-article h2) {
+  line-height: 1.25;
   letter-spacing: 0;
 }
 
@@ -637,8 +686,7 @@ header[data-hidden] .logo-text {
 /*
  * Long-form page layout. On a phone everything stacks: title, folded lists, then the body, where a
  * hub shows its cards before its text.
- * Wide screens move the contents list into a rail beside the text, and the docs keep their guide
- * list in a rail on the other side.
+ * Wide screens move the contents list into a rail beside the text.
  */
 .article-layout {
   display: grid;
@@ -653,17 +701,38 @@ header[data-hidden] .logo-text {
     grid-template-areas: "header header" "body toc";
   }
 
-  .article-layout-docs {
-    grid-template-columns: 13rem minmax(0, 1fr);
-    grid-template-areas: "nav header" "nav menus" "nav body";
+}
+
+/*
+ * The documentation: its menu panel on the left from 64rem, the page in the middle, and the page's
+ * contents on the right from 80rem.
+ */
+.docs-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 3rem;
+}
+
+@media (min-width: 64rem) {
+  .docs-layout {
+    grid-template-columns: 16rem minmax(0, 1fr);
   }
 }
 
 @media (min-width: 80rem) {
-  .article-layout-docs {
-    grid-template-columns: 13rem minmax(0, 1fr) 13rem;
-    grid-template-areas: "nav header toc" "nav body toc";
+  .docs-layout-toc {
+    grid-template-columns: 16rem minmax(0, 1fr) 12rem;
   }
+}
+
+/* A side rail stays in view and scrolls on its own, with a thin scrollbar that stays quiet. */
+.article-rail {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--foreground) 18%, transparent) transparent;
+  /* Both ends fade while more links wait past them. The rail's padding is as tall as each fade, so
+     no link is faded at either end of the list, and keyboard focus stops clear of them. */
+  mask-image: linear-gradient(to bottom, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
+  scroll-padding-block: 1.5rem;
 }
 
 /*
@@ -680,23 +749,15 @@ header[data-hidden] .logo-text {
   margin-top: 1.1rem;
 }
 
+/* Headings take their size from the type scale: `.type-section` and `.type-subsection`. */
 .prose-article h2 {
   margin-top: 3.25rem;
   color: var(--foreground);
-  font-weight: 900;
-  font-size: 1.625rem;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
 }
 
 .prose-article h3 {
   margin-top: 2.25rem;
   color: var(--foreground);
-  font-weight: 800;
-  font-size: 1.2rem;
-  line-height: 1.35;
-  text-wrap: balance;
 }
 
 .prose-article h4 {
@@ -858,6 +919,11 @@ header[data-hidden] .logo-text {
 
 .prose-article :is(th, td):first-child {
   min-width: 9rem;
+}
+
+/* A file name or an option in a table stays whole; the table scrolls sideways when it must. */
+.prose-article :is(th, td) code {
+  overflow-wrap: normal;
 }
 
 /* Screenshots of real runs: full column width, on the card grey while they load. */

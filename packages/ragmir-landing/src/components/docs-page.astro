@@ -1,0 +1,233 @@
+---
+import { ArrowLeft, ArrowRight, ArrowUpRight, Copy } from "@lucide/astro"
+import { getLocalizedUrl, useTranslations } from "../i18n/utils"
+import { MAINTAINER } from "../lib/maintainer"
+import { articleSchema, type Crumb } from "../lib/page-schema"
+import ArticleNav from "./article-nav.astro"
+import Breadcrumbs from "./breadcrumbs.astro"
+import PageShell from "./page-shell.astro"
+
+interface PagerLink {
+  title: string
+  href: string
+}
+
+interface Props {
+  title: string
+  description: string
+  h1: string
+  summary: string
+  /** Site path without slashes, such as `docs/quick-start`. */
+  path: string
+  breadcrumbs: readonly Crumb[]
+  datePublished: Date
+  dateModified: Date
+  headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
+  /** The documentation's menu, with the page on screen marked current. */
+  menu: ReadonlyArray<{
+    title?: string
+    links: ReadonlyArray<{ title: string; href: string; current: boolean; external?: boolean }>
+  }>
+  /** The guide's Markdown, served beside the page, which "Copy page" puts on the clipboard. */
+  markdownHref?: string
+  /** The guide's Markdown source on GitHub. */
+  sourceHref?: string
+  previous?: PagerLink
+  next?: PagerLink
+  /** Sets the content in the prose styles; the overview lays out its own cards. */
+  prose?: boolean
+}
+
+/*
+ * The documentation's own layout, as library docs present theirs: a menu panel on the left that
+ * stays in place and scrolls on its own, the guide in the middle with its page actions, and its
+ * contents on the right from 80rem. The docs are written in English only. Built here rather than
+ * with Starlight, which would take over the routes, the Markdown pipeline, and the navigation bar
+ * the docs share with the rest of the site.
+ */
+const {
+  title,
+  description,
+  h1,
+  summary,
+  path,
+  breadcrumbs,
+  datePublished,
+  dateModified,
+  headings,
+  menu,
+  markdownHref,
+  sourceHref,
+  previous,
+  next,
+  prose = false,
+} = Astro.props
+
+const { t } = await useTranslations("en")
+const siteBase = Astro.site ?? new URL("https://ragmir.com")
+const pagePath = `/${path}/`
+const sections = headings.filter((heading) => heading.depth === 2)
+const hasContents = sections.length > 1
+const contents = sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text }))
+const dateFormat = new Intl.DateTimeFormat("en", { dateStyle: "long", timeZone: "UTC" })
+const structuredData = articleSchema({
+  siteBase,
+  pageUrl: new URL(pagePath, siteBase).href,
+  title,
+  description,
+  headline: h1,
+  locale: "en",
+  articleType: "TechArticle",
+  datePublished,
+  dateModified,
+  breadcrumbs,
+})
+
+const actionClass =
+  "inline-flex h-9 items-center gap-2 rounded-full bg-card px-4 font-semibold text-[13px] text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+const pagerClass =
+  "flex flex-col rounded-xl bg-card p-5 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+---
+
+<PageShell
+  title={title}
+  description={description}
+  locale="en"
+  alternates={{ en: pagePath }}
+  structuredData={structuredData}
+  navSection="/docs/"
+>
+  <div class="container-wide px-5 pt-24 pb-24 md:px-8">
+    <div class:list={["docs-layout", hasContents && "docs-layout-toc"]}>
+      <aside class="max-lg:hidden">
+        <div class="sticky top-24 h-[calc(100dvh-7rem)] overflow-hidden rounded-2xl bg-card">
+          <ArticleNav groups={menu} label={t("nav_section_docs")} newTabLabel={t("new_tab_label")} variant="panel" />
+        </div>
+      </aside>
+
+      <main id="main-content" class="min-w-0 pt-4 lg:pt-6">
+        <Breadcrumbs crumbs={breadcrumbs} label={t("article_breadcrumb_label")} />
+        <header class="mt-6">
+          <h1 class="type-title">{h1}</h1>
+          <p class="type-lead mt-4 max-w-2xl text-muted-foreground">{summary}</p>
+          {(markdownHref || sourceHref) && (
+            <div class="mt-6 flex flex-wrap gap-2">
+              {markdownHref && (
+                <button class={actionClass} data-copy-page={markdownHref} type="button">
+                  <Copy aria-hidden="true" class="size-3.5 text-muted-foreground" />
+                  <span aria-live="polite" data-copy-label>Copy page</span>
+                </button>
+              )}
+              {sourceHref && (
+                <a class={actionClass} href={sourceHref} rel="noopener" target="_blank">
+                  {t("article_source")}
+                  <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+                  <ArrowUpRight aria-hidden="true" class="arrow-out size-3.5 text-muted-foreground" />
+                </a>
+              )}
+            </div>
+          )}
+        </header>
+
+        <div class:list={["mt-8 flex flex-col gap-3", hasContents ? "xl:hidden" : "lg:hidden"]}>
+          <ArticleNav
+            class="lg:hidden"
+            groups={menu}
+            label={t("nav_section_docs")}
+            newTabLabel={t("new_tab_label")}
+            variant="disclosure"
+          />
+          {hasContents && (
+            <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="disclosure" />
+          )}
+        </div>
+
+        <div id="article-body" class:list={["mt-10", prose && "prose-article"]}>
+          <slot />
+        </div>
+
+        {(previous || next) && (
+          <nav aria-label="Previous and next pages" class="mt-16 grid gap-3 sm:grid-cols-2">
+            {previous && (
+              <a class={pagerClass} href={previous.href} rel="prev">
+                <span class="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                  <ArrowLeft aria-hidden="true" class="size-3.5" />
+                  Previous
+                </span>
+                <span class="mt-1.5 font-black text-base leading-snug">{previous.title}</span>
+              </a>
+            )}
+            {next && (
+              <a class:list={[pagerClass, "sm:col-start-2 sm:items-end sm:text-right"]} href={next.href} rel="next">
+                <span class="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                  Next
+                  <ArrowRight aria-hidden="true" class="size-3.5" />
+                </span>
+                <span class="mt-1.5 font-black text-base leading-snug">{next.title}</span>
+              </a>
+            )}
+          </nav>
+        )}
+
+        <p class="mt-12 flex flex-wrap gap-x-4 gap-y-1 border-border border-t pt-6 text-muted-foreground text-xs leading-6">
+          <span>
+            {t("article_updated")}{" "}
+            <time datetime={dateModified.toISOString()}>{dateFormat.format(dateModified)}</time>
+          </span>
+          <span>
+            {t("article_by")}{" "}
+            <a class="font-semibold text-foreground underline-offset-4 hover:underline" href={getLocalizedUrl("/team", "en")}>
+              {MAINTAINER.name}
+            </a>
+          </span>
+        </p>
+      </main>
+
+      {hasContents && (
+        <aside class="pt-6 max-xl:hidden">
+          <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="rail" />
+        </aside>
+      )}
+    </div>
+  </div>
+</PageShell>
+
+<script>
+  import "./article-rails"
+
+  // "Copy page" puts the guide's Markdown on the clipboard, as an agent or a chat would read it.
+  document.addEventListener("astro:page-load", () => {
+    for (const button of document.querySelectorAll<HTMLButtonElement>("button[data-copy-page]")) {
+      const label = button.querySelector<HTMLElement>("[data-copy-label]")
+      const idle = label?.textContent ?? ""
+      let reset = 0
+      const show = (text: string) => {
+        if (label) label.textContent = text
+        window.clearTimeout(reset)
+        reset = window.setTimeout(() => {
+          if (label) label.textContent = idle
+        }, 2000)
+      }
+      button.addEventListener("click", async () => {
+        const markdown = fetch(button.dataset.copyPage ?? "").then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`)
+          return response.text()
+        })
+        try {
+          // Safari keeps the click's permission only for a write that starts at once, so the
+          // clipboard item waits for the download instead of the other way round.
+          const blob = markdown.then((text) => new Blob([text], { type: "text/plain" }))
+          await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })])
+          show("Copied")
+        } catch {
+          try {
+            await navigator.clipboard.writeText(await markdown)
+            show("Copied")
+          } catch {
+            show("Copy failed")
+          }
+        }
+      })
+    }
+  })
+</script>

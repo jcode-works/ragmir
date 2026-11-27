@@ -1,0 +1,83 @@
+---
+import { getLocalizedUrl, languages, locales, useTranslations } from "../i18n/utils"
+import Layout from "../layouts/layout.astro"
+import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
+import AnimatedBackdrop from "./animated-backdrop.astro"
+import { ArticleCodeCopy } from "./article-code-copy"
+import { LandingNavbar } from "./landing-navbar"
+import Footer from "./sections/footer.astro"
+
+interface Props {
+  title: string
+  description: string
+  locale: string
+  /** Root-relative URL of each locale's version; hreflang lists only these. */
+  alternates: Readonly<Record<string, string>>
+  structuredData: Record<string, unknown>[]
+  /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
+  navSection?: string
+}
+
+/*
+ * The frame of every long-form page, the guides and the documentation alike: head, navigation bar,
+ * copy buttons on the code blocks of `#article-body`, and the footer.
+ */
+const { title, description, locale, alternates, structuredData, navSection } = Astro.props
+const { t, translations } = await useTranslations(locale)
+const homeUrl = getLocalizedUrl("/", locale)
+const pageLocales = locales.filter((entry) => alternates[entry] !== undefined)
+// Every language stays one click away: a language without this page opens its home page.
+const alternateLocales = locales.map((entry) => ({
+  locale: entry,
+  label: languages[entry],
+  href: alternates[entry] ?? getLocalizedUrl("/", entry),
+}))
+---
+
+<Layout
+  title={title}
+  description={description}
+  locale={locale}
+  ogType="article"
+  ogImageAlt={t("seo_image_alt")}
+  availableLocales={pageLocales}
+  alternatePaths={alternates}
+  structuredData={structuredData}
+>
+  <LandingNavbar
+    client:load
+    alternateLocales={alternateLocales}
+    locale={locale}
+    currentPath={Astro.url.pathname}
+    currentSection={navSection}
+    localizedAgentsUrl={`${homeUrl}#agents`}
+    localizedDeployUrl={`${homeUrl}#deploy`}
+    localizedFaqUrl={`${homeUrl}#faq`}
+    localizedFeaturesUrl={`${homeUrl}#capabilities`}
+    localizedHomeUrl={`${homeUrl}#top`}
+    localizedLibraryUrl={`${homeUrl}#library`}
+    localizedTeamUrl={getLocalizedUrl("/team", locale)}
+    localizedUseCasesUrl={`${homeUrl}#use-cases`}
+    translations={pickTranslations(translations, NAVBAR_TRANSLATIONS)}
+  />
+
+  <slot />
+
+  <ArticleCodeCopy
+    client:idle
+    containerId="article-body"
+    copiedMessage={t("command_copied")}
+    copyLabel={t("copy_code")}
+    failedMessage={t("copy_failed")}
+  />
+
+  <!-- The footer sits on the animated dot field, as it does on the home page. -->
+  <AnimatedBackdrop>
+    <Footer
+      alternateLocales={alternateLocales}
+      locale={locale}
+      localizedHomeUrl={`${homeUrl}#top`}
+      translations={translations}
+    />
+  </AnimatedBackdrop>
+</Layout>

@@ -14,10 +14,11 @@ interface Props {
   /** The links, in groups under an optional title, such as the documentation's sections. */
   groups: ReadonlyArray<{ title?: string; links: readonly NavLink[] }>
   /**
-   * `rail` stays in view beside the text on wide screens; `disclosure` folds under the title on
-   * narrow ones, where a rail has no room.
+   * `rail` stays in view beside the text on wide screens; `panel` fills a surface its parent keeps
+   * in view, such as the documentation's menu; `disclosure` folds under the title on narrow
+   * screens, where neither has room.
    */
-  variant: "rail" | "disclosure"
+  variant: "rail" | "panel" | "disclosure"
   /** The links point at this page's sections, so the reading position can light one of them. */
   sections?: boolean
   /** Read after the title of a link that opens a new tab. */
@@ -30,17 +31,18 @@ const linkClass =
   "-ml-px flex items-center border-transparent border-l-2 py-1.5 pl-4 text-muted-foreground leading-snug transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&[aria-current]]:border-foreground [&[aria-current]]:font-semibold [&[aria-current]]:text-foreground"
 ---
 
-{variant === "rail" ? (
+{variant !== "disclosure" ? (
   <nav
     aria-label={label}
     class:list={[
-      "sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto overscroll-contain pb-6",
+      "article-rail overflow-y-auto overscroll-contain",
+      variant === "rail" ? "sticky top-18 -mt-6 max-h-[calc(100dvh-5.5rem)] pt-6 pr-3 pb-6" : "h-full px-5 py-6",
       className,
     ]}
   >
-    <p class="font-black text-foreground text-sm uppercase tracking-tight">{label}</p>
-    {groups.map((group) => (
-      <div class="mt-4">
+    {variant === "rail" && <p class="font-black text-foreground text-sm uppercase tracking-tight">{label}</p>}
+    {groups.map((group, index) => (
+      <div class:list={[variant === "rail" ? "mt-4" : index > 0 && "mt-6"]}>
         {group.title && <p class="mb-2 font-semibold text-foreground/90 text-xs">{group.title}</p>}
         <ul class="border-border border-l text-sm" role="list">
           {group.links.map((link) => (

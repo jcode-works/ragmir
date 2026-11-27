@@ -1,32 +1,16 @@
 ---
-import { ArrowRight, ArrowUpRight, ChevronRight } from "@lucide/astro"
-import { getLocalizedUrl, languages, languageTag, locales, useTranslations } from "../i18n/utils"
-import Layout from "../layouts/layout.astro"
-import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
-import { MAINTAINER } from "../lib/maintainer"
+import { ArrowRight, ArrowUpRight } from "@lucide/astro"
 import type { IntegrationMarkName } from "../content/integration-logos"
+import { getLocalizedUrl, languageTag, useTranslations } from "../i18n/utils"
+import { MAINTAINER } from "../lib/maintainer"
+import { articleSchema, type Crumb } from "../lib/page-schema"
 import { GITHUB_URL } from "../lib/project-links"
-import AnimatedBackdrop from "./animated-backdrop.astro"
 import ArticleCards, { type ArticleCard } from "./article-cards.astro"
-import { ArticleCodeCopy } from "./article-code-copy"
 import ArticleNav from "./article-nav.astro"
+import Breadcrumbs from "./breadcrumbs.astro"
 import IntegrationMark from "./integration-mark.astro"
-import { LandingNavbar } from "./landing-navbar"
+import PageShell from "./page-shell.astro"
 import { RagmirBackground } from "./ragmir-background"
-import Footer from "./sections/footer.astro"
-
-interface Crumb {
-  name: string
-  href: string
-}
-
-interface SideNav {
-  label: string
-  groups: ReadonlyArray<{
-    title?: string
-    links: ReadonlyArray<{ title: string; href: string; current: boolean }>
-  }>
-}
 
 interface Props {
   title: string
@@ -38,7 +22,7 @@ interface Props {
   alternates: Readonly<Record<string, string>>
   /** Site path without locale or slashes, such as `integrations/claude-code`. */
   path: string
-  /** The tool's mark above the title of an integration page. */
+  /** The tool's mark beside the title of an integration page. */
   mark?: IntegrationMarkName
   articleType: "TechArticle" | "Article"
   breadcrumbs: readonly Crumb[]
@@ -46,10 +30,6 @@ interface Props {
   dateModified: Date
   headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
   related: readonly ArticleCard[]
-  /** The page's Markdown source on GitHub, shown for the guides rendered from `docs/`. */
-  sourceHref?: string
-  /** Sibling pages listed in a rail beside the text, such as every guide of the documentation. */
-  sideNav?: SideNav
   /** A hub's pages, shown as groups of cards before its text. */
   cardGroups?: ReadonlyArray<{ title?: string; cards: readonly ArticleCard[] }>
   /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
@@ -71,173 +51,78 @@ const {
   dateModified,
   headings,
   related,
-  sourceHref,
-  sideNav,
   cardGroups = [],
   navSection,
 } = Astro.props
 
-const { t, translations } = await useTranslations(locale)
+const { t } = await useTranslations(locale)
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const homeUrl = getLocalizedUrl("/", locale)
 const pageUrl = new URL(alternates[locale] ?? getLocalizedUrl(`/${path}`, locale), siteBase).href
-const pageLocales = locales.filter((entry) => alternates[entry] !== undefined)
-// Every language stays one click away: a language without this page opens its home page.
-const alternateLocales = locales.map((entry) => ({
-  locale: entry,
-  label: languages[entry],
-  href: alternates[entry] ?? getLocalizedUrl("/", entry),
-}))
 const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
   dateStyle: "long",
   timeZone: "UTC",
 })
 const isHub = cardGroups.some((group) => group.cards.length > 0)
 const hasBody = Astro.slots.has("default")
-// Something to read before a hub's cards, such as where else the documentation is served.
+// Something to read before a hub's cards.
 const hasLead = Astro.slots.has("lead")
 // A hub lists its pages instead: a contents list would point past the cards.
 const sections = isHub ? [] : headings.filter((heading) => heading.depth === 2)
 const hasContents = sections.length > 1
 const contents = sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text }))
-const layoutClass = sideNav
-  ? "article-layout-docs"
-  : hasContents
-    ? "article-layout-guide"
-    : "article-layout-single"
-const ogImageUrl = new URL("/og/ragmir-og.png", siteBase).href
 const libraryUrl = `${homeUrl}#library`
-const author = { "@type": "Person", ...MAINTAINER }
 const relatedColumns = related.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"
-const lastCrumb = breadcrumbs.length - 1
-
-const structuredData = [
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": `${pageUrl}#webpage`,
-    url: pageUrl,
-    name: title,
-    description,
-    inLanguage: languageTag(locale),
-    isPartOf: { "@id": "https://ragmir.com/#website" },
-    about: { "@id": "https://ragmir.com/#source" },
-    publisher: { "@id": "https://ragmir.com/#organization" },
-    primaryImageOfPage: { "@type": "ImageObject", url: ogImageUrl, width: 2400, height: 1260 },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": articleType,
-    "@id": `${pageUrl}#article`,
-    headline: h1,
-    description,
-    inLanguage: languageTag(locale),
-    datePublished: datePublished.toISOString(),
-    dateModified: dateModified.toISOString(),
-    author,
-    publisher: { "@id": "https://ragmir.com/#organization" },
-    mainEntityOfPage: { "@id": `${pageUrl}#webpage` },
-    about: { "@id": "https://ragmir.com/#source" },
-    image: [ogImageUrl],
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: breadcrumbs.map((crumb, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: crumb.name,
-      item: new URL(crumb.href, siteBase).href,
-    })),
-  },
-]
+const structuredData = articleSchema({
+  siteBase,
+  pageUrl,
+  title,
+  description,
+  headline: h1,
+  locale,
+  articleType,
+  datePublished,
+  dateModified,
+  breadcrumbs,
+})
 
 const pillClass =
   "group inline-flex h-11 items-center gap-2 rounded-full px-5 font-bold text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 ---
 
-<Layout
+<PageShell
   title={title}
   description={description}
   locale={locale}
-  ogType="article"
-  ogImageAlt={t("seo_image_alt")}
-  availableLocales={pageLocales}
-  alternatePaths={alternates}
+  alternates={alternates}
   structuredData={structuredData}
+  navSection={navSection}
 >
-  <LandingNavbar
-    client:load
-    alternateLocales={alternateLocales}
-    locale={locale}
-    currentPath={Astro.url.pathname}
-    currentSection={navSection}
-    localizedAgentsUrl={`${homeUrl}#agents`}
-    localizedDeployUrl={`${homeUrl}#deploy`}
-    localizedFaqUrl={`${homeUrl}#faq`}
-    localizedFeaturesUrl={`${homeUrl}#capabilities`}
-    localizedHomeUrl={`${homeUrl}#top`}
-    localizedLibraryUrl={`${homeUrl}#library`}
-    localizedTeamUrl={getLocalizedUrl("/team", locale)}
-    localizedUseCasesUrl={`${homeUrl}#use-cases`}
-    translations={pickTranslations(translations, NAVBAR_TRANSLATIONS)}
-  />
-
-  <div class="relative overflow-hidden">
+  <!-- Clips the dot band without becoming a scroll container, so the side rail stays sticky. -->
+  <div class="relative overflow-clip">
     <RagmirBackground
       behindContent={false}
       className="inset-x-0 top-0 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]"
       client:visible
       height="300px"
     />
-    <main
-      id="main-content"
-      class:list={[
-        sideNav ? "container-wide" : "container-default",
-        "relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36",
-      ]}
-    >
-      <nav aria-label={t("article_breadcrumb_label")} class="text-shadow-hero">
-        <ol class="flex min-w-0 items-center gap-1.5 font-semibold text-sm sm:gap-2">
-          {breadcrumbs.map((crumb, index) => (
-            <li
-              class:list={[
-                "flex items-center gap-1.5 sm:gap-2",
-                // On a phone the title right below names the page; the trail keeps it for screen readers.
-                index === lastCrumb ? "min-w-0 max-md:sr-only" : "shrink-0",
-              ]}
-            >
-              {index > 0 && (
-                <ChevronRight
-                  aria-hidden="true"
-                  class:list={["size-3.5 shrink-0 text-foreground/45", index === lastCrumb && "max-md:hidden"]}
-                />
-              )}
-              {index < lastCrumb ? (
-                <a
-                  class="rounded-sm text-foreground/65 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  href={crumb.href}
-                >
-                  {crumb.name}
-                </a>
-              ) : (
-                <span aria-current="page" class="truncate text-foreground/85" title={crumb.name}>
-                  {crumb.name}
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
-      </nav>
+    <main id="main-content" class="container-default relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36">
+      <Breadcrumbs class="text-shadow-hero" crumbs={breadcrumbs} label={t("article_breadcrumb_label")} />
 
-      <article class:list={["article-layout mt-8", layoutClass]}>
+      <article
+        class:list={["article-layout mt-8", hasContents ? "article-layout-guide" : "article-layout-single"]}
+      >
         <header class="max-w-3xl [grid-area:header]">
-          {mark && <IntegrationMark class="mb-6 size-11 text-foreground" mark={mark} />}
-          <h1 class="display text-shadow-hero text-balance text-4xl md:text-5xl">{h1}</h1>
-          <p class="text-shadow-hero mt-6 text-base text-foreground/85 leading-relaxed md:text-lg">
-            {summary}
-          </p>
-          <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-xs leading-6">
+          <h1 class:list={["type-title text-shadow-hero", mark && "flex items-start gap-4"]}>
+            {mark && (
+              <span class="flex h-[1lh] shrink-0 items-center">
+                <IntegrationMark class="size-8 text-foreground md:size-9" mark={mark} />
+              </span>
+            )}
+            {mark ? <span>{h1}</span> : h1}
+          </h1>
+          <p class="type-lead text-shadow-hero mt-5 text-foreground/80">{summary}</p>
+          <p class="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-xs leading-6">
             <span>
               {t("article_by")}{" "}
               <a
@@ -260,90 +145,48 @@ const pillClass =
           </p>
         </header>
 
-        {sideNav && (
-          <aside class="[grid-area:nav] max-lg:hidden">
-            <ArticleNav
-              groups={sideNav.groups}
-              label={sideNav.label}
-              newTabLabel={t("new_tab_label")}
-              variant="rail"
-            />
-          </aside>
+        {hasContents && (
+          <div class="mt-10 [grid-area:menus] lg:hidden">
+            <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="disclosure" />
+          </div>
         )}
 
-        {(hasContents || sideNav) && (
-          <div
-            class:list={[
-              "mt-10 flex flex-col gap-3 [grid-area:menus]",
-              sideNav ? "xl:hidden" : "lg:hidden",
-            ]}
-          >
-            {sideNav && (
-              <ArticleNav
-                class="lg:hidden"
-                groups={sideNav.groups}
-                label={sideNav.label}
-                newTabLabel={t("new_tab_label")}
-                variant="disclosure"
-              />
+        {(hasBody || isHub || hasLead) && (
+          <div class="mt-10 min-w-0 [grid-area:body] lg:mt-12">
+            {hasLead && (
+              <div class="mb-14">
+                <slot name="lead" />
+              </div>
             )}
-            {hasContents && (
-              <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="disclosure" />
+
+            {isHub && (
+              <div class="flex flex-col gap-14">
+                {cardGroups.map((group) => (
+                  <section aria-label={group.title}>
+                    {group.title && <h2 class="type-section">{group.title}</h2>}
+                    <ArticleCards
+                      cards={group.cards}
+                      class="mt-6 sm:grid-cols-2 lg:grid-cols-3"
+                      cta={t("article_card_cta")}
+                    />
+                  </section>
+                ))}
+              </div>
+            )}
+
+            {hasBody && (
+              <div
+                id="article-body"
+                class:list={["prose-article", isHub && "mt-16", (isHub || !hasContents) && "max-w-2xl"]}
+              >
+                <slot />
+              </div>
             )}
           </div>
         )}
 
-        {(hasBody || sourceHref || isHub || hasLead) && (
-        <div class:list={["min-w-0 [grid-area:body]", "mt-10 lg:mt-12"]}>
-          {hasLead && (
-            <div class="mb-14">
-              <slot name="lead" />
-            </div>
-          )}
-
-          {isHub && (
-            <div class="flex flex-col gap-14">
-              {cardGroups.map((group) => (
-                <section aria-label={group.title}>
-                  {group.title && <h2 class="display text-balance text-2xl md:text-3xl">{group.title}</h2>}
-                  <ArticleCards
-                    cards={group.cards}
-                    class:list={["mt-6", sideNav ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"]}
-                    cta={t("article_card_cta")}
-                  />
-                </section>
-              ))}
-            </div>
-          )}
-
-          {hasBody && (
-            <div
-              id="article-body"
-              class:list={["prose-article", isHub && "mt-16", (isHub || !hasContents) && !sideNav && "max-w-2xl"]}
-            >
-              <slot />
-            </div>
-          )}
-
-          {sourceHref && (
-            <p class="mt-10">
-              <a
-                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
-                href={sourceHref}
-                rel="noopener"
-                target="_blank"
-              >
-                {t("article_source")}
-                <span class="sr-only">{` ${t("new_tab_label")}`}</span>
-                <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
-              </a>
-            </p>
-          )}
-        </div>
-        )}
-
         {hasContents && (
-          <aside class:list={["[grid-area:toc]", sideNav ? "max-xl:hidden" : "max-lg:hidden"]}>
+          <aside class="[grid-area:toc] max-lg:hidden">
             <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="rail" />
           </aside>
         )}
@@ -351,12 +194,12 @@ const pillClass =
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" class="mt-20">
-          <h2 id="related-title" class="display text-balance text-3xl">{t("article_related_title")}</h2>
-          <ArticleCards cards={related} class={`mt-8 ${relatedColumns}`} cta={t("article_card_cta")} />
+          <h2 id="related-title" class="type-section">{t("article_related_title")}</h2>
+          <ArticleCards cards={related} class={`mt-6 ${relatedColumns}`} cta={t("article_card_cta")} />
         </section>
       )}
       <section aria-labelledby="article-cta-title" class="mt-20 rounded-xl bg-card px-6 py-12 text-center md:px-12">
-        <h2 id="article-cta-title" class="display mx-auto max-w-2xl text-balance text-3xl">
+        <h2 id="article-cta-title" class="type-section mx-auto max-w-2xl">
           {t("closing_title")}
         </h2>
         <p class="mx-auto mt-4 max-w-2xl text-muted-foreground text-sm leading-6 md:text-base">
@@ -384,63 +227,8 @@ const pillClass =
       </section>
     </main>
   </div>
-
-  <ArticleCodeCopy
-    client:idle
-    containerId="article-body"
-    copiedMessage={t("command_copied")}
-    copyLabel={t("copy_code")}
-    failedMessage={t("copy_failed")}
-  />
-
-  <!-- The footer sits on the animated dot field, as it does on the home page. -->
-  <AnimatedBackdrop>
-    <Footer
-      alternateLocales={alternateLocales}
-      locale={locale}
-      localizedHomeUrl={`${homeUrl}#top`}
-      translations={translations}
-    />
-  </AnimatedBackdrop>
-</Layout>
+</PageShell>
 
 <script>
-  // The contents list lights the section being read, in the rail and in the folded list. The router
-  // swaps pages without running this module again, so each page is wired on `astro:page-load`.
-  let stop: (() => void) | undefined
-
-  document.addEventListener("astro:page-load", () => {
-    stop?.()
-    stop = undefined
-    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-toc-link]"))
-    if (links.length === 0) return
-    const targetOf = (link: HTMLAnchorElement): string => decodeURIComponent(link.hash.slice(1))
-    const headings = Array.from(new Set(links.map(targetOf)))
-      .map((id) => document.getElementById(id))
-      .filter((heading) => heading !== null)
-    let frame = 0
-    const update = () => {
-      frame = 0
-      // A section counts as read once its heading passes the upper third of the window.
-      const line = window.innerHeight / 3
-      let current = ""
-      for (const heading of headings) {
-        if (heading.getBoundingClientRect().top > line) break
-        current = heading.id
-      }
-      for (const link of links) {
-        if (targetOf(link) === current) link.setAttribute("aria-current", "location")
-        else link.removeAttribute("aria-current")
-      }
-    }
-    const onScroll = () => {
-      if (frame === 0) frame = requestAnimationFrame(update)
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    update()
-    stop = () => {
-      window.removeEventListener("scroll", onScroll)
-      cancelAnimationFrame(frame)
-    }
-  })
+  import "./article-rails"
 </script>

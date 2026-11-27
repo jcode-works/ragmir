@@ -251,7 +251,9 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
 
 ## Documentation
 
-Each guide of the repository's `docs/` folder, rendered on the site from the same file:
+Each guide of the repository's `docs/` folder, rendered on the site from the same file. The
+Markdown of each guide is served beside its page, such as
+https://ragmir.com/docs/quick-start.md:
 
 - [Quick start](https://ragmir.com/docs/quick-start/) (`docs/quick-start.md`)
 - [CLI reference](https://ragmir.com/docs/cli-reference/) (`docs/cli-reference.md`)

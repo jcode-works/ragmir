@@ -1,8 +1,7 @@
 ---
 import path from "node:path"
 import { getCollection, render } from "astro:content"
-import ArticlePage from "../../components/article-page.astro"
-import { useTranslations } from "../../i18n/utils"
+import DocsPage from "../../components/docs-page.astro"
 import { DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
 
@@ -16,7 +15,6 @@ const meta = DOC_PAGES[entry.id]
 if (!meta) {
   throw new Error(`docs/${entry.id}.md needs search metadata in src/lib/docs-pages.ts.`)
 }
-const { t } = await useTranslations("en")
 const { Content, headings } = await render(entry)
 const docs = await getCollection("docs")
 const titleOf = (id: string): string => {
@@ -29,25 +27,20 @@ const dates = (entry.filePath && gitDates(path.resolve(entry.filePath))) || {
   published: new Date(),
   modified: new Date(),
 }
+// The pager follows the menu's reading order; the first guide leads back to the overview.
 const guides = DOC_ORDER.filter((id) => docs.some((doc) => doc.id === id))
 const position = guides.indexOf(entry.id)
-// The next four guides in reading order, wrapping around, so every guide gets linked as often.
-const neighbours = [1, 2, 3, 4]
-  .map((step) => guides[(position + step) % guides.length])
-  .filter((id): id is string => id !== undefined && id !== entry.id)
-  .map((id) => ({ title: titleOf(id), href: `/docs/${id}/`, summary: DOC_PAGES[id]?.summary ?? "" }))
-const sideNav = { label: t("nav_section_docs"), groups: docsMenu(titleOf, entry.id) }
+const pageLink = (id: string | undefined) => (id ? { title: titleOf(id), href: `/docs/${id}/` } : undefined)
+const previous = position === 0 ? { title: "Overview", href: "/docs/" } : pageLink(guides[position - 1])
+const next = position < 0 ? undefined : pageLink(guides[position + 1])
 ---
 
-<ArticlePage
+<DocsPage
   title={meta.title}
   description={meta.description}
   h1={h1}
   summary={meta.summary}
-  locale="en"
-  alternates={{ en: `/docs/${entry.id}/` }}
   path={`docs/${entry.id}`}
-  articleType="TechArticle"
   breadcrumbs={[
     { name: "Ragmir", href: "/" },
     { name: "Docs", href: "/docs/" },
@@ -56,10 +49,12 @@ const sideNav = { label: t("nav_section_docs"), groups: docsMenu(titleOf, entry.
   datePublished={dates.published}
   dateModified={dates.modified}
   headings={headings}
-  related={neighbours}
-  sideNav={sideNav}
-  navSection="/docs/"
+  menu={docsMenu(titleOf, entry.id)}
+  markdownHref={`/docs/${entry.id}.md`}
   sourceHref={`https://github.com/jcode-works/ragmir/blob/main/docs/${entry.id}.md`}
+  previous={previous}
+  next={next}
+  prose
 >
   <Content />
-</ArticlePage>
+</DocsPage>

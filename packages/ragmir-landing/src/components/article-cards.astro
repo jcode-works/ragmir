@@ -1,0 +1,36 @@
+---
+export interface ArticleCard {
+  title: string
+  href: string
+  summary: string
+  /** A short line above the title that says what the card is, such as its kind or its rank. */
+  tag?: string
+}
+
+interface Props {
+  cards: readonly ArticleCard[]
+  class?: string
+}
+
+const { cards, class: className } = Astro.props
+---
+
+<ul class:list={["grid gap-3", className]} role="list">
+  {cards.map((card) => (
+    <li>
+      <a
+        class="flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+        href={card.href}
+      >
+        {card.tag && (
+          <span class="mb-4 flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+            <span aria-hidden="true" class="size-1.5 rounded-full bg-foreground/50" />
+            <span class="tnum">{card.tag}</span>
+          </span>
+        )}
+        <span class="font-black text-lg leading-snug">{card.title}</span>
+        <span class="mt-2 text-muted-foreground text-sm leading-6">{card.summary}</span>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,70 @@
+---
+import { ChevronDown } from "@lucide/astro"
+
+interface Props {
+  label: string
+  links: ReadonlyArray<{ href: string; title: string; current?: boolean }>
+  /**
+   * `rail` stays in view beside the text on wide screens; `disclosure` folds under the title on
+   * narrow ones, where a rail has no room.
+   */
+  variant: "rail" | "disclosure"
+  /** The links point at this page's sections, so the reading position can light one of them. */
+  sections?: boolean
+  class?: string
+}
+
+const { label, links, variant, sections = false, class: className } = Astro.props
+---
+
+{variant === "rail" ? (
+  <nav
+    aria-label={label}
+    class:list={[
+      "sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto overscroll-contain pb-6",
+      className,
+    ]}
+  >
+    <p class="font-black text-foreground text-sm uppercase tracking-tight">{label}</p>
+    <ul class="mt-4 border-border border-l text-sm" role="list">
+      {links.map((link) => (
+        <li>
+          <a
+            aria-current={link.current ? "page" : undefined}
+            class="-ml-px block border-transparent border-l-2 py-1.5 pl-4 text-muted-foreground leading-snug transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&[aria-current]]:border-foreground [&[aria-current]]:font-semibold [&[aria-current]]:text-foreground"
+            data-toc-link={sections ? "" : undefined}
+            href={link.href}
+          >
+            {link.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+) : (
+  <details class:list={["smooth-details group rounded-xl bg-card", className]}>
+    <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-5 font-black text-foreground text-sm uppercase tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+      {label}
+      <ChevronDown
+        aria-hidden="true"
+        class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+      />
+    </summary>
+    <nav aria-label={label} class="px-5 pb-4">
+      <ul class="border-border border-l text-sm" role="list">
+        {links.map((link) => (
+          <li>
+            <a
+              aria-current={link.current ? "page" : undefined}
+              class="-ml-px flex min-h-10 items-center border-transparent border-l-2 py-1.5 pl-4 text-muted-foreground leading-snug transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&[aria-current]]:border-foreground [&[aria-current]]:font-semibold [&[aria-current]]:text-foreground"
+              data-toc-link={sections ? "" : undefined}
+              href={link.href}
+            >
+              {link.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </details>
+)}

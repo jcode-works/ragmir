@@ -11,7 +11,6 @@ import {
   Gauge,
   GitCompareArrows,
   History,
-  Languages,
   Layers,
   type LucideIcon,
   Menu,
@@ -59,6 +58,8 @@ interface LandingNavbarProps {
   localizedTeamUrl: string
   /** Path of the page on screen, so the drawer can light its own row. */
   currentPath?: string
+  /** Root-relative URL of the hub the page belongs to, so the bar can light its link. */
+  currentSection?: string
 }
 
 const externalLinkProps = {
@@ -109,6 +110,13 @@ const DRAWER_ROW_CLASS_NAME =
 const HEADER_ICON_CLASS_NAME =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
+/** The hubs, named in the bar on wide screens; narrower ones reach them through the drawer. */
+const HUB_LINKS: ReadonlyArray<{ href: string; labelKey: string }> = [
+  { href: PROJECT_LINKS.guides, labelKey: "nav_guides" },
+  { href: PROJECT_LINKS.agentPlugins, labelKey: "nav_integrations" },
+  { href: PROJECT_LINKS.docs, labelKey: "footer_link_docs" },
+]
+
 /** BCP 47 tag of each landing locale, so screen readers read every language name in its language. */
 const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
 
@@ -125,94 +133,6 @@ function keepReadingPlace(event: React.MouseEvent<HTMLAnchorElement>, href: stri
     section = candidate.id
   }
   event.currentTarget.href = section && section !== "top" ? `${href}#${section}` : href
-}
-
-interface LanguageMenuProps {
-  alternateLocales: AlternateLocale[]
-  label: string
-  locale: string
-}
-
-/**
- * The page language in the header: a disclosure that lists every locale in its own language.
- * Below 360px the header has no room left, and the drawer keeps its own language switch.
- */
-function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const listId = useId()
-  const current = alternateLocales.find((entry) => entry.locale === locale)
-
-  useEffect(() => {
-    if (!open) return
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      setOpen(false)
-      buttonRef.current?.focus()
-    }
-    // Tab past the last language, or back before the button, and the menu closes behind focus.
-    const onFocusIn = (event: FocusEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
-    }
-    document.addEventListener("pointerdown", onPointerDown)
-    document.addEventListener("keydown", onKeyDown)
-    document.addEventListener("focusin", onFocusIn)
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown)
-      document.removeEventListener("keydown", onKeyDown)
-      document.removeEventListener("focusin", onFocusIn)
-    }
-  }, [open])
-
-  return (
-    <div className="relative max-[359px]:hidden" ref={rootRef}>
-      <button
-        aria-controls={listId}
-        aria-expanded={open}
-        aria-label={`${label}: ${current?.label ?? locale}`}
-        className={cn(
-          HEADER_ICON_CLASS_NAME,
-          "w-auto gap-1.5 px-2.5",
-          open && "bg-[var(--card-hover)]",
-        )}
-        onClick={() => setOpen((value) => !value)}
-        ref={buttonRef}
-        type="button"
-      >
-        <Languages aria-hidden="true" className="size-[18px]" />
-        <span aria-hidden="true" className="font-bold text-xs uppercase">
-          {locale}
-        </span>
-      </button>
-      <ul
-        className="absolute top-full right-0 mt-2 grid min-w-44 gap-0.5 rounded-2xl bg-card p-1.5 shadow-2xl shadow-black/60"
-        hidden={!open}
-        id={listId}
-      >
-        {alternateLocales.map((entry) => (
-          <li key={entry.locale}>
-            <a
-              aria-current={entry.locale === locale ? "page" : undefined}
-              className="flex items-center justify-between gap-4 rounded-xl px-3 py-2 font-semibold text-muted-foreground text-sm transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
-              href={entry.href}
-              hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-              lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-              onClick={(event) => keepReadingPlace(event, entry.href)}
-            >
-              {entry.label}
-              <span aria-hidden="true" className="font-mono text-[10px] uppercase tracking-[0.2em]">
-                {entry.locale}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
 }
 
 const DRAWER_SECTION_TITLE_CLASS_NAME =
@@ -322,6 +242,7 @@ export function LandingNavbar({
   localizedFaqUrl,
   localizedTeamUrl,
   currentPath,
+  currentSection,
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
   const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
@@ -446,7 +367,7 @@ export function LandingNavbar({
             <a aria-label="Ragmir" className="flex items-center" href={localizedHomeUrl}>
               <RagmirLogo />
             </a>
-            {/* Below 420px the language menu and brand icons need its room; the drawer still shows the version. */}
+            {/* Below 420px the brand icons need its room; the drawer still shows the version. */}
             {version && (
               <a
                 href={NPM_URL}
@@ -461,11 +382,20 @@ export function LandingNavbar({
           </div>
 
           <div className="flex items-center gap-1">
-            <LanguageMenu
-              alternateLocales={alternateLocales}
-              label={t("language_label")}
-              locale={locale}
-            />
+            <nav aria-label={t("nav_aria_label")} className="mr-3 hidden items-center gap-6 lg:flex xl:mr-5 xl:gap-8">
+              {HUB_LINKS.map(({ href, labelKey }) => (
+                <a
+                  aria-current={
+                    currentPath === href ? "page" : currentSection === href ? "true" : undefined
+                  }
+                  className="rounded-sm py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:text-foreground"
+                  href={href}
+                  key={href}
+                >
+                  {t(labelKey)}
+                </a>
+              ))}
+            </nav>
             <a
               aria-label={`${t("hero_github_cta")} ${newTab}`}
               className={HEADER_ICON_CLASS_NAME}
@@ -545,7 +475,8 @@ export function LandingNavbar({
                       lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
                       onClick={(event) => keepReadingPlace(event, entry.href)}
                     >
-                      {entry.locale}
+                      <span aria-hidden="true">{entry.locale}</span>
+                      <span className="sr-only">{entry.label}</span>
                     </a>
                   ))}
                 </nav>

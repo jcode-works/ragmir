@@ -12,6 +12,6 @@ related: ["benchmarks", "integrations", "case-studies/ragmir-repository"]
 
 Ragmir is a retrieval layer: it indexes the files you select and returns passages with exact
 citations to an agent or an application, which plans, reasons, and writes with its own model. The
-guides below start from the questions developers ask about that layer and answer them with
+guides above start from the questions developers ask about that layer and answer them with
 commands you can run. For the reference of every command and option, see the
 [documentation](/docs/); for the tool-by-tool setup, see the [integrations](/integrations/).

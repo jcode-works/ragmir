@@ -44,22 +44,12 @@ const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
   dateModified={modified.length > 0 ? latest : new Date()}
   headings={[]}
   related={[]}
->
-  <ol class="not-prose grid gap-3 md:grid-cols-2">
-    {guides.map((guide, index) => (
-      <li>
-        <a
-          class="flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]"
-          href={`/docs/${guide.id}/`}
-        >
-          <span class="flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-            <span aria-hidden="true" class="size-1.5 rounded-full bg-foreground/50" />
-            <span class="tnum">{String(index + 1).padStart(2, "0")} / {String(guides.length).padStart(2, "0")}</span>
-          </span>
-          <span class="mt-4 font-black text-lg leading-snug">{guide.title}</span>
-          <span class="mt-2 text-muted-foreground text-sm leading-6">{guide.summary}</span>
-        </a>
-      </li>
-    ))}
-  </ol>
-</ArticlePage>
+  cards={guides.map((guide, index) => ({
+    title: guide.title,
+    href: `/docs/${guide.id}/`,
+    summary: guide.summary,
+    // The guides keep the reading order of the repository's docs folder.
+    tag: `${String(index + 1).padStart(2, "0")} / ${String(guides.length).padStart(2, "0")}`,
+  }))}
+  navSection="/docs/"
+/>

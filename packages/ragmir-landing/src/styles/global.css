@@ -635,6 +635,37 @@ header[data-hidden] .logo-text {
 }
 
 /*
+ * Long-form page layout. On a phone everything stacks: title, folded lists, a hub's cards, text.
+ * Wide screens move the contents list into a rail beside the text, and the docs keep their guide
+ * list in a rail on the other side.
+ */
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "header" "menus" "hub" "body";
+  column-gap: 3rem;
+}
+
+@media (min-width: 64rem) {
+  .article-layout-guide {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    grid-template-areas: "header header" "body toc";
+  }
+
+  .article-layout-docs {
+    grid-template-columns: 13rem minmax(0, 1fr);
+    grid-template-areas: "nav header" "nav menus" "nav body";
+  }
+}
+
+@media (min-width: 80rem) {
+  .article-layout-docs {
+    grid-template-columns: 13rem minmax(0, 1fr) 13rem;
+    grid-template-areas: "nav header toc" "nav body toc";
+  }
+}
+
+/*
  * Long-form pages: the guides, integrations, use cases, and the docs rendered from `docs/`. Text
  * keeps the landing's tokens; code blocks sit on the card grey instead of Shiki's theme colour.
  */
@@ -735,27 +766,58 @@ header[data-hidden] .logo-text {
   color: var(--muted-foreground);
 }
 
+/*
+ * A table is a card as wide as its content, up to the text column, and scrolls sideways beyond it.
+ * Its first column names the row, so it keeps room for a few words per line.
+ */
 .prose-article table {
   display: block;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   overflow-x: auto;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  border-radius: 0.75rem;
+  background: var(--card);
+  font-size: 0.875rem;
   line-height: 1.55;
 }
 
 .prose-article th {
-  padding: 0.6rem 0.75rem;
+  padding: 0.75rem 1rem;
   color: var(--muted-foreground);
   font-weight: 600;
   text-align: left;
-  white-space: nowrap;
+  vertical-align: bottom;
 }
 
 .prose-article td {
   border-top: 1px solid var(--border);
-  padding: 0.6rem 0.75rem;
+  padding: 0.75rem 1rem;
   vertical-align: top;
+}
+
+.prose-article :is(th, td):first-child {
+  min-width: 9rem;
+}
+
+/* Screenshots of real runs: full column width, on the card grey while they load. */
+.prose-article img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+
+.prose-article figure {
+  margin-block: 2rem;
+}
+
+.prose-article figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 .prose-article hr {

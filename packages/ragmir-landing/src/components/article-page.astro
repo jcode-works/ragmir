@@ -1,11 +1,13 @@
 ---
-import { ArrowRight, ArrowUpRight } from "@lucide/astro"
+import { ArrowRight, ArrowUpRight, ChevronRight } from "@lucide/astro"
 import { getLocalizedUrl, languages, languageTag, locales, useTranslations } from "../i18n/utils"
 import Layout from "../layouts/layout.astro"
 import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
 import { MAINTAINER } from "../lib/maintainer"
 import { GITHUB_URL } from "../lib/project-links"
+import ArticleCards, { type ArticleCard } from "./article-cards.astro"
 import { ArticleCodeCopy } from "./article-code-copy"
+import ArticleNav from "./article-nav.astro"
 import { LandingNavbar } from "./landing-navbar"
 import { RagmirBackground } from "./ragmir-background"
 import Footer from "./sections/footer.astro"
@@ -13,12 +15,6 @@ import Footer from "./sections/footer.astro"
 interface Crumb {
   name: string
   href: string
-}
-
-interface RelatedLink {
-  title: string
-  href: string
-  summary: string
 }
 
 interface SideNav {
@@ -32,7 +28,7 @@ interface Props {
   h1: string
   summary: string
   locale: string
-  /** Root-relative URL of each locale's version; hreflang and the language menu list only these. */
+  /** Root-relative URL of each locale's version; hreflang lists only these. */
   alternates: Readonly<Record<string, string>>
   /** Site path without locale or slashes, such as `integrations/claude-code`. */
   path: string
@@ -42,11 +38,15 @@ interface Props {
   datePublished: Date
   dateModified: Date
   headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
-  related: readonly RelatedLink[]
+  related: readonly ArticleCard[]
   /** The page's Markdown source on GitHub, shown for the guides rendered from `docs/`. */
   sourceHref?: string
-  /** A list of sibling pages beside the table of contents on wide screens, such as every guide. */
+  /** Sibling pages listed in a rail beside the text, such as every guide of the documentation. */
   sideNav?: SideNav
+  /** A hub's pages, shown as cards across the page before its text. */
+  cards?: readonly ArticleCard[]
+  /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
+  navSection?: string
 }
 
 const {
@@ -66,6 +66,8 @@ const {
   related,
   sourceHref,
   sideNav,
+  cards = [],
+  navSection,
 } = Astro.props
 
 const { t, translations } = await useTranslations(locale)
@@ -73,19 +75,32 @@ const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const homeUrl = getLocalizedUrl("/", locale)
 const pageUrl = new URL(alternates[locale] ?? getLocalizedUrl(`/${path}`, locale), siteBase).href
 const pageLocales = locales.filter((entry) => alternates[entry] !== undefined)
-const alternateLocales = pageLocales.map((entry) => ({
+// Every language stays one click away: a language without this page opens its home page.
+const alternateLocales = locales.map((entry) => ({
   locale: entry,
   label: languages[entry],
-  href: alternates[entry] ?? getLocalizedUrl(`/${path}`, entry),
+  href: alternates[entry] ?? getLocalizedUrl("/", entry),
 }))
 const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
   dateStyle: "long",
   timeZone: "UTC",
 })
-const sections = headings.filter((heading) => heading.depth === 2)
+const isHub = cards.length > 0
+const hasBody = Astro.slots.has("default")
+// A hub lists its pages instead: a contents list would point past the cards.
+const sections = isHub ? [] : headings.filter((heading) => heading.depth === 2)
+const hasContents = sections.length > 1
+const contents = sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text }))
+const layoutClass = sideNav
+  ? "article-layout-docs"
+  : hasContents
+    ? "article-layout-guide"
+    : "article-layout-single"
 const ogImageUrl = new URL("/og/ragmir-og.png", siteBase).href
 const libraryUrl = `${homeUrl}#library`
 const author = { "@type": "Person", ...MAINTAINER }
+const relatedColumns = related.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"
+const lastCrumb = breadcrumbs.length - 1
 
 const structuredData = [
   {
@@ -147,6 +162,7 @@ const pillClass =
     alternateLocales={alternateLocales}
     locale={locale}
     currentPath={Astro.url.pathname}
+    currentSection={navSection}
     localizedAgentsUrl={`${homeUrl}#agents`}
     localizedDeployUrl={`${homeUrl}#deploy`}
     localizedFaqUrl={`${homeUrl}#faq`}
@@ -165,26 +181,47 @@ const pillClass =
       client:visible
       height="300px"
     />
-    <main class="container-default relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36">
+    <main
+      class:list={[
+        sideNav ? "container-wide" : "container-default",
+        "relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36",
+      ]}
+    >
       <nav aria-label={t("article_breadcrumb_label")} class="text-shadow-hero">
-        <ol class="flex flex-wrap items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+        <ol class="flex min-w-0 items-center gap-1.5 font-semibold text-sm sm:gap-2">
           {breadcrumbs.map((crumb, index) => (
-            <li class="flex items-center gap-2">
-              {index > 0 && <span aria-hidden="true" class="opacity-60">/</span>}
-              {index < breadcrumbs.length - 1 ? (
-                <a class="underline-offset-4 hover:text-foreground hover:underline" href={crumb.href}>
+            <li
+              class:list={[
+                "flex items-center gap-1.5 sm:gap-2",
+                // On a phone the title right below names the page; the trail keeps it for screen readers.
+                index === lastCrumb ? "min-w-0 max-md:sr-only" : "shrink-0",
+              ]}
+            >
+              {index > 0 && (
+                <ChevronRight
+                  aria-hidden="true"
+                  class:list={["size-3.5 shrink-0 text-foreground/45", index === lastCrumb && "max-md:hidden"]}
+                />
+              )}
+              {index < lastCrumb ? (
+                <a
+                  class="rounded-sm text-foreground/65 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  href={crumb.href}
+                >
                   {crumb.name}
                 </a>
               ) : (
-                <span aria-current="page">{crumb.name}</span>
+                <span aria-current="page" class="truncate text-foreground/85" title={crumb.name}>
+                  {crumb.name}
+                </span>
               )}
             </li>
           ))}
         </ol>
       </nav>
 
-      <article class="mt-8">
-        <header class="max-w-3xl">
+      <article class:list={["article-layout mt-8", layoutClass]}>
+        <header class="max-w-3xl [grid-area:header]">
           <p class="text-shadow-hero flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
             <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
             <span class="tnum">001</span>
@@ -198,7 +235,10 @@ const pillClass =
           <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-xs leading-6">
             <span>
               {t("article_by")}{" "}
-              <a class="text-foreground underline-offset-4 hover:underline" href={getLocalizedUrl("/team", locale)}>
+              <a
+                class="font-semibold text-foreground underline-offset-4 hover:underline"
+                href={getLocalizedUrl("/team", locale)}
+              >
                 {MAINTAINER.name}
               </a>
             </span>
@@ -215,71 +255,59 @@ const pillClass =
           </p>
         </header>
 
-        <div class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
-          <div id="article-body" class="prose-article min-w-0">
-            <slot />
-          </div>
+        {sideNav && (
+          <aside class="[grid-area:nav] max-lg:hidden">
+            <ArticleNav label={sideNav.label} links={sideNav.links} variant="rail" />
+          </aside>
+        )}
 
-          {(sections.length > 1 || sideNav) && (
-            <aside class="order-first lg:order-none">
-              <div class="flex flex-col gap-3 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
-                {sections.length > 1 && (
-                  <nav aria-label={t("article_toc")} class="rounded-xl bg-card p-5">
-                    <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-                      {t("article_toc")}
-                    </p>
-                    <ol class="mt-4 flex flex-col gap-2 text-sm leading-6">
-                      {sections.map((heading, index) => (
-                        <li class="flex gap-3">
-                          <span aria-hidden="true" class="tnum font-mono text-[11px] text-muted-foreground leading-6">
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <a class="text-foreground/85 underline-offset-4 hover:text-foreground hover:underline" href={`#${heading.slug}`}>
-                            {heading.text}
-                          </a>
-                        </li>
-                      ))}
-                    </ol>
-                  </nav>
-                )}
-                {sideNav && (
-                  <nav aria-label={sideNav.label} class="hidden rounded-xl bg-card p-5 lg:block">
-                    <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-                      {sideNav.label}
-                    </p>
-                    <ul class="mt-4 flex flex-col gap-2 text-sm leading-6">
-                      {sideNav.links.map((link) => (
-                        <li>
-                          {link.current ? (
-                            <span aria-current="page" class="font-bold text-foreground">{link.title}</span>
-                          ) : (
-                            <a class="text-foreground/85 underline-offset-4 hover:text-foreground hover:underline" href={link.href}>
-                              {link.title}
-                            </a>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
-                )}
-              </div>
-            </aside>
+        {(hasContents || sideNav) && (
+          <div
+            class:list={[
+              "mt-10 flex flex-col gap-3 [grid-area:menus]",
+              sideNav ? "xl:hidden" : "lg:hidden",
+            ]}
+          >
+            {sideNav && (
+              <ArticleNav class="lg:hidden" label={sideNav.label} links={sideNav.links} variant="disclosure" />
+            )}
+            {hasContents && (
+              <ArticleNav label={t("article_toc")} links={contents} sections variant="disclosure" />
+            )}
+          </div>
+        )}
+
+        {isHub && <ArticleCards cards={cards} class="mt-12 [grid-area:hub] sm:grid-cols-2 lg:grid-cols-3" />}
+
+        {(hasBody || sourceHref) && (
+        <div class:list={["min-w-0 [grid-area:body]", isHub ? "mt-16" : "mt-10 lg:mt-12"]}>
+          {hasBody && (
+            <div id="article-body" class:list={["prose-article", (isHub || !hasContents) && !sideNav && "max-w-2xl"]}>
+              <slot />
+            </div>
+          )}
+
+          {sourceHref && (
+            <p class="mt-10">
+              <a
+                class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
+                href={sourceHref}
+                rel="noopener"
+                target="_blank"
+              >
+                {t("article_source")}
+                <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+                <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
+              </a>
+            </p>
           )}
         </div>
+        )}
 
-        {sourceHref && (
-          <p class="mt-10 text-muted-foreground text-sm">
-            <a
-              class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
-              href={sourceHref}
-              rel="noopener"
-              target="_blank"
-            >
-              {t("article_source")}
-              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
-              <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
-            </a>
-          </p>
+        {hasContents && (
+          <aside class:list={["[grid-area:toc]", sideNav ? "max-xl:hidden" : "max-lg:hidden"]}>
+            <ArticleNav label={t("article_toc")} links={contents} sections variant="rail" />
+          </aside>
         )}
       </article>
 
@@ -292,23 +320,13 @@ const pillClass =
             <span>{t("article_related_label")}</span>
           </p>
           <h2 id="related-title" class="display mt-6 text-balance text-3xl">{t("article_related_title")}</h2>
-          <ul class="mt-8 grid gap-3 md:grid-cols-2">
-            {related.map((page, index) => (
-              <li>
-                <a
-                  class="group flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]"
-                  href={page.href}
-                >
-                  <span class="flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-                    <span aria-hidden="true" class="size-1.5 rounded-full bg-foreground/50" />
-                    <span class="tnum">{String(index + 1).padStart(2, "0")} / {String(related.length).padStart(2, "0")}</span>
-                  </span>
-                  <span class="mt-4 font-black text-lg leading-snug">{page.title}</span>
-                  <span class="mt-2 text-muted-foreground text-sm leading-6">{page.summary}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ArticleCards
+            cards={related.map((card, index) => ({
+              ...card,
+              tag: `${String(index + 1).padStart(2, "0")} / ${String(related.length).padStart(2, "0")}`,
+            }))}
+            class={`mt-8 ${relatedColumns}`}
+          />
         </section>
       )}
       <section aria-labelledby="article-cta-title" class="mt-20 rounded-xl bg-card px-6 py-12 text-center md:px-12">
@@ -352,5 +370,51 @@ const pillClass =
     failedMessage={t("copy_failed")}
   />
 
-  <Footer localizedHomeUrl={`${homeUrl}#top`} translations={translations} />
+  <Footer
+    alternateLocales={alternateLocales}
+    locale={locale}
+    localizedHomeUrl={`${homeUrl}#top`}
+    translations={translations}
+  />
 </Layout>
+
+<script>
+  // The contents list lights the section being read, in the rail and in the folded list. The router
+  // swaps pages without running this module again, so each page is wired on `astro:page-load`.
+  let stop: (() => void) | undefined
+
+  document.addEventListener("astro:page-load", () => {
+    stop?.()
+    stop = undefined
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-toc-link]"))
+    if (links.length === 0) return
+    const targetOf = (link: HTMLAnchorElement): string => decodeURIComponent(link.hash.slice(1))
+    const headings = Array.from(new Set(links.map(targetOf)))
+      .map((id) => document.getElementById(id))
+      .filter((heading) => heading !== null)
+    let frame = 0
+    const update = () => {
+      frame = 0
+      // A section counts as read once its heading passes the upper third of the window.
+      const line = window.innerHeight / 3
+      let current = ""
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top > line) break
+        current = heading.id
+      }
+      for (const link of links) {
+        if (targetOf(link) === current) link.setAttribute("aria-current", "location")
+        else link.removeAttribute("aria-current")
+      }
+    }
+    const onScroll = () => {
+      if (frame === 0) frame = requestAnimationFrame(update)
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    update()
+    stop = () => {
+      window.removeEventListener("scroll", onScroll)
+      cancelAnimationFrame(frame)
+    }
+  })
+</script>

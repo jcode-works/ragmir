@@ -2,6 +2,8 @@
 import { ArrowUpRight } from "@lucide/astro"
 import { GithubIcon, NpmIcon, PypiIcon } from "../brand-icons"
 import RagmirLogo from "../ragmir-logo.astro"
+import { languageTag } from "../../i18n/utils"
+import { JCODE_URL } from "../../lib/maintainer"
 import {
   FOOTER_SECTIONS,
   GITHUB_URL,
@@ -15,13 +17,18 @@ import {
 interface Props {
   translations: Record<string, string>
   localizedHomeUrl: string
+  locale: string
+  /** Every language, each pointing at this page in it, or at its home page when there is none. */
+  alternateLocales: ReadonlyArray<{ locale: string; label: string; href: string }>
 }
 
-const { translations, localizedHomeUrl } = Astro.props
+const { translations, localizedHomeUrl, locale, alternateLocales } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
 const newTab = t("new_tab_label")
 const homePath = localizedHomeUrl.replace(/#.*$/u, "")
+// The build year: the site is static, and every release rebuilds it.
+const year = new Date().getUTCFullYear()
 
 const sections = FOOTER_SECTIONS.map((section) => ({
   title: t(section.titleKey),
@@ -144,6 +151,39 @@ const marqueeCopy =
             </a>
           )}
         </div>
+      </div>
+
+      <div
+        class="mx-auto mt-8 flex max-w-6xl flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between"
+      >
+        <p class="text-muted-foreground text-xs">
+          © {year}{" "}
+          <a
+            class="font-semibold text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70"
+            href={JCODE_URL}
+            rel="noopener"
+            target="_blank"
+          >
+            JCode Works<span class="sr-only">{` ${newTab}`}</span>
+          </a>
+        </p>
+        <nav aria-label={t("language_label")}>
+          <ul class="flex flex-wrap items-center justify-center gap-1 rounded-full bg-card p-1" role="list">
+            {alternateLocales.map((entry) => (
+              <li>
+                <a
+                  aria-current={entry.locale === locale ? "page" : undefined}
+                  class="flex min-h-8 items-center rounded-full px-3 font-semibold text-muted-foreground text-xs transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-hover)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
+                  href={entry.href}
+                  hreflang={languageTag(entry.locale)}
+                  lang={languageTag(entry.locale)}
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </div>
   </div>

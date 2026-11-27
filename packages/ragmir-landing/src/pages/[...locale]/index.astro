@@ -291,7 +291,12 @@ const deepLinkUrl = (path: string): string => {
 
     <AnimatedBackdrop>
       <ClosingCta translations={translations} localizedLibraryUrl={localizedLibraryUrl} />
-      <Footer localizedHomeUrl={localizedHomeUrl} translations={translations} />
+      <Footer
+        alternateLocales={alternateLocales}
+        locale={locale}
+        localizedHomeUrl={localizedHomeUrl}
+        translations={translations}
+      />
     </AnimatedBackdrop>
 
     <CommandCopyToast

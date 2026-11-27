@@ -36,41 +36,56 @@ const { t } = await useTranslations(locale)
 const { Content, headings } = await render(entry)
 const { data } = entry
 
-// A hub page lists the pages of its sections after its own text.
+// A hub page lists the pages of its sections as cards before its own text.
 const hub = data.section === "hub" ? HUBS[path] : undefined
 const hubPages = hub ? sectionPages(hub.sections, locale, all) : []
 const parentHub = hubOf(data.section)
 const parent = parentHub ? findPage(parentHub, locale, all) : undefined
+const parentHref = parentHub && parent ? pageHref(parentHub, pageLocation(parent).locale) : undefined
+const sectionLabel = (section: ContentPage["data"]["section"]): string =>
+  t(`article_section_${section.replace("-", "_")}`)
 
 const breadcrumbs = [
   { name: "Ragmir", href: getLocalizedUrl("/", locale) },
-  ...(parentHub && parent
-    ? [{ name: t(HUBS[parentHub]?.labelKey ?? "nav_guides"), href: pageHref(parentHub, pageLocation(parent).locale) }]
+  ...(parentHub && parentHref
+    ? [{ name: t(HUBS[parentHub]?.labelKey ?? "nav_guides"), href: parentHref }]
     : []),
   { name: data.h1, href: pageHref(path, locale) },
 ]
 
+// A card shows the page's search description: one or two sentences, sized for a card.
 const toLink = (page: ContentPage) => {
   const location = pageLocation(page)
   return {
     title: page.data.h1,
     href: pageHref(location.path, location.locale),
-    summary: page.data.summary,
+    summary: page.data.description,
   }
 }
+// A hub that lists several sections groups its cards in the order of its sections, and tags each
+// card with its own.
+const cards = [...hubPages]
+  .sort((a, b) => (hub?.sections.indexOf(a.data.section) ?? 0) - (hub?.sections.indexOf(b.data.section) ?? 0))
+  .map((page) => ({
+    ...toLink(page),
+    ...(hub && hub.sections.length > 1 ? { tag: sectionLabel(page.data.section) } : {}),
+  }))
 
 // `related` names site paths, or `docs/<guide>` for a guide rendered from the repository's docs.
 const docs = await getCollection("docs")
-const related = data.related.flatMap((target) => {
-  if (target.startsWith("docs/")) {
-    const id = target.slice("docs/".length)
-    const doc = docs.find((candidate) => candidate.id === id)
-    const meta = DOC_PAGES[id]
-    return doc && meta ? [{ title: docTitle(doc), href: `/${target}/`, summary: meta.summary }] : []
-  }
-  const page = findPage(target, locale, all)
-  return page ? [toLink(page)] : []
-})
+const related = data.related
+  .flatMap((target) => {
+    if (target.startsWith("docs/")) {
+      const id = target.slice("docs/".length)
+      const doc = docs.find((candidate) => candidate.id === id)
+      const meta = DOC_PAGES[id]
+      return doc && meta ? [{ title: docTitle(doc), href: `/${target}/`, summary: meta.summary }] : []
+    }
+    const page = findPage(target, locale, all)
+    return page ? [toLink(page)] : []
+  })
+  // A hub's cards already show its own pages.
+  .filter((link) => !cards.some((card) => card.href === link.href))
 ---
 
 <ArticlePage
@@ -81,31 +96,15 @@ const related = data.related.flatMap((target) => {
   locale={locale}
   alternates={pageAlternates(entry, all)}
   path={path}
-  kicker={t(`article_section_${data.section.replace("-", "_")}`)}
+  kicker={sectionLabel(data.section)}
   articleType={data.section === "case-study" ? "Article" : "TechArticle"}
   breadcrumbs={breadcrumbs}
   datePublished={data.datePublished}
   dateModified={data.dateModified}
   headings={headings}
   related={related}
+  cards={cards}
+  navSection={hub ? pageHref(path, locale) : parentHref}
 >
   <Content />
-  {hubPages.length > 0 && (
-    <ul class="not-prose mt-10 grid gap-3 md:grid-cols-2">
-      {hubPages.map((page) => {
-        const link = toLink(page)
-        return (
-          <li>
-            <a
-              class="flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]"
-              href={link.href}
-            >
-              <span class="font-black text-lg leading-snug">{link.title}</span>
-              <span class="mt-2 text-muted-foreground text-sm leading-6">{link.summary}</span>
-            </a>
-          </li>
-        )
-      })}
-    </ul>
-  )}
 </ArticlePage>

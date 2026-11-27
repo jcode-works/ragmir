@@ -2,7 +2,7 @@
   "name": "@jcode.labs/ragmir",
   "mcpName": "io.github.jcode-works/ragmir",
   "version": "0.4.12",
-  "description": "Open-source retrieval for agentic RAG: document search with exact citations on your laptop or servers, with OCR, CLI, MCP, and TypeScript.",
+  "description": "Open-source local RAG for agents and AI apps: an MCP server, CLI, and TypeScript library that search code, PDFs, and Office files with exact citations.",
   "type": "module",
   "license": "AGPL-3.0-only",
   "author": {
@@ -15,6 +15,7 @@
     "ragmir",
     "open-source",
     "rag",
+    "local-rag",
     "agentic-rag",
     "ai-agents",
     "coding-agents",
@@ -39,7 +40,7 @@
     "url": "git+https://github.com/jcode-works/ragmir.git",
     "directory": "packages/ragmir-core"
   },
-  "homepage": "https://github.com/jcode-works/ragmir#readme",
+  "homepage": "https://ragmir.com",
   "bugs": {
     "url": "https://github.com/jcode-works/ragmir/issues"
   },
@@ -74,6 +75,7 @@
   "scripts": {
     "bench:compare": "node benchmarks/compare.mjs",
     "bench:competitors": "pnpm build && node benchmarks/competitors.mjs",
+    "bench:first-pass": "pnpm build && node benchmarks/first-pass.mjs",
     "bench:cli-startup": "pnpm build && node benchmarks/cli-startup.mjs",
     "bench:concurrency": "pnpm build && node benchmarks/concurrency.mjs",
     "bench:discovery": "pnpm build && node benchmarks/discovery.mjs",
@@ -115,8 +117,8 @@
     "mammoth": "^1.13.0",
     "picocolors": "^1.1.1",
     "picomatch": "^4.0.7",
-    "read-excel-file": "^9.3.15",
-    "unpdf": "^1.8.1",
+    "read-excel-file": "^9.3.20",
+    "unpdf": "^1.9.1",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
   },
@@ -134,16 +136,16 @@
   },
   "devDependencies": {
     "@huggingface/transformers": "^4.3.2",
-    "@langchain/core": "^1.4.0",
+    "@langchain/core": "^1.5.1",
     "@langchain/textsplitters": "^1.0.2",
     "@orama/orama": "^3.1.18",
     "@types/html-to-text": "^9.0.4",
-    "@types/node": "^22.20.5",
+    "@types/node": "^22.20.7",
     "@types/picomatch": "^4.0.3",
     "apache-arrow": "^18.1.0",
     "minisearch": "^7.2.0",
     "publint": "^0.3.25",
     "typescript": "^7.0.2",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.2"
   }
 }

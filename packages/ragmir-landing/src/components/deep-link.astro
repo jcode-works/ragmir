@@ -1,0 +1,26 @@
+---
+import { ArrowRight } from "@lucide/astro"
+
+// The pill that sends a home section to the page that covers its subject in depth.
+interface Props {
+  href: string
+  label: string
+  /** `inset` sits on a grey card; the default sits on the page background. */
+  tone?: "card" | "inset"
+}
+
+const { href, label, tone = "card" } = Astro.props
+---
+
+<a
+  class:list={[
+    "inline-flex h-11 w-fit items-center gap-2 rounded-full px-5 font-bold text-foreground text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    tone === "inset"
+      ? "bg-background hover:bg-[var(--inset-hover)] active:bg-[var(--card-press)]"
+      : "bg-card hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]",
+  ]}
+  href={href}
+>
+  {label}
+  <ArrowRight aria-hidden="true" class="arrow-forward size-4" />
+</a>

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
+import type * as React from "react"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { highlightCall, highlightCode, highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"
@@ -330,7 +331,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="min-w-0 flex-1 truncate font-mono text-[0.68rem] text-muted-foreground">
+        <span className="min-w-0 flex-1 truncate font-mono text-micro text-muted-foreground">
           {activeScenario.terminalTitle}
         </span>
         <button
@@ -435,7 +436,7 @@ export function HeroDemo({ translations }: HeroDemoProps): React.JSX.Element {
       <div
         aria-describedby={descriptionId}
         aria-labelledby={tabId(activeScenario.id)}
-        className="mx-3 mb-3 min-h-0 flex-1 overflow-y-auto rounded-xl bg-background p-4 font-mono text-[0.68rem] leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
+        className="mx-3 mb-3 min-h-0 flex-1 overflow-y-auto rounded-xl bg-background p-4 font-mono text-micro leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
         id={panelId}
         onScroll={handleTerminalScroll}
         ref={scrollRef}
@@ -491,7 +492,7 @@ function renderTerminalLine(input: {
   if (prefix) {
     return (
       <div className="group/terminal-line terminal-line-in mt-3 mb-1" data-copy-line key={key}>
-        <span className="mb-1 block font-sans text-[0.68rem] font-semibold text-muted-foreground">
+        <span className="mb-1 block font-sans text-micro font-semibold text-muted-foreground">
           {prefix}
         </span>
         <div className="flex min-w-0 items-start gap-2">

@@ -67,3 +67,15 @@ export const INTEGRATION_LOGOS = {
 } satisfies Record<string, IntegrationLogo>
 
 export type IntegrationLogoKey = keyof typeof INTEGRATION_LOGOS
+
+/** Pictograms for tools without a mark in Simple Icons, such as OpenAI Codex or LlamaIndex. */
+export const INTEGRATION_FALLBACKS = ["terminal", "library", "bot", "skills"] as const
+
+/** What a card or a page header shows for a tool: its brand mark, or a neutral pictogram. */
+export type IntegrationMarkName = IntegrationLogoKey | (typeof INTEGRATION_FALLBACKS)[number]
+
+/** Every mark name, for the content schema of the integration pages. */
+export const INTEGRATION_MARK_NAMES: [IntegrationMarkName, ...IntegrationMarkName[]] = [
+  ...INTEGRATION_FALLBACKS,
+  ...(Object.keys(INTEGRATION_LOGOS) as IntegrationLogoKey[]),
+]

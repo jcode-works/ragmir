@@ -1,5 +1,7 @@
 # Agentic RAG with your chat or developer agent
 
+> On the web: [ragmir.com/docs/agent-integration](https://ragmir.com/docs/agent-integration/)
+
 Ragmir is the retrieval layer for agentic RAG: it turns selected project files into searchable,
 cited evidence. Your agent decides what to search, expands the useful passages, checks whether
 more evidence is needed, then reasons, answers, or acts with its chosen model. Ragmir provides the

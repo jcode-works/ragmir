@@ -1,0 +1,32 @@
+---
+import { Bot, Library, Puzzle, SquareTerminal } from "@lucide/astro"
+import { INTEGRATION_LOGOS, type IntegrationMarkName } from "../content/integration-logos"
+
+interface Props {
+  mark: IntegrationMarkName
+  class?: string
+}
+
+const { mark, class: className } = Astro.props
+const logo = mark in INTEGRATION_LOGOS ? INTEGRATION_LOGOS[mark as keyof typeof INTEGRATION_LOGOS] : null
+---
+
+<!-- The tool's mark beside its name: decoration, since the name is always written next to it. -->
+{logo ? (
+  <svg
+    class={className}
+    viewBox="0 0 24 24"
+    fill={logo.color ?? "currentColor"}
+    aria-hidden="true"
+  >
+    <path d={logo.path} />
+  </svg>
+) : mark === "library" ? (
+  <Library class={className} aria-hidden="true" />
+) : mark === "bot" ? (
+  <Bot class={className} aria-hidden="true" />
+) : mark === "skills" ? (
+  <Puzzle class={className} aria-hidden="true" />
+) : (
+  <SquareTerminal class={className} aria-hidden="true" />
+)}

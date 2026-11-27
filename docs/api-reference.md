@@ -1,5 +1,7 @@
 # TypeScript API
 
+> On the web: [ragmir.com/docs/api-reference](https://ragmir.com/docs/api-reference/)
+
 Install `@jcode.labs/ragmir` in a Node.js 22.12+ application. It publishes ESM and TypeScript declarations.
 Import from the package root. Model synthesis belongs to your application or agent.
 

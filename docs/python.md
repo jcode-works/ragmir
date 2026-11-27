@@ -1,5 +1,7 @@
 # Use Ragmir from Python
 
+> On the web: [ragmir.com/docs/python](https://ragmir.com/docs/python/)
+
 Python applications get the same index, citations, and refusals as Claude Code or Codex through
 three PyPI packages. They drive Ragmir's own engine, so a passage cited in Python is the passage
 your coding agent cites.

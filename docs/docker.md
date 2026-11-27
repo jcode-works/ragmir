@@ -1,5 +1,7 @@
 # Run Ragmir with Docker
 
+> On the web: [ragmir.com/docs/docker](https://ragmir.com/docs/docker/)
+
 The official images run the same `rgr` CLI and MCP server without installing Node.js: on a laptop,
 in CI, on a server, or for an agent connected through MCP.
 

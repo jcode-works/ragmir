@@ -1,5 +1,6 @@
 // Public project destinations. The hero, the mobile drawer, and the footer read this one list, so
-// a link added or moved here reaches every surface at once.
+// a link added or moved here reaches every surface at once. The guides of `docs/`, the long-form
+// pages, and the benchmarks are pages of this site; everything else leaves it.
 export const GITHUB_URL = "https://github.com/jcode-works/ragmir"
 export const NPM_URL = "https://www.npmjs.com/package/@jcode.labs/ragmir"
 export const PYPI_URL = "https://pypi.org/project/ragmir/"
@@ -7,35 +8,66 @@ export const PYPI_URL = "https://pypi.org/project/ragmir/"
 export const PROJECT_LINKS = {
   github: GITHUB_URL,
   npm: NPM_URL,
-  docs: `${GITHUB_URL}/wiki`,
-  apiReference: `${GITHUB_URL}/blob/main/docs/api-reference.md`,
-  supportedFormats: `${GITHUB_URL}/blob/main/docs/supported-formats.md`,
-  serverGuide: `${GITHUB_URL}/blob/main/docs/server-deployment.md`,
-  pythonGuide: `${GITHUB_URL}/blob/main/docs/python.md`,
-  dockerGuide: `${GITHUB_URL}/blob/main/docs/docker.md`,
+  docs: "/docs/",
+  guides: "/guides/",
+  useCase: "/use-cases/forward-deployed-engineers/",
+  caseStudy: "/case-studies/ragmir-repository/",
+  apiReference: "/docs/api-reference/",
+  supportedFormats: "/docs/supported-formats/",
+  serverGuide: "/docs/server-deployment/",
+  pythonGuide: "/docs/python/",
+  dockerGuide: "/docs/docker/",
   pypi: PYPI_URL,
   agentSkills: "https://skills.sh/jcode-works/ragmir",
   context7: "https://context7.com/jcode-works/ragmir",
-  benchmarks: `${GITHUB_URL}#benchmarks`,
+  benchmarks: "/benchmarks/",
   releases: `${GITHUB_URL}/releases/latest`,
   changelog: `${GITHUB_URL}/blob/main/CHANGELOG.md`,
   license: `${GITHUB_URL}/blob/main/LICENSE`,
   commercialLicense: `${GITHUB_URL}/blob/main/COMMERCIAL-LICENSE.md`,
   privacy: `${GITHUB_URL}/blob/main/PRIVACY.md`,
   security: `${GITHUB_URL}/blob/main/SECURITY.md`,
-  claudePlugin: `${GITHUB_URL}/tree/main/plugins/ragmir`,
-  agentPlugins: `${GITHUB_URL}/blob/main/docs/agent-integration.md#plugins-and-extensions-for-coding-agents`,
-  langchainRetriever: `${GITHUB_URL}/blob/main/docs/api-reference.md#langchainjs-retriever-and-agent-tools`,
-  mcpGuide: `${GITHUB_URL}/blob/main/docs/agent-integration.md#connect-an-agent-through-mcp`,
+  claudePlugin: "/integrations/claude-code/",
+  agentPlugins: "/integrations/",
+  langchainRetriever: "/integrations/langchain/",
+  mcpGuide: "/mcp-rag-server/",
 } as const
 
 export type ProjectLinkKey = keyof typeof PROJECT_LINKS
+
+/**
+ * The project links for one locale: a link to a long-form page of this site goes to its translation
+ * through `hrefOf`, given the page's English path; the docs and other sites keep their URL.
+ */
+export function localizeProjectLinks(
+  hrefOf: (path: string) => string,
+): Record<ProjectLinkKey, string> {
+  const localized: Partial<Record<ProjectLinkKey, string>> = {}
+  for (const [key, href] of Object.entries(PROJECT_LINKS)) {
+    if (isProjectLinkKey(key) && !isExternalLink(href) && !href.startsWith("/docs/")) {
+      localized[key] = hrefOf(href.replace(/^\/|\/$/gu, ""))
+    }
+  }
+  return { ...PROJECT_LINKS, ...localized }
+}
+
+function isProjectLinkKey(key: string): key is ProjectLinkKey {
+  return key in PROJECT_LINKS
+}
+
+/** Whether a destination leaves the site, so it opens in a new tab and shows the leaning arrow. */
+export function isExternalLink(href: string): boolean {
+  return /^https?:\/\//u.test(href)
+}
 
 /** Translation key of each project link label, shared by the drawer and the footer. */
 export const PROJECT_LINK_LABEL_KEYS: Record<ProjectLinkKey, string> = {
   github: "nav_github",
   npm: "footer_link_npm",
   docs: "footer_link_docs",
+  guides: "nav_guides",
+  useCase: "footer_link_use_case",
+  caseStudy: "footer_link_case_study",
   apiReference: "footer_link_api",
   supportedFormats: "footer_link_formats",
   serverGuide: "footer_link_server_guide",
@@ -94,6 +126,9 @@ export const FOOTER_SECTIONS: readonly FooterSection[] = [
     titleKey: "nav_section_docs",
     links: [
       "docs",
+      "guides",
+      "useCase",
+      "caseStudy",
       "apiReference",
       "supportedFormats",
       "serverGuide",

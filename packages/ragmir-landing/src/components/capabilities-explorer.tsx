@@ -1,3 +1,4 @@
+import type * as React from "react"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 import { scrollEdgeMask, useScrollEdges } from "./scroll-edges"
 import { TabIndicator } from "./tab-indicator"

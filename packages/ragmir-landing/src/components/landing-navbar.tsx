@@ -221,6 +221,7 @@ export function RagmirLogo(): React.JSX.Element {
     <span
       className="logo-stack font-black text-2xl text-foreground leading-none tracking-tight md:text-3xl"
       data-logo-text="Ragmir"
+      translate="no"
     >
       <span className="logo-index-1 logo-text">Ragmir</span>
     </span>

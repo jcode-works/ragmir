@@ -7,6 +7,7 @@ import sitemap from "@astrojs/sitemap"
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import { docsPagesPlugin } from "./scripts/docs-pages-plugin.mjs"
+import { noTranslateCodePlugin } from "./scripts/no-translate-code-plugin.mjs"
 
 const siteUrl = process.env.PUBLIC_RAGMIR_LANDING_URL ?? "https://ragmir.com"
 const docsDirectory = fileURLToPath(new URL("../../docs", import.meta.url))
@@ -81,7 +82,9 @@ export default defineConfig({
       : []),
   ],
   markdown: {
-    processor: satteri({ hastPlugins: [docsPagesPlugin({ docsDirectory })] }),
+    processor: satteri({
+      hastPlugins: [docsPagesPlugin({ docsDirectory }), noTranslateCodePlugin()],
+    }),
   },
   prefetch: {
     prefetchAll: true,

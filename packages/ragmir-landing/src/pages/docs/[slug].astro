@@ -1,0 +1,70 @@
+---
+import path from "node:path"
+import { getCollection, render } from "astro:content"
+import ArticlePage from "../../components/article-page.astro"
+import { useTranslations } from "../../i18n/utils"
+import { DOC_ORDER, DOC_PAGES } from "../../lib/docs-pages"
+import { gitDates } from "../../lib/git-dates"
+
+export async function getStaticPaths() {
+  const docs = await getCollection("docs")
+  return docs.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+const meta = DOC_PAGES[entry.id]
+if (!meta) {
+  throw new Error(`docs/${entry.id}.md needs search metadata in src/lib/docs-pages.ts.`)
+}
+const { t } = await useTranslations("en")
+const { Content, headings } = await render(entry)
+const docs = await getCollection("docs")
+// A guide's own H1 names its page; `scripts/docs-pages-plugin.mjs` removes it from the body.
+const titleOf = (id: string): string =>
+  docs
+    .find((doc) => doc.id === id)
+    ?.body?.match(/^# (.+)$/mu)?.[1]
+    ?.trim() ?? id
+const h1 = titleOf(entry.id)
+// `filePath` is relative to the landing package, where Astro builds.
+const dates = (entry.filePath && gitDates(path.resolve(entry.filePath))) || {
+  published: new Date(),
+  modified: new Date(),
+}
+const guides = DOC_ORDER.filter((id) => docs.some((doc) => doc.id === id))
+const position = guides.indexOf(entry.id)
+// The next four guides in reading order, wrapping around, so every guide gets linked as often.
+const neighbours = [1, 2, 3, 4]
+  .map((step) => guides[(position + step) % guides.length])
+  .filter((id): id is string => id !== undefined && id !== entry.id)
+  .map((id) => ({ title: titleOf(id), href: `/docs/${id}/`, summary: DOC_PAGES[id]?.summary ?? "" }))
+const sideNav = {
+  label: t("nav_section_docs"),
+  links: guides.map((id) => ({ title: titleOf(id), href: `/docs/${id}/`, current: id === entry.id })),
+}
+---
+
+<ArticlePage
+  title={meta.title}
+  description={meta.description}
+  h1={h1}
+  summary={meta.summary}
+  locale="en"
+  pageLocales={["en"]}
+  path={`docs/${entry.id}`}
+  kicker="Docs"
+  articleType="TechArticle"
+  breadcrumbs={[
+    { name: "Ragmir", href: "/" },
+    { name: "Docs", href: "/docs/" },
+    { name: h1, href: `/docs/${entry.id}/` },
+  ]}
+  datePublished={dates.published}
+  dateModified={dates.modified}
+  headings={headings}
+  related={neighbours}
+  sideNav={sideNav}
+  sourceHref={`https://github.com/jcode-works/ragmir/blob/main/docs/${entry.id}.md`}
+>
+  <Content />
+</ArticlePage>

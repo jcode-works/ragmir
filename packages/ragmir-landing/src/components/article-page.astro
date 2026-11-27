@@ -1,0 +1,356 @@
+---
+import { ArrowRight, ArrowUpRight } from "@lucide/astro"
+import { getLocalizedUrl, languages, languageTag, locales, useTranslations } from "../i18n/utils"
+import Layout from "../layouts/layout.astro"
+import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
+import { MAINTAINER } from "../lib/maintainer"
+import { GITHUB_URL } from "../lib/project-links"
+import { ArticleCodeCopy } from "./article-code-copy"
+import { LandingNavbar } from "./landing-navbar"
+import { RagmirBackground } from "./ragmir-background"
+import Footer from "./sections/footer.astro"
+
+interface Crumb {
+  name: string
+  href: string
+}
+
+interface RelatedLink {
+  title: string
+  href: string
+  summary: string
+}
+
+interface SideNav {
+  label: string
+  links: ReadonlyArray<{ title: string; href: string; current: boolean }>
+}
+
+interface Props {
+  title: string
+  description: string
+  h1: string
+  summary: string
+  locale: string
+  /** Locales this page exists in; hreflang and the language menu list only these. */
+  pageLocales: readonly string[]
+  /** Site path without locale or slashes, such as `integrations/claude-code`. */
+  path: string
+  kicker: string
+  articleType: "TechArticle" | "Article"
+  breadcrumbs: readonly Crumb[]
+  datePublished: Date
+  dateModified: Date
+  headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
+  related: readonly RelatedLink[]
+  /** The page's Markdown source on GitHub, shown for the guides rendered from `docs/`. */
+  sourceHref?: string
+  /** A list of sibling pages beside the table of contents on wide screens, such as every guide. */
+  sideNav?: SideNav
+}
+
+const {
+  title,
+  description,
+  h1,
+  summary,
+  locale,
+  pageLocales,
+  path,
+  kicker,
+  articleType,
+  breadcrumbs,
+  datePublished,
+  dateModified,
+  headings,
+  related,
+  sourceHref,
+  sideNav,
+} = Astro.props
+
+const { t, translations } = await useTranslations(locale)
+const siteBase = Astro.site ?? new URL("https://ragmir.com")
+const homeUrl = getLocalizedUrl("/", locale)
+const pageUrl = new URL(getLocalizedUrl(`/${path}`, locale), siteBase).href
+const alternateLocales = locales
+  .filter((entry) => pageLocales.includes(entry))
+  .map((entry) => ({
+    locale: entry,
+    label: languages[entry],
+    href: getLocalizedUrl(`/${path}`, entry),
+  }))
+const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
+  dateStyle: "long",
+  timeZone: "UTC",
+})
+const sections = headings.filter((heading) => heading.depth === 2)
+const ogImageUrl = new URL("/og/ragmir-og.png", siteBase).href
+const libraryUrl = `${homeUrl}#library`
+const author = { "@type": "Person", ...MAINTAINER }
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name: title,
+    description,
+    inLanguage: languageTag(locale),
+    isPartOf: { "@id": "https://ragmir.com/#website" },
+    about: { "@id": "https://ragmir.com/#source" },
+    publisher: { "@id": "https://ragmir.com/#organization" },
+    primaryImageOfPage: { "@type": "ImageObject", url: ogImageUrl, width: 2400, height: 1260 },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": articleType,
+    "@id": `${pageUrl}#article`,
+    headline: h1,
+    description,
+    inLanguage: languageTag(locale),
+    datePublished: datePublished.toISOString(),
+    dateModified: dateModified.toISOString(),
+    author,
+    publisher: { "@id": "https://ragmir.com/#organization" },
+    mainEntityOfPage: { "@id": `${pageUrl}#webpage` },
+    about: { "@id": "https://ragmir.com/#source" },
+    image: [ogImageUrl],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: new URL(crumb.href, siteBase).href,
+    })),
+  },
+]
+
+const pillClass =
+  "group inline-flex h-11 items-center gap-2 rounded-full px-5 font-bold text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+---
+
+<Layout
+  title={title}
+  description={description}
+  locale={locale}
+  ogType="article"
+  ogImageAlt={t("seo_image_alt")}
+  availableLocales={pageLocales}
+  structuredData={structuredData}
+>
+  <LandingNavbar
+    client:load
+    alternateLocales={alternateLocales}
+    locale={locale}
+    currentPath={Astro.url.pathname}
+    localizedAgentsUrl={`${homeUrl}#agents`}
+    localizedDeployUrl={`${homeUrl}#deploy`}
+    localizedFaqUrl={`${homeUrl}#faq`}
+    localizedFeaturesUrl={`${homeUrl}#capabilities`}
+    localizedHomeUrl={`${homeUrl}#top`}
+    localizedLibraryUrl={`${homeUrl}#library`}
+    localizedTeamUrl={getLocalizedUrl("/team", locale)}
+    localizedUseCasesUrl={`${homeUrl}#use-cases`}
+    translations={pickTranslations(translations, NAVBAR_TRANSLATIONS)}
+  />
+
+  <div class="relative overflow-hidden">
+    <RagmirBackground
+      behindContent={false}
+      className="inset-x-0 top-0 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]"
+      client:visible
+      height="300px"
+    />
+    <main class="container-default relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36">
+      <nav aria-label={t("article_breadcrumb_label")} class="text-shadow-hero">
+        <ol class="flex flex-wrap items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+          {breadcrumbs.map((crumb, index) => (
+            <li class="flex items-center gap-2">
+              {index > 0 && <span aria-hidden="true" class="opacity-60">/</span>}
+              {index < breadcrumbs.length - 1 ? (
+                <a class="underline-offset-4 hover:text-foreground hover:underline" href={crumb.href}>
+                  {crumb.name}
+                </a>
+              ) : (
+                <span aria-current="page">{crumb.name}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <article class="mt-8">
+        <header class="max-w-3xl">
+          <p class="text-shadow-hero flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+            <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
+            <span class="tnum">001</span>
+            <span aria-hidden="true" class="opacity-60">·</span>
+            <span>{kicker}</span>
+          </p>
+          <h1 class="display text-shadow-hero mt-6 text-balance text-4xl md:text-5xl">{h1}</h1>
+          <p class="text-shadow-hero mt-6 text-base text-foreground/85 leading-relaxed md:text-lg">
+            {summary}
+          </p>
+          <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-xs leading-6">
+            <span>
+              {t("article_by")}{" "}
+              <a class="text-foreground underline-offset-4 hover:underline" href={getLocalizedUrl("/team", locale)}>
+                {MAINTAINER.name}
+              </a>
+            </span>
+            <span>
+              {t("article_published")}{" "}
+              <time datetime={datePublished.toISOString()}>{dateFormat.format(datePublished)}</time>
+            </span>
+            {dateModified.getTime() !== datePublished.getTime() && (
+              <span>
+                {t("article_updated")}{" "}
+                <time datetime={dateModified.toISOString()}>{dateFormat.format(dateModified)}</time>
+              </span>
+            )}
+          </p>
+        </header>
+
+        <div class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+          <div id="article-body" class="prose-article min-w-0">
+            <slot />
+          </div>
+
+          {(sections.length > 1 || sideNav) && (
+            <aside class="order-first lg:order-none">
+              <div class="flex flex-col gap-3 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+                {sections.length > 1 && (
+                  <nav aria-label={t("article_toc")} class="rounded-xl bg-card p-5">
+                    <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+                      {t("article_toc")}
+                    </p>
+                    <ol class="mt-4 flex flex-col gap-2 text-sm leading-6">
+                      {sections.map((heading, index) => (
+                        <li class="flex gap-3">
+                          <span aria-hidden="true" class="tnum font-mono text-[11px] text-muted-foreground leading-6">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <a class="text-foreground/85 underline-offset-4 hover:text-foreground hover:underline" href={`#${heading.slug}`}>
+                            {heading.text}
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </nav>
+                )}
+                {sideNav && (
+                  <nav aria-label={sideNav.label} class="hidden rounded-xl bg-card p-5 lg:block">
+                    <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+                      {sideNav.label}
+                    </p>
+                    <ul class="mt-4 flex flex-col gap-2 text-sm leading-6">
+                      {sideNav.links.map((link) => (
+                        <li>
+                          {link.current ? (
+                            <span aria-current="page" class="font-bold text-foreground">{link.title}</span>
+                          ) : (
+                            <a class="text-foreground/85 underline-offset-4 hover:text-foreground hover:underline" href={link.href}>
+                              {link.title}
+                            </a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                )}
+              </div>
+            </aside>
+          )}
+        </div>
+
+        {sourceHref && (
+          <p class="mt-10 text-muted-foreground text-sm">
+            <a
+              class={`${pillClass} bg-card text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
+              href={sourceHref}
+              rel="noopener"
+              target="_blank"
+            >
+              {t("article_source")}
+              <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+              <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
+            </a>
+          </p>
+        )}
+      </article>
+
+      {related.length > 0 && (
+        <section aria-labelledby="related-title" class="mt-20">
+          <p class="flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+            <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
+            <span class="tnum">002</span>
+            <span aria-hidden="true" class="opacity-60">·</span>
+            <span>{t("article_related_label")}</span>
+          </p>
+          <h2 id="related-title" class="display mt-6 text-balance text-3xl">{t("article_related_title")}</h2>
+          <ul class="mt-8 grid gap-3 md:grid-cols-2">
+            {related.map((page, index) => (
+              <li>
+                <a
+                  class="group flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]"
+                  href={page.href}
+                >
+                  <span class="flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                    <span aria-hidden="true" class="size-1.5 rounded-full bg-foreground/50" />
+                    <span class="tnum">{String(index + 1).padStart(2, "0")} / {String(related.length).padStart(2, "0")}</span>
+                  </span>
+                  <span class="mt-4 font-black text-lg leading-snug">{page.title}</span>
+                  <span class="mt-2 text-muted-foreground text-sm leading-6">{page.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <section aria-labelledby="article-cta-title" class="mt-20 rounded-xl bg-card px-6 py-12 text-center md:px-12">
+        <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+          {t("closing_eyebrow")}
+        </p>
+        <h2 id="article-cta-title" class="display mx-auto mt-5 max-w-2xl text-balance text-3xl">
+          {t("closing_title")}
+        </h2>
+        <p class="mx-auto mt-4 max-w-2xl text-muted-foreground text-sm leading-6 md:text-base">
+          {t("closing_text")}
+        </p>
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            class="group inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 font-bold text-primary-foreground text-sm transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--primary-press)]"
+            href={libraryUrl}
+          >
+            {t("closing_secondary_cta")}
+            <ArrowRight aria-hidden="true" class="arrow-forward size-4" />
+          </a>
+          <a
+            class={`${pillClass} bg-background text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
+            href={GITHUB_URL}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {t("closing_primary_cta")}
+            <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+            <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <ArticleCodeCopy
+    client:idle
+    containerId="article-body"
+    copiedMessage={t("command_copied")}
+    copyLabel={t("copy_code")}
+    failedMessage={t("copy_failed")}
+  />
+
+  <Footer localizedHomeUrl={`${homeUrl}#top`} translations={translations} />
+</Layout>

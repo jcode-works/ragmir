@@ -1,0 +1,94 @@
+---
+import { getCollection, render } from "astro:content"
+import ArticlePage from "../components/article-page.astro"
+import { getLocalizedUrl, useTranslations } from "../i18n/utils"
+import {
+  type ContentPage,
+  HUB_SECTIONS,
+  pageHref,
+  pageLocales,
+  pageLocation,
+  relatedPages,
+  sectionPages,
+} from "../lib/content-pages"
+
+export async function getStaticPaths() {
+  const entries = await getCollection("pages")
+  return entries.map((entry) => {
+    const { locale, path } = pageLocation(entry)
+    return {
+      params: { page: locale === "en" ? path : `${locale}/${path}` },
+      props: { entry },
+    }
+  })
+}
+
+interface Props {
+  entry: ContentPage
+}
+
+const { entry } = Astro.props
+const all = await getCollection("pages")
+const { locale, path } = pageLocation(entry)
+const { t } = await useTranslations(locale)
+const { Content, headings } = await render(entry)
+const { data } = entry
+
+// A hub page lists the pages of its section after its own text.
+const hubSection = data.section === "hub" ? HUB_SECTIONS[path] : undefined
+const hubPages = hubSection ? sectionPages(hubSection, locale, all) : []
+
+const breadcrumbs = [
+  { name: "Ragmir", href: getLocalizedUrl("/", locale) },
+  ...(data.section === "integration"
+    ? [{ name: t("article_section_hub_integrations"), href: pageHref("integrations", locale) }]
+    : []),
+  { name: data.h1, href: pageHref(path, locale) },
+]
+
+const toLink = (page: ContentPage) => {
+  const location = pageLocation(page)
+  return {
+    title: page.data.h1,
+    href: pageHref(location.path, location.locale),
+    summary: page.data.summary,
+  }
+}
+---
+
+<ArticlePage
+  title={data.title}
+  description={data.description}
+  h1={data.h1}
+  summary={data.summary}
+  locale={locale}
+  pageLocales={pageLocales(entry, all)}
+  path={path}
+  kicker={t(`article_section_${data.section.replace("-", "_")}`)}
+  articleType={data.section === "case-study" ? "Article" : "TechArticle"}
+  breadcrumbs={breadcrumbs}
+  datePublished={data.datePublished}
+  dateModified={data.dateModified}
+  headings={headings}
+  related={relatedPages(entry, all).map(toLink)}
+>
+  <Content />
+  {hubPages.length > 0 && (
+    <ul class="not-prose mt-10 grid gap-3 md:grid-cols-2">
+      {hubPages.map((page) => {
+        const link = toLink(page)
+        return (
+          <li>
+            <a
+              class="flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]"
+              href={link.href}
+            >
+              <span class="font-black text-lg leading-snug">{link.title}</span>
+              <span class="mt-2 text-muted-foreground text-sm leading-6">{link.summary}</span>
+            </a>
+          </li>
+        )
+      })}
+    </ul>
+  )}
+</ArticlePage>

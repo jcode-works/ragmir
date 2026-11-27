@@ -215,3 +215,32 @@ export function CommandCopyButton({
     </button>
   )
 }
+
+/**
+ * The icon-only copy button of a code block in an article. A refused copy selects the block's
+ * code, found as the `pre` of the enclosing `[data-code-block]`.
+ */
+export function CodeCopyButton({
+  code,
+  copyLabel,
+}: {
+  code: string
+  copyLabel: string
+}): React.JSX.Element {
+  const { state, copy } = useCopy(code, { toast: true })
+
+  return (
+    <button
+      aria-label={copyLabel}
+      className="inline-flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onClick={(event) => {
+        const block = event.currentTarget.closest("[data-code-block]")
+        void copy(() => selectText(block?.querySelector("pre")))
+      }}
+      title={copyLabel}
+      type="button"
+    >
+      <CopyStateIcon className="size-4" state={state} />
+    </button>
+  )
+}

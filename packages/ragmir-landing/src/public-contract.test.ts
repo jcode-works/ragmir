@@ -26,6 +26,7 @@ import {
   type TranslationSelection,
   USE_CASE_TRANSLATIONS,
 } from "./lib/island-translations.js"
+import { MAINTAINER } from "./lib/maintainer.js"
 import { FOOTER_LINK_KEYS, PROJECT_LINK_LABEL_KEYS, PROJECT_LINKS } from "./lib/project-links.js"
 import { cn } from "./lib/utils.js"
 
@@ -350,9 +351,7 @@ describe("landing public contract", () => {
     )
     expect(deploySource).toContain('id="deploy"')
     expect(deploySource).toContain("PROJECT_LINKS.serverGuide")
-    expect(PROJECT_LINKS.serverGuide).toBe(
-      "https://github.com/jcode-works/ragmir/blob/main/docs/server-deployment.md",
-    )
+    expect(PROJECT_LINKS.serverGuide).toBe("/docs/server-deployment/")
     expect(navbarSource).toContain('t("nav_deploy")')
     expect(en.deploy_text).toContain("Forward deployed engineers")
     expect(fr.deploy_text).toContain("forward deployed engineers")
@@ -362,9 +361,7 @@ describe("landing public contract", () => {
     for (const source of [rootReadmeSource, coreReadmeSource, llmsSource, aiSource]) {
       expect(source).toContain("docs/python.md")
     }
-    expect(PROJECT_LINKS.pythonGuide).toBe(
-      "https://github.com/jcode-works/ragmir/blob/main/docs/python.md",
-    )
+    expect(PROJECT_LINKS.pythonGuide).toBe("/docs/python/")
   })
 
   it("should present the bounded agent setup prompt before manual package-manager tabs", () => {
@@ -418,12 +415,13 @@ describe("landing public contract", () => {
     expect(homePageSource).toContain('"@type": "WebPage"')
     expect(homePageSource).toMatch(localizedWebPageId)
     expect(homePageSource).toContain('about: { "@id": "https://ragmir.com/#source" }')
-    expect(teamPageSource).toContain('url: "https://github.com/jb-thery"')
+    expect(teamPageSource).toContain("...MAINTAINER")
+    expect(MAINTAINER.url).toBe("https://github.com/jb-thery")
   })
 
-    // language=TEXT
   it("should use generic hreflang values while keeping regional Open Graph locales", () => {
     // Chinese pages are Simplified Chinese: a script subtag, still no region.
+    // language=TEXT
     expect(layoutSource).toContain(
       'const hreflangLocaleMap: Record<string, string> = {\n  en: "en",\n  fr: "fr",\n  es: "es",\n  zh: "zh-Hans",',
     )
@@ -452,9 +450,9 @@ describe("landing public contract", () => {
 
   it("should let search quote full snippets and keep error pages without a canonical", () => {
     expect(layoutSource).toContain(
-    // language=TEXT
       'const INDEXABLE_ROBOTS = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"',
     )
+    // language=TEXT
     expect(layoutSource).toContain(
       '{isIndexable && <link rel="canonical" href={canonicalURL.href} />}',
     )
@@ -687,9 +685,9 @@ describe("landing public contract", () => {
 
   it("should keep visible localized FAQs without FAQPage structured data", () => {
     for (const messages of [en, fr, es, zh]) {
-    // language=TEXT
       expect(getFaqItems(messages)).toHaveLength(16)
     }
+    // language=TEXT
     expect(homePageSource).toContain("<Faq translations={translations} />")
     expect(homePageSource).not.toContain('"@type": "FAQPage"')
     expect(homePageSource).not.toContain("mainEntity: faqItems.map")

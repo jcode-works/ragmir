@@ -7,8 +7,16 @@ paths:
 
 - The landing is a static, telemetry-free Astro site with no vendor deployment configuration and
   no runtime calls to third parties. Keep it that way.
-- Every visible string lives in `messages/en.json`, `fr.json`, `es.json`, and `zh.json` (Simplified
-  Chinese); add each key to all four, in the same order.
+- Interface strings live in `messages/en.json`, `fr.json`, `es.json`, and `zh.json` (Simplified
+  Chinese); add each key to all four, in the same order. Long-form pages live in content
+  collections: `src/content/pages/<locale>/<path>.md`, served at `/<path>/` in English and
+  `/<locale>/<path>/` otherwise; the guides of `docs/` render at `/docs/<file>/` from their only
+  copy, with their search metadata in `src/lib/docs-pages.ts`. A page may exist in fewer locales;
+  English always exists.
+- Translate new or changed copy for `fr`, `es`, and `zh` with a subagent on Haiku (Agent tool,
+  `model: "haiku"`) or a direct Anthropic API call with the key exported in `~/.zshrc` and the
+  model `claude-haiku-5-5`, never with a larger model. Review key order, placeholders, product
+  names, and the no-em-dash rule before committing.
 - `public/llms.txt` and `public/ai.txt` are copies of the root `llms.txt`: edit the root file,
   never a copy.
 - The format list comes from `src/content/supported-formats.ts` and must match

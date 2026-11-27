@@ -5,6 +5,7 @@ import RagmirLogo from "../ragmir-logo.astro"
 import {
   FOOTER_SECTIONS,
   GITHUB_URL,
+  isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
   PROJECT_LINKS,
@@ -33,7 +34,7 @@ const sections = FOOTER_SECTIONS.map((section) => ({
     ...section.links.map((key) => ({
       href: PROJECT_LINKS[key],
       label: t(PROJECT_LINK_LABEL_KEYS[key]),
-      external: true,
+      external: isExternalLink(PROJECT_LINKS[key]),
     })),
   ],
 }))

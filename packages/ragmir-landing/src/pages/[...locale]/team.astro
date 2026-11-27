@@ -13,6 +13,7 @@ import {
 } from "../../i18n/utils"
 import Layout from "../../layouts/layout.astro"
 import { NAVBAR_TRANSLATIONS, pickTranslations } from "../../lib/island-translations"
+import { JCODE_URL, MAINTAINER } from "../../lib/maintainer"
 
 export function getStaticPaths() {
   return locales.map((locale) => ({
@@ -32,7 +33,6 @@ const alternateLocales = locales.map((entry) => ({
 }))
 
 const memberImg = "/team/jb-thery.jpg"
-const JCODE_URL = "https://jcode.works"
 const memberLinks = [
   { label: "GitHub", href: "https://github.com/jb-thery" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/jean-baptiste-thery/" },
@@ -89,19 +89,11 @@ const structuredData = [
   {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": "https://ragmir.com/#jb-thery",
-    name: "Jean-Baptiste Thery",
+    ...MAINTAINER,
     jobTitle: t("team_member_jb_subtitle"),
     description: t("team_member_jb_description"),
-    url: "https://github.com/jb-thery",
     image: new URL(memberImg, siteBase).href,
     worksFor: { "@id": "https://ragmir.com/#organization" },
-    sameAs: [
-      JCODE_URL,
-      "https://github.com/jb-thery",
-      "https://www.linkedin.com/in/jean-baptiste-thery/",
-      "https://www.malt.fr/profile/jeanbaptistethery/",
-    ],
   },
 ]
 ---

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Audits the built site the way search engines read it, after every build (deploy builds too):
-// one self canonical per indexable page, the same complete hreflang set (x-default included) on
-// every translation of a page, the page language in `lang`, Open Graph and JSON-LD that match the
-// page, titles and descriptions unique within each language, error pages without canonical or
-// alternates, and in production a sitemap listing exactly the indexable pages with the same
-// alternates as their HTML.
+// one self canonical per indexable page, the same hreflang set on every translation of a page (a
+// page may exist in fewer languages; hreflang and x-default appear once it has two), the page
+// language in `lang`, Open Graph and JSON-LD that match the page, titles and descriptions unique
+// within each language, internal links that reach a built page or file, error pages without
+// canonical or alternates, and in production a sitemap listing exactly the indexable pages with the
+// same alternates as their HTML.
 
 import { readdir, readFile } from "node:fs/promises"
 import path from "node:path"
@@ -17,7 +18,6 @@ const DEFAULT_LOCALE = "en"
 // The same tags as `languageTags` in src/i18n/utils.ts, which the contract test enforces.
 const LANGUAGE_TAGS = { en: "en", fr: "fr", es: "es", zh: "zh-Hans" }
 const OPEN_GRAPH_LOCALES = { en: "en_US", fr: "fr_FR", es: "es_ES", zh: "zh_CN" }
-const HREFLANG_CODES = [...Object.values(LANGUAGE_TAGS), "x-default"]
 const ERROR_PAGES = ["404.html", "500.html"]
 // A relative href resolves under the page's own path; links must be root-relative, a fragment, a
 // query, or absolute.
@@ -83,6 +83,40 @@ function jsonLd(html, file) {
     .filter(Boolean)
 }
 
+// Content pages (og:type article) carry one Article or TechArticle node with an author, both dates,
+// and the page language, a breadcrumb that ends at the page, and a visible date; others carry none.
+function auditArticle(where, html, head, nodes, { expectedUrl, locale }) {
+  const articles = nodes.filter((node) => ["Article", "TechArticle"].includes(node["@type"]))
+  if (meta(head, "og:type") !== "article") {
+    check(articles.length === 0, `${where}: only article pages carry Article markup`)
+    return
+  }
+  check(articles.length === 1, `${where}: an article page needs one Article or TechArticle node`)
+  for (const article of articles) {
+    const published = Date.parse(article.datePublished)
+    const modified = Date.parse(article.dateModified)
+    check(
+      Boolean(article.author?.["@id"] && article.author?.name),
+      `${where}: the article names no author`,
+    )
+    check(
+      Number.isFinite(published) && Number.isFinite(modified) && modified >= published,
+      `${where}: the article needs datePublished and a dateModified on or after it`,
+    )
+    check(
+      article.inLanguage === LANGUAGE_TAGS[locale],
+      `${where}: the article inLanguage should be ${LANGUAGE_TAGS[locale]}`,
+    )
+    check(
+      typeof article.headline === "string" && article.headline.length > 0,
+      `${where}: the article has no headline`,
+    )
+  }
+  const trail = nodes.find((node) => node["@type"] === "BreadcrumbList")?.itemListElement ?? []
+  check(trail.at(-1)?.item === expectedUrl, `${where}: the breadcrumb should end at the page`)
+  check(/<time datetime="/u.test(html), `${where}: the article shows no date`)
+}
+
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true })
   const files = await Promise.all(
@@ -127,12 +161,13 @@ function auditPage(file, html) {
     meta(head, "og:locale") === OPEN_GRAPH_LOCALES[locale],
     `${where}: og:locale should be ${OPEN_GRAPH_LOCALES[locale]}`,
   )
+  const pageLanguages = [...pageAlternates.keys()].filter((code) => code !== "x-default")
   const ogAlternates = tags(head, "meta")
     .filter((tag) => tag.property === "og:locale:alternate")
     .map((tag) => tag.content)
     .sort()
   const expectedOgAlternates = Object.entries(OPEN_GRAPH_LOCALES)
-    .filter(([entry]) => entry !== locale)
+    .filter(([entry]) => entry !== locale && pageLanguages.includes(LANGUAGE_TAGS[entry]))
     .map(([, value]) => value)
     .sort()
   check(
@@ -142,28 +177,40 @@ function auditPage(file, html) {
   check((html.match(/<h1\b/gu) ?? []).length === 1, `${where}: expected exactly one h1`)
   check((html.match(/<main\b/gu) ?? []).length === 1, `${where}: expected exactly one main`)
 
-  check(
-    pageAlternates.size === HREFLANG_CODES.length &&
-      HREFLANG_CODES.every((code) => pageAlternates.has(code)),
-    `${where}: hreflang should list ${HREFLANG_CODES.join(", ")}`,
-  )
-  check(
-    pageAlternates.get(LANGUAGE_TAGS[locale]) === expectedUrl,
-    `${where}: its own hreflang should point to its canonical`,
-  )
-  check(
-    pageAlternates.get("x-default") === pageAlternates.get(LANGUAGE_TAGS[DEFAULT_LOCALE]),
-    `${where}: x-default should point to the English page`,
-  )
+  if (pageAlternates.size === 0) {
+    check(locale === DEFAULT_LOCALE, `${where}: a page in one language must be the English page`)
+  } else {
+    check(pageLanguages.length > 1, `${where}: hreflang needs at least two languages`)
+    check(
+      pageLanguages.every((code) => Object.values(LANGUAGE_TAGS).includes(code)),
+      `${where}: hreflang lists an unknown language: ${pageLanguages.join(", ")}`,
+    )
+    check(
+      pageAlternates.get(LANGUAGE_TAGS[locale]) === expectedUrl,
+      `${where}: its own hreflang should point to its canonical`,
+    )
+    check(
+      pageLanguages.includes(LANGUAGE_TAGS[DEFAULT_LOCALE]),
+      `${where}: every page exists in English, the x-default language`,
+    )
+    check(
+      pageAlternates.get("x-default") === pageAlternates.get(LANGUAGE_TAGS[DEFAULT_LOCALE]),
+      `${where}: x-default should point to the English page`,
+    )
+  }
   for (const href of pageAlternates.values()) {
     check(href?.startsWith(`${SITE.origin}/`), `${where}: hreflang URL ${href} is not absolute`)
   }
 
+  const internalLinks = []
   for (const anchor of tags(html, "a")) {
     check(
       !anchor.href || !RELATIVE_HREF.test(anchor.href),
       `${where}: relative link ${anchor.href}`,
     )
+    if (anchor.href?.startsWith("/") && !anchor.href.startsWith("//")) {
+      internalLinks.push(anchor.href)
+    }
   }
 
   const nodes = jsonLd(html, where)
@@ -176,8 +223,35 @@ function auditPage(file, html) {
       `${where}: JSON-LD inLanguage should be ${LANGUAGE_TAGS[locale]}`,
     )
   }
+  auditArticle(where, html, head, nodes, { expectedUrl, locale })
 
-  return { url: expectedUrl, locale, title, description, alternates: pageAlternates }
+  return {
+    url: expectedUrl,
+    locale,
+    title,
+    description,
+    alternates: pageAlternates,
+    internalLinks,
+  }
+}
+
+/** A root-relative link reaches a built page (a path ending in /) or a built file. */
+async function auditInternalLinks(pages) {
+  const pagePaths = new Set(pages.map((page) => new URL(page.url).pathname))
+  for (const page of pages) {
+    for (const href of new Set(page.internalLinks)) {
+      const target = href.replace(/[?#].*$/u, "")
+      if (target.endsWith("/")) {
+        check(pagePaths.has(target), `${page.url}: link ${href} reaches no built page`)
+        continue
+      }
+      try {
+        await readFile(path.join(DIST_DIRECTORY, decodeURIComponent(target)))
+      } catch {
+        failures.push(`${page.url}: link ${href} reaches no built file`)
+      }
+    }
+  }
 }
 
 function auditErrorPage(name, html) {
@@ -265,6 +339,7 @@ async function main() {
       )
     }
   }
+  await auditInternalLinks(pages)
   const seen = new Map()
   for (const page of pages) {
     for (const [field, value] of [

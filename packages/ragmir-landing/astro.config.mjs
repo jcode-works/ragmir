@@ -1,9 +1,13 @@
+import { fileURLToPath } from "node:url"
+import { satteri } from "@astrojs/markdown-satteri"
 import react from "@astrojs/react"
 import sitemap from "@astrojs/sitemap"
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
+import { docsPagesPlugin } from "./scripts/docs-pages-plugin.mjs"
 
 const siteUrl = process.env.PUBLIC_RAGMIR_LANDING_URL ?? "https://ragmir.com"
+const docsDirectory = fileURLToPath(new URL("../../docs", import.meta.url))
 const locales = ["en", "fr", "es", "zh"]
 const defaultLocale = "en"
 const isProduction = new URL(siteUrl).hostname === "ragmir.com"
@@ -32,8 +36,9 @@ export default defineConfig({
             // Each URL lists the same alternates as its hreflang links, x-default included.
             serialize: (item) => {
               const english = item.links?.find((link) => link.lang === defaultLocale)
-              // The plugin shares one links array between a page's locales: copy, never push.
-              return english
+              // The plugin shares one links array between a page's locales: copy, never push. A
+              // page that exists in one language only gets no x-default, like its HTML.
+              return english && item.links.length > 1
                 ? { ...item, links: [...item.links, { url: english.url, lang: "x-default" }] }
                 : item
             },
@@ -50,6 +55,9 @@ export default defineConfig({
         ]
       : []),
   ],
+  markdown: {
+    processor: satteri({ hastPlugins: [docsPagesPlugin({ docsDirectory })] }),
+  },
   prefetch: {
     prefetchAll: true,
     defaultStrategy: "viewport",

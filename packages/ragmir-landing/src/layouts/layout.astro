@@ -52,6 +52,8 @@ const isIndexable = !/\bnoindex\b/iu.test(robotsProp)
 const localesForAlternates = Array.from(new Set(availableLocales)).filter((entry) =>
   (locales as readonly string[]).includes(entry),
 )
+// hreflang names alternates, so a page in one language lists none (like its sitemap entry).
+const hasAlternates = localesForAlternates.length > 1
 const hreflangLocaleMap: Record<string, string> = {
   en: "en",
   fr: "fr",
@@ -165,15 +167,12 @@ function alternateHref(targetLocale: string): string {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     {
-      localesForAlternates.map((entry) => (
-        <link rel="alternate" hreflang={hreflangLocaleMap[entry]} href={alternateHref(entry)} />
-      ))
+      hasAlternates &&
+        localesForAlternates.map((entry) => (
+          <link rel="alternate" hreflang={hreflangLocaleMap[entry]} href={alternateHref(entry)} />
+        ))
     }
-    {
-      localesForAlternates.length > 1 && (
-        <link rel="alternate" hreflang="x-default" href={alternateHref("en")} />
-      )
-    }
+    {hasAlternates && <link rel="alternate" hreflang="x-default" href={alternateHref("en")} />}
 
     {
       structuredData &&

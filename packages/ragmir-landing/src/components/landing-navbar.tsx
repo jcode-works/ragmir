@@ -27,6 +27,7 @@ import type * as React from "react"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import {
   GITHUB_URL,
+  isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
   PROJECT_LINKS,
@@ -353,7 +354,7 @@ export function LandingNavbar({
         href: PROJECT_LINKS[key],
         label: t(PROJECT_LINK_LABEL_KEYS[key]),
         icon,
-        external: true,
+        external: isExternalLink(PROJECT_LINKS[key]),
       }),
     ),
   }))

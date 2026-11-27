@@ -1,5 +1,6 @@
 // Public project destinations. The hero, the mobile drawer, and the footer read this one list, so
-// a link added or moved here reaches every surface at once.
+// a link added or moved here reaches every surface at once. The guides of `docs/` are pages of this
+// site; everything else leaves it.
 export const GITHUB_URL = "https://github.com/jcode-works/ragmir"
 export const NPM_URL = "https://www.npmjs.com/package/@jcode.labs/ragmir"
 export const PYPI_URL = "https://pypi.org/project/ragmir/"
@@ -7,12 +8,12 @@ export const PYPI_URL = "https://pypi.org/project/ragmir/"
 export const PROJECT_LINKS = {
   github: GITHUB_URL,
   npm: NPM_URL,
-  docs: `${GITHUB_URL}/wiki`,
-  apiReference: `${GITHUB_URL}/blob/main/docs/api-reference.md`,
-  supportedFormats: `${GITHUB_URL}/blob/main/docs/supported-formats.md`,
-  serverGuide: `${GITHUB_URL}/blob/main/docs/server-deployment.md`,
-  pythonGuide: `${GITHUB_URL}/blob/main/docs/python.md`,
-  dockerGuide: `${GITHUB_URL}/blob/main/docs/docker.md`,
+  docs: "/docs/",
+  apiReference: "/docs/api-reference/",
+  supportedFormats: "/docs/supported-formats/",
+  serverGuide: "/docs/server-deployment/",
+  pythonGuide: "/docs/python/",
+  dockerGuide: "/docs/docker/",
   pypi: PYPI_URL,
   agentSkills: "https://skills.sh/jcode-works/ragmir",
   context7: "https://context7.com/jcode-works/ragmir",
@@ -30,6 +31,11 @@ export const PROJECT_LINKS = {
 } as const
 
 export type ProjectLinkKey = keyof typeof PROJECT_LINKS
+
+/** Whether a destination leaves the site, so it opens in a new tab and shows the leaning arrow. */
+export function isExternalLink(href: string): boolean {
+  return /^https?:\/\//u.test(href)
+}
 
 /** Translation key of each project link label, shared by the drawer and the footer. */
 export const PROJECT_LINK_LABEL_KEYS: Record<ProjectLinkKey, string> = {

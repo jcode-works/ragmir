@@ -1,0 +1,60 @@
+---
+import path from "node:path"
+import { getCollection, render } from "astro:content"
+import DocsPage from "../../components/docs-page.astro"
+import { DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "../../lib/docs-pages"
+import { gitDates } from "../../lib/git-dates"
+
+export async function getStaticPaths() {
+  const docs = await getCollection("docs")
+  return docs.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+const meta = DOC_PAGES[entry.id]
+if (!meta) {
+  throw new Error(`docs/${entry.id}.md needs search metadata in src/lib/docs-pages.ts.`)
+}
+const { Content, headings } = await render(entry)
+const docs = await getCollection("docs")
+const titleOf = (id: string): string => {
+  const doc = docs.find((candidate) => candidate.id === id)
+  return doc ? docTitle(doc) : id
+}
+const h1 = titleOf(entry.id)
+// `filePath` is relative to the landing package, where Astro builds.
+const dates = (entry.filePath && gitDates(path.resolve(entry.filePath))) || {
+  published: new Date(),
+  modified: new Date(),
+}
+// The pager follows the menu's reading order; the first guide leads back to the overview.
+const guides = DOC_ORDER.filter((id) => docs.some((doc) => doc.id === id))
+const position = guides.indexOf(entry.id)
+const pageLink = (id: string | undefined) => (id ? { title: titleOf(id), href: `/docs/${id}/` } : undefined)
+const previous = position === 0 ? { title: "Overview", href: "/docs/" } : pageLink(guides[position - 1])
+const next = position < 0 ? undefined : pageLink(guides[position + 1])
+---
+
+<DocsPage
+  title={meta.title}
+  description={meta.description}
+  h1={h1}
+  summary={meta.summary}
+  path={`docs/${entry.id}`}
+  breadcrumbs={[
+    { name: "Ragmir", href: "/" },
+    { name: "Docs", href: "/docs/" },
+    { name: h1, href: `/docs/${entry.id}/` },
+  ]}
+  datePublished={dates.published}
+  dateModified={dates.modified}
+  headings={headings}
+  menu={docsMenu(titleOf, entry.id)}
+  markdownHref={`/docs/${entry.id}.md`}
+  sourceHref={`https://github.com/jcode-works/ragmir/blob/main/docs/${entry.id}.md`}
+  previous={previous}
+  next={next}
+  prose
+>
+  <Content />
+</DocsPage>

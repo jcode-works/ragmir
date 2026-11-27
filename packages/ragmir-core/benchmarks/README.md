@@ -18,6 +18,7 @@ Generated corpora, model caches, and raw results stay outside Git.
 | `pnpm bench:parsers [-- --stress]` | Office, EPUB, PDF throughput, memory, citations, and malformed input |
 | `pnpm bench:compare -- --baseline baseline.json --current current.json` | Comparable result regression |
 | `pnpm bench:competitors [-- --model-path /path/to/models]` | Ragmir against LangChain.js, Orama, and MiniSearch on this repository |
+| `pnpm bench:first-pass [-- --model-path /path/to/models]` | A coding agent's first pass on this repository: ripgrep against the MCP server, with the bytes it reads |
 
 Additional root scripts cover CLI startup, discovery, ingestion memory, metadata, local-hash
 runtime, storage maintenance, status, runtime reuse, OCR cache, generation retention, concurrency,
@@ -44,6 +45,15 @@ and explicit reranker, compression, hashing, and content-dedup experiments.
   side uses Ragmir's embedding function, so models, prefixes, and vectors are identical. Orama
   runs with its default 0.8 hybrid similarity and with 0.1, which lets its vector side rank. A
   question counts as answered when one of its files appears; a refusal is an empty result.
+- `bench:first-pass` asks the same 89 developer questions over the same tracked files as
+  `bench:competitors`. The baseline greps each question word of three characters or more, minus
+  common English words, with case-insensitive fixed-string ripgrep, ranks files by the number of
+  words they hold and then by matches, and opens the ranked files whole until one answers. Ragmir
+  runs through its MCP server in a new session per question: the default search, a second search
+  with ten results when the first holds no answering file, then one expansion of the answering
+  citation. Bytes count the text the agent's model reads: grep listings and file contents, or the
+  search and expansion replies. A refusal is an empty result. This measures first-pass retrieval
+  and the context it costs, not an agent's final answer.
 - `bench:compare` recognizes scale and quality reports separately. It validates both quality runs,
   their absolute gates, and explicit workload versions. Missing identities or metrics are invalid,
   incompatible workloads are inconclusive, and only complete comparable reports can pass.

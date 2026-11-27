@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.jcode-works/ragmir",
   "title": "Ragmir",
-  "description": "Cited local retrieval for agents: search code, PDFs, and Office files with exact citations.",
+  "description": "Local RAG MCP server: search code, docs, PDFs, and Office files with exact citations.",
   "websiteUrl": "https://ragmir.com",
   "repository": {
     "url": "https://github.com/jcode-works/ragmir",

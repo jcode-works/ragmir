@@ -1,5 +1,7 @@
 # Migration to focused retrieval
 
+> On the web: [ragmir.com/docs/migration](https://ragmir.com/docs/migration/)
+
 This is a breaking surface change. Ragmir now concentrates on local indexing, search, exact
 citations, OCR, and integration with developer agents.
 

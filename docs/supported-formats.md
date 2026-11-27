@@ -1,5 +1,7 @@
 # Supported formats
 
+> On the web: [ragmir.com/docs/supported-formats](https://ragmir.com/docs/supported-formats/)
+
 Ragmir indexes every format below with no extra install, unless the table says otherwise. Each
 result carries a citation an agent can quote and open again: lines for text, pages for PDF, slides,
 sheets and cells, EPUB spine items, a passage number for reformatted text, or a named section for

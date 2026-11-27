@@ -1,0 +1,81 @@
+---
+import path from "node:path"
+import { getCollection } from "astro:content"
+import { ArrowUpRight } from "@lucide/astro"
+import ArticleCards from "../../components/article-cards.astro"
+import DocsPage from "../../components/docs-page.astro"
+import { useTranslations } from "../../i18n/utils"
+import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, DOC_SHORTCUTS, docsMenu, docTitle } from "../../lib/docs-pages"
+import { gitDates } from "../../lib/git-dates"
+
+const docs = await getCollection("docs")
+const guides = DOC_ORDER.flatMap((id) => {
+  const doc = docs.find((candidate) => candidate.id === id)
+  const meta = DOC_PAGES[id]
+  return doc && meta
+    ? [
+        {
+          id,
+          title: docTitle(doc),
+          summary: meta.summary,
+          dates: doc.filePath ? gitDates(path.resolve(doc.filePath)) : null,
+        },
+      ]
+    : []
+})
+const published = guides.flatMap((guide) => (guide.dates ? [guide.dates.published] : []))
+const modified = guides.flatMap((guide) => (guide.dates ? [guide.dates.modified] : []))
+const earliest = new Date(Math.min(...published.map((date) => date.getTime())))
+const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
+const { t } = await useTranslations("en")
+const titleOf = (id: string): string => guides.find((guide) => guide.id === id)?.title ?? id
+// The overview lists every guide by section, under the same menu as the guides themselves.
+const cardGroups = DOC_GROUPS.map((group) => ({
+  title: group.title,
+  cards: group.ids.flatMap((id) => {
+    const guide = guides.find((candidate) => candidate.id === id)
+    return guide ? [{ title: guide.title, href: `/docs/${id}/`, summary: guide.summary }] : []
+  }),
+}))
+const first = guides[0]
+---
+
+<DocsPage
+  title="Ragmir documentation: guides and references | Ragmir docs"
+  description="Every Ragmir guide in one place: quick start, agents and MCP, the rgr CLI and TypeScript API, Python, configuration, formats, servers, Docker, and troubleshooting."
+  h1="Ragmir documentation"
+  summary="The guides that ship with Ragmir, rendered from the repository's docs folder so they match the code they document."
+  path="docs"
+  breadcrumbs={[
+    { name: "Ragmir", href: "/" },
+    { name: "Docs", href: "/docs/" },
+  ]}
+  datePublished={published.length > 0 ? earliest : new Date()}
+  dateModified={modified.length > 0 ? latest : new Date()}
+  headings={[]}
+  menu={docsMenu(titleOf, undefined)}
+  next={first ? { title: first.title, href: `/docs/${first.id}/` } : undefined}
+>
+  {DOC_SHORTCUTS.map((shortcut) => (
+    <a
+      class="inline-flex h-9 items-center gap-2 rounded-full bg-card px-4 font-semibold text-foreground text-small transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+      href={shortcut.href}
+      rel="noopener"
+      slot="actions"
+      target="_blank"
+    >
+      {shortcut.title}
+      <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+      <ArrowUpRight aria-hidden="true" class="arrow-out size-3.5 text-muted-foreground" />
+    </a>
+  ))}
+
+  <div class="flex flex-col gap-14">
+    {cardGroups.map((group) => (
+      <section aria-label={group.title}>
+        <h2 class="type-section">{group.title}</h2>
+        <ArticleCards cards={group.cards} class="mt-6 sm:grid-cols-2" cta={t("article_card_cta")} />
+      </section>
+    ))}
+  </div>
+</DocsPage>

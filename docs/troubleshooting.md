@@ -1,5 +1,7 @@
 # Troubleshooting
 
+> On the web: [ragmir.com/docs/troubleshooting](https://ragmir.com/docs/troubleshooting/)
+
 Start with the smallest diagnostic:
 
 ```bash

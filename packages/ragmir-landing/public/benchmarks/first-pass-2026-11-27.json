@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-27T06:43:59.203Z",
+  "commit": "10bb9f691200a3f089f20a7f5d94be8a4129f79c",
+  "environment": {
+    "commit": "10bb9f691200a3f089f20a7f5d94be8a4129f79c",
+    "machine": {
+      "platform": "darwin",
+      "release": "27.2.0",
+      "architecture": "arm64",
+      "cpuModel": "Apple M3 Max",
+      "logicalCpuCount": 14,
+      "totalMemoryBytes": 38654705664,
+      "nodeVersion": "v22.23.4"
+    },
+    "machineFingerprint": "dd9c03d57bf49578c65d9b6a0fe31a0fdee311b922195acfb44efd24de0d9266",
+    "runtimeDependencies": {
+      "lanceDb": "0.30.0",
+      "lanceDbNative": {
+        "name": "@lancedb/lancedb-darwin-arm64",
+        "version": "0.30.0"
+      },
+      "apacheArrow": "18.1.0",
+      "transformers": "4.3.2",
+      "onnxRuntime": "1.30.0",
+      "sharp": "0.35.5"
+    }
+  },
+  "ripgrep": "ripgrep 15.2.0",
+  "corpus": {
+    "trackedFiles": 287,
+    "bytes": 3037231
+  },
+  "model": {
+    "name": "mixedbread-ai/mxbai-embed-xsmall-v1",
+    "revision": "e6ac24e5d6efb8782b59de1647b3ececb4ece94e"
+  },
+  "questions": {
+    "answerable": 89,
+    "unrelated": 30,
+    "nearDomain": 40
+  },
+  "systems": [
+    {
+      "name": "ripgrep, question words, files read whole",
+      "hitAt3": 0.854,
+      "hitAt10": 1,
+      "mrrAt10": 0.676,
+      "answerReached": 89,
+      "medianBytesToAnswer": 73122,
+      "medianBytesWhenMissed": null,
+      "unrelatedRefused": 2,
+      "nearDomainRefused": 0
+    },
+    {
+      "name": "Ragmir MCP (local-hash, no model)",
+      "hitAt3": 0.82,
+      "hitAt10": 0.989,
+      "mrrAt10": 0.675,
+      "answerReached": 88,
+      "medianBytesToAnswer": 4820,
+      "medianBytesWhenMissed": 11896,
+      "unrelatedRefused": 23,
+      "nearDomainRefused": 7
+    },
+    {
+      "name": "Ragmir MCP (hybrid, mxbai-embed-xsmall-v1)",
+      "hitAt3": 0.865,
+      "hitAt10": 1,
+      "mrrAt10": 0.658,
+      "answerReached": 89,
+      "medianBytesToAnswer": 4943,
+      "medianBytesWhenMissed": null,
+      "unrelatedRefused": 28,
+      "nearDomainRefused": 13
+    }
+  ]
+}

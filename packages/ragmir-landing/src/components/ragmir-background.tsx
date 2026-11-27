@@ -104,8 +104,7 @@ export const RagmirBackground = ({
     const isDarkNow = document.documentElement.classList.contains("dark")
     state.isDark = isDarkNow
     state.cachedBg = computeBgColor(isDarkNow)
-    const initialBg = isDarkNow ? THEME.dark.bg : THEME.light.bg
-    ctx.fillStyle = initialBg
+    ctx.fillStyle = isDarkNow ? THEME.dark.bg : THEME.light.bg
     ctx.fillRect(0, 0, canvas.width || 1, canvas.height || 1)
 
     // Flags to control animation loop

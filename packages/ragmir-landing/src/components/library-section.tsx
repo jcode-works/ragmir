@@ -1,11 +1,12 @@
+import type * as React from "react"
 import { RAGMIR_SETUP_PROMPT } from "../content/setup-prompt"
 import { cn } from "../lib/utils"
-import { CommandCopyBox, TextCopyButton } from "./command-copy"
+import { CommandCopyBox } from "./command-copy"
+import { PromptBlock } from "./prompt-block"
 import { SectionHeader } from "./section-header"
 import { TabIndicator } from "./tab-indicator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { Textarea } from "./ui/textarea"
 
 interface PackageManager {
   id: string
@@ -94,7 +95,7 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
 
       <Card className="mx-auto min-w-0 max-w-3xl overflow-hidden">
         <CardHeader className="gap-2 p-5 pb-0 md:p-6 md:pb-0">
-          <CardTitle className="font-black text-xl">{t("quickstart_title")}</CardTitle>
+          <CardTitle className="type-subsection">{t("quickstart_title")}</CardTitle>
           <CardDescription className="leading-6">{t("quickstart_text")}</CardDescription>
         </CardHeader>
         <CardContent className="grid min-w-0 gap-4 p-5 md:p-6">
@@ -132,24 +133,18 @@ export function LibrarySection({ translations }: LibrarySectionProps): React.JSX
               >
                 <div>
                   <p className="font-bold text-xs">{t("quickstart_prompt_title")}</p>
-                  <p className="mt-1 text-[0.7rem] text-muted-foreground leading-4">
+                  <p className="mt-1 text-micro text-muted-foreground leading-4">
                     {t("quickstart_prompt_text")}
                   </p>
                 </div>
-                <Textarea
-                  aria-label={t("quickstart_prompt_label")}
-                  className="h-[5.5rem] min-h-[5.5rem] min-w-0 resize-none overflow-y-auto whitespace-pre-wrap rounded-xl border-0 bg-background px-3.5 py-3 font-mono text-[0.68rem] text-foreground/80 leading-5"
-                  id="ragmir-setup-prompt"
-                  readOnly
-                  spellCheck={false}
-                  value={RAGMIR_SETUP_PROMPT}
-                />
-                <TextCopyButton
-                  className="w-full sm:w-fit"
+                <PromptBlock
+                  className="min-w-0 bg-background"
                   copiedLabel={t("command_copied")}
                   copyLabel={t("copy_prompt")}
-                  selectTargetId="ragmir-setup-prompt"
-                  text={RAGMIR_SETUP_PROMPT}
+                  id="ragmir-setup-prompt"
+                  label={t("quickstart_prompt_tab")}
+                  prompt={RAGMIR_SETUP_PROMPT}
+                  promptClassName="max-h-[7.5rem] px-4 py-3"
                 />
               </TabsContent>
               {packageManagers.map((manager) => (

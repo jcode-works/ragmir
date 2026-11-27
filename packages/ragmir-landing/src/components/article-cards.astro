@@ -1,0 +1,59 @@
+---
+import { ArrowRight } from "@lucide/astro"
+import type { IntegrationMarkName } from "../content/integration-logos"
+import IntegrationMark from "./integration-mark.astro"
+
+export interface ArticleCard {
+  title: string
+  href: string
+  summary: string
+  /** The tool's mark, on the cards of the integrations hub. */
+  mark?: IntegrationMarkName
+}
+
+interface Props {
+  cards: readonly ArticleCard[]
+  /** The words at the foot of each card that say where it leads, such as "Read the guide". */
+  cta: string
+  class?: string
+}
+
+const { cards, cta, class: className } = Astro.props
+---
+
+<!--
+  Each card spans three rows of a subgrid, so titles, summaries, and links line up across a row.
+  Rows get no gap: an empty row would keep it, so cards are spaced by their own bottom margin.
+-->
+<ul class:list={["-mb-3 grid gap-x-3", className]} role="list">
+  {cards.map((card) => (
+    <li class="row-span-3 mb-3 grid grid-rows-subgrid">
+      <a
+        class:list={[
+          "group row-span-3 grid grid-rows-subgrid gap-x-3 rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]",
+          card.mark ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-[minmax(0,1fr)]",
+        ]}
+        href={card.href}
+      >
+        <!-- The mark keeps the title's line height, so it centres on the first line of the title. -->
+        {card.mark && (
+          <span class="row-start-1 flex h-[1lh] items-center text-lg leading-snug">
+            <IntegrationMark class="size-6 text-foreground" mark={card.mark} />
+          </span>
+        )}
+        <span class="col-start-[-2] row-start-1 font-black text-lg leading-snug">{card.title}</span>
+        <span class="col-start-[-2] row-start-2 mt-2 text-small text-muted-foreground leading-5">{card.summary}</span>
+        <!-- The whole card is the link; this line only shows that it leads somewhere. -->
+        <span
+          aria-hidden="true"
+          class="col-start-[-2] row-start-3 flex items-end gap-1.5 pt-5 font-semibold text-small text-foreground"
+        >
+          <span class="flex items-center gap-1.5">
+            {cta}
+            <ArrowRight class="arrow-forward size-3.5 text-muted-foreground" />
+          </span>
+        </span>
+      </a>
+    </li>
+  ))}
+</ul>

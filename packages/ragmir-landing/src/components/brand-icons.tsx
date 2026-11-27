@@ -1,3 +1,5 @@
+import type * as React from "react"
+
 // Brand marks of the project's destinations. lucide-react ships no brand icons, so each mark is
 // inlined as one SVG path and colored via currentColor: the official GitHub mark, and the npm and
 // Python marks from Simple Icons (CC0). PyPI's own mark is a line drawing of small cubes that

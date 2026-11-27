@@ -99,9 +99,9 @@ every occurrence or match a regex: Ragmir returns ranked passages.
 - **Low running cost.** The default `local-hash` retrieval runs offline on the CPU, with no GPU,
   embedding API, or database server: the index is an embedded LanceDB store in the git-ignored
   `.ragmir/` folder. A local semantic model is one command away.
-- **Ahead of the usual RAG stacks.** On this repository, the right file reaches the top 3 for 83%
-  of developer questions, against 63% for a LangChain.js pipeline and 79% for MiniSearch BM25 with
-  the same embedding model, and Ragmir refuses 24 of 30 off-topic questions, 28 without a model,
+- **Ahead of the usual RAG stacks.** On this repository, the right file reaches the top 3 for 87%
+  of developer questions, against 70% for a LangChain.js pipeline and 74% for MiniSearch BM25 with
+  the same embedding model, and Ragmir refuses 28 of 30 off-topic questions, 23 without a model,
   where they refuse at most 2. Median search takes 36 ms on a 30,171-chunk monorepo
   ([benchmarks](#benchmarks)).
 - **Current, safe to share, the same everywhere.** `rgr doctor` compares the files on disk with the
@@ -397,24 +397,24 @@ indexes returned identical results for all 159 benchmark questions, and GPU vect
 
 ### Against other retrieval stacks
 
-`pnpm bench:competitors` indexes the 218 tracked documentation and source files of this
+`pnpm bench:competitors` indexes the 287 tracked documentation and source files of this
 repository and asks its 89 developer questions plus 30 off-topic and 40 near-domain questions. Every
 vector side uses the same model and vectors (`mxbai-embed-xsmall-v1`); the other stacks read the same
 files split by LangChain's `RecursiveCharacterTextSplitter` (1,000 characters, 200 overlap).
 
 | System | Answer in top 3 | Answer in top 10 | MRR@10 | Off-topic refused | Near-domain refused | Median search |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Ragmir**, hybrid with `mxbai-embed-xsmall-v1` | **83%** | **100%** | **0.705** | **24** of 30 | **4** of 40 | 18 ms |
-| **Ragmir**, `local-hash` without a model | **88%** | **99%** | **0.701** | **28** of 30 | **13** of 40 | 17 ms |
-| LangChain.js splitter with exact cosine search, as `MemoryVectorStore` | 63% | 87% | 0.530 | 0 of 30 | 0 of 40 | 5 ms |
-| Orama 3 hybrid, default similarity 0.8 | 19% | 38% | 0.154 | 2 of 30 | 0 of 40 | 6 ms |
-| Orama 3 hybrid, similarity 0.1 | 42% | 71% | 0.347 | 0 of 30 | 0 of 40 | 7 ms |
-| MiniSearch 7 BM25 | 79% | 96% | 0.617 | 2 of 30 | 0 of 40 | 1 ms |
+| **Ragmir**, hybrid with `mxbai-embed-xsmall-v1` | **87%** | **100%** | 0.658 | **28** of 30 | **13** of 40 | 19.1 ms |
+| **Ragmir**, `local-hash` without a model | **82%** | **99%** | **0.675** | **23** of 30 | **7** of 40 | 17.3 ms |
+| LangChain.js splitter with exact cosine search, as `MemoryVectorStore` | 70% | 93% | 0.581 | 0 of 30 | 0 of 40 | 6.5 ms |
+| Orama hybrid, default similarity 0.8 | 14% | 20% | 0.102 | 2 of 30 | 0 of 40 | 8.5 ms |
+| Orama hybrid, similarity 0.1 | 35% | 71% | 0.303 | 0 of 30 | 0 of 40 | 9.9 ms |
+| MiniSearch BM25 | 74% | 98% | 0.596 | 2 of 30 | 0 of 40 | 1.5 ms |
 
 In-memory libraries answer faster, but they return results for almost every off-topic question,
-and none ranks the answering file as high: it reaches the top 3 for 83 to 88% of questions with Ragmir,
-against 63% with the LangChain.js pipeline and 79% with MiniSearch. Measured on the same machine on
-November 1, 2026; [the benchmark guide](./packages/ragmir-core/benchmarks/README.md) explains every
+and none ranks the answering file as high: it reaches the top 3 for 82 to 87% of questions with Ragmir,
+against 70% with the LangChain.js pipeline and 74% with MiniSearch. Measured on the same machine on
+November 27, 2026; [the benchmark guide](./packages/ragmir-core/benchmarks/README.md) explains every
 setting.
 
 ## Where your data goes
@@ -457,7 +457,7 @@ cache. Normal retrieval keeps remote model loading disabled.
 ### Choosing an embedding model
 
 Start without one: `local-hash` needs no download and, in the benchmarks above, put the answering
-file in the top 3 for 88% of this repository's developer questions. Add a model when questions use
+file in the top 3 for 82% of this repository's developer questions. Add a model when questions use
 words your sources do not (synonyms, paraphrases, another language) or when refusals should follow
 meaning, not keywords.
 

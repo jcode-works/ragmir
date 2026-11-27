@@ -68,8 +68,8 @@ every occurrence or match a regex: Ragmir returns ranked passages.
   TypeScript, LangChain.js, Python, LangChain, LlamaIndex, the CLI, or MCP.
 - **Low running cost:** the default `local-hash` retrieval runs offline on the CPU, with no GPU,
   embedding API, or database server; the index is an embedded store under `.ragmir/`.
-- **Ahead of the usual RAG stacks:** the right file reaches the top 3 for 83% of this repository's
-  developer questions, against 63% for a LangChain.js pipeline and 79% for MiniSearch BM25
+- **Ahead of the usual RAG stacks:** the right file reaches the top 3 for 87% of this repository's
+  developer questions, against 70% for a LangChain.js pipeline and 74% for MiniSearch BM25
   ([benchmarks](https://github.com/jcode-works/ragmir#benchmarks)).
 - **Always current:** `rgr doctor` checks the files on disk on every run, and `rgr hooks install`
   refreshes the index after commits, merges, and checkouts, with the same paths and citations on

@@ -1,26 +1,36 @@
 ---
 import { ArrowUpRight } from "@lucide/astro"
 import { GithubIcon, NpmIcon, PypiIcon } from "../brand-icons"
+import { LanguageSelect } from "../language-select"
 import RagmirLogo from "../ragmir-logo.astro"
+import { JCODE_URL } from "../../lib/maintainer"
 import {
   FOOTER_SECTIONS,
   GITHUB_URL,
+  isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
-  PROJECT_LINKS,
+  type ProjectLinkKey,
   PYPI_URL,
 } from "../../lib/project-links"
 
 interface Props {
   translations: Record<string, string>
   localizedHomeUrl: string
+  locale: string
+  /** Every language, each pointing at this page in it, or at its home page when there is none. */
+  alternateLocales: ReadonlyArray<{ locale: string; label: string; href: string }>
+  /** The project links in this locale: pages of this site lead to their translation. */
+  links: Record<ProjectLinkKey, string>
 }
 
-const { translations, localizedHomeUrl } = Astro.props
+const { translations, localizedHomeUrl, locale, alternateLocales, links } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
 const newTab = t("new_tab_label")
 const homePath = localizedHomeUrl.replace(/#.*$/u, "")
+// The build year: the site is static, and every release rebuilds it.
+const year = new Date().getUTCFullYear()
 
 const sections = FOOTER_SECTIONS.map((section) => ({
   title: t(section.titleKey),
@@ -31,9 +41,9 @@ const sections = FOOTER_SECTIONS.map((section) => ({
       external: false,
     })),
     ...section.links.map((key) => ({
-      href: PROJECT_LINKS[key],
+      href: links[key],
       label: t(PROJECT_LINK_LABEL_KEYS[key]),
-      external: true,
+      external: isExternalLink(links[key]),
     })),
   ],
 }))
@@ -143,6 +153,29 @@ const marqueeCopy =
             </a>
           )}
         </div>
+      </div>
+
+      <div
+        class="mx-auto mt-8 flex max-w-6xl flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between"
+      >
+        <p class="text-muted-foreground text-xs">
+          © {year}{" "}
+          <a
+            class="font-semibold text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70"
+            href={JCODE_URL}
+            rel="noopener"
+            target="_blank"
+          >
+            JCode Works<span class="sr-only">{` ${newTab}`}</span>
+          </a>
+        </p>
+        <LanguageSelect
+          client:visible
+          label={t("language_label")}
+          locale={locale}
+          menuClassName="bottom-full left-1/2 mb-2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0"
+          options={alternateLocales}
+        />
       </div>
     </div>
   </div>

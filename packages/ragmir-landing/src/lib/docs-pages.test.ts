@@ -2,7 +2,7 @@ import type { CollectionEntry } from "astro:content"
 import { readdirSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
-import { DOC_ORDER, DOC_PAGES, docTitle } from "./docs-pages"
+import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "./docs-pages"
 
 const guides = readdirSync(fileURLToPath(new URL("../../../../docs", import.meta.url)))
   .filter((name) => name.endsWith(".md"))
@@ -30,6 +30,25 @@ describe("docs pages", () => {
       expect(page.description.length).toBeLessThanOrEqual(170)
       expect(`${page.title}${page.description}${page.summary}`).not.toMatch(/[–—]/u)
     }
+  })
+
+  it("should list every guide once across the menu sections, in reading order", () => {
+    expect(DOC_GROUPS.flatMap((group) => group.ids)).toEqual([...DOC_ORDER])
+  })
+
+  it("should open the docs menu on the overview, group it by section, and end with other sites", () => {
+    const menu = docsMenu((id) => `Title of ${id}`, "configuration")
+    expect(menu[0]?.links).toEqual([{ title: "Overview", href: "/docs/", current: false }])
+    expect(menu.slice(1, -1).map((group) => group.title)).toEqual(
+      DOC_GROUPS.map((group) => group.title),
+    )
+    const current = menu.flatMap((group) => group.links).filter((link) => link.current)
+    expect(current).toEqual([
+      { title: "Title of configuration", href: "/docs/configuration/", current: true },
+    ])
+    const more = menu.at(-1)?.links ?? []
+    expect(more.find((link) => link.href.startsWith("https://context7.com/"))?.external).toBe(true)
+    expect(docsMenu((id) => id, undefined)[0]?.links[0]?.current).toBe(true)
   })
 
   it("should title a guide with its own H1, or its id without one", () => {

@@ -56,6 +56,21 @@ describe("content pages", () => {
     expect(HUBS.guides?.labelKey).toBe("nav_guides")
   })
 
+  it("should group each hub's cards, the guides by section and the integrations by kind", () => {
+    expect(HUBS.guides?.groups.map((group) => group.sections)).toEqual([
+      ["guide"],
+      ["use-case"],
+      ["comparison"],
+    ])
+    expect(HUBS.integrations?.groups.map((group) => group.labelKey)).toEqual([
+      "integrations_group_agents",
+      "integrations_group_frameworks",
+      "integrations_group_protocols",
+    ])
+    const extras = HUBS.integrations?.groups.flatMap((group) => group.extra ?? []) ?? []
+    expect(extras.every((extra) => extra.mark !== undefined)).toBe(true)
+  })
+
   it("should find a translation by its key and fall back to English", () => {
     expect(findPage("local-rag", "fr", pages)?.id).toBe("fr/rag-local")
     expect(findPage("local-rag", "en", pages)?.id).toBe("en/local-rag")

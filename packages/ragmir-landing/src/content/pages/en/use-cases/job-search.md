@@ -53,12 +53,10 @@ Save each job offer as a text, Markdown, or PDF file in the folder, or paste it 
 
 Ask the assistant to work from your evidence only. For example:
 
-```text
-Here is a job offer. List its five main requirements. For each, find the evidence in my documents
-and cite the page. Tell me which requirements I have no evidence for.
+```prompt
+Here is a job offer. List its five main requirements. For each, find the evidence in my documents and cite the page. Tell me which requirements I have no evidence for.
 
-Write a cover letter using only claims you can cite. Put the citation after each claim, and do
-not add a skill, a result, or a date that my documents do not state.
+Write a cover letter using only claims you can cite. Put the citation after each claim, and do not add a skill, a result, or a date that my documents do not state.
 
 Which of my annual reviews mention teamwork? Quote the passage and cite it.
 ```

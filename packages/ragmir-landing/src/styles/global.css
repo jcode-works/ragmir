@@ -835,7 +835,7 @@ header[data-hidden] .logo-text {
   border-radius: 0.75rem;
   background-color: var(--card) !important;
   padding: 0;
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   line-height: 1.65;
 }
 
@@ -887,6 +887,16 @@ header[data-hidden] .logo-text {
 }
 
 /* Plain text is an output or a chat command: no bar, the copy button sits on the first line. */
+/* A prompt to paste into an AI agent: labelled, and wrapped like prose instead of scrolling. */
+.prose-article pre[data-language="prompt"]::before {
+  content: "Prompt";
+}
+
+.prose-article pre[data-language="prompt"] > code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .prose-article pre:is([data-language="text"], [data-language="plaintext"])::before {
   display: none;
 }

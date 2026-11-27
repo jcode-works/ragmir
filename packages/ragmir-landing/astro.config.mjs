@@ -84,7 +84,8 @@ export default defineConfig({
   markdown: {
     // A dark theme whose purples, greens, and oranges stay readable on the card grey that
     // global.css gives every code block.
-    shikiConfig: { theme: "tokyo-night" },
+    // A `prompt` fence is plain text that the code block labels and wraps.
+    shikiConfig: { theme: "tokyo-night", langAlias: { prompt: "text" } },
     processor: satteri({
       hastPlugins: [docsPagesPlugin({ docsDirectory }), noTranslateCodePlugin()],
     }),

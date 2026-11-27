@@ -62,13 +62,12 @@ To get an answer in words, add a local model. The [local RAG tutorial](/local-ra
 install Ollama and run a short script that sends only the selected passages to the model. Ask it
 things like:
 
-```text
+```prompt
 List the payslips from the last three months, and cite the page of each one.
 
 Which page of my lease states the amount of the deposit?
 
-I need proof of address and proof of income for an application. Which of my documents contain
-them? Point to the page, and tell me what is missing.
+I need proof of address and proof of income for an application. Which of my documents contain them? Point to the page, and tell me what is missing.
 ```
 
 If the documents hold no evidence, Ragmir returns nothing and the model should say so. A weak match

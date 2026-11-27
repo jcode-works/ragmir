@@ -52,12 +52,10 @@ new and changed files.
 
 Give the agent the symptom and the rule that the fix waits for the diagnosis:
 
-```text
-Checkout requests are timing out since the last deploy. Before changing any code, search the
-runbooks, past postmortems, and the payment client. Cite every source you rely on.
+```prompt
+Checkout requests are timing out since the last deploy. Before changing any code, search the runbooks, past postmortems, and the payment client. Cite every source you rely on.
 
-Has this failure happened before? What did the postmortem change, and is that change still in
-the code?
+Has this failure happened before? What did the postmortem change, and is that change still in the code?
 
 Propose the fix, name the cited passage that justifies it, then implement it and add a test.
 ```

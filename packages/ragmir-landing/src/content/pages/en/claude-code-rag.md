@@ -26,8 +26,9 @@ trees" ([Effective context engineering for AI agents](https://www.anthropic.com/
 Anthropic, September 29, 2025).
 
 The current [tools reference](https://code.claude.com/docs/en/tools-reference) adds two details. On
-macOS, Linux, and WSL, Claude searches with `find` and `grep` through the Bash tool. Windows keeps
-the Glob and Grep tools. Grep is built on ripgrep. No embedding index is built or queried.
+macOS, Linux, and WSL, Claude searches with `find` and `grep` through the Bash tool by default.
+On Windows, the dedicated Glob and Grep tools, built on ripgrep, stay the default. No embedding
+index is built or queried.
 
 That design has real strengths. Nothing goes stale, exact identifiers are found every time, and
 there is nothing to install. Its costs show up elsewhere: in how much the agent reads, and in what

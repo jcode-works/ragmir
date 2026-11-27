@@ -1,5 +1,5 @@
 ---
-title: "RAG for incident response: cited diagnosis before the fix | Ragmir"
+title: "RAG for incident response: cited diagnosis, then fix | Ragmir"
 description: "Ground an on-call fix in your runbooks, postmortems, and code: Claude Code or Codex diagnoses the incident with Ragmir citations, then fixes it and adds a test."
 h1: "RAG for incident response: diagnose from your runbooks, then fix with a test"
 summary: "Index your runbooks, past incident reports, and source code once. When an incident fires, your coding agent diagnoses it from those documents, cites each source, and only then changes the code and adds a test. Ragmir finds and cites; the agent reasons and edits."

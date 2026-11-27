@@ -79,6 +79,53 @@ command and the official `ghcr.io/jcode-works/ragmir` image.
 3. Ask a question the sources answer. The agent runs one `ragmir_search`. Check the citation it
    returns.
 
+## Use it day to day
+
+Ask in Cursor's agent chat, and name Ragmir when the answer must come from the project's files.
+These requests cover most days.
+
+### Answer a question with its sources
+
+```prompt
+Use Ragmir: how do we roll back a failed release? Cite the file and lines behind each step.
+```
+
+The agent searches, expands the citations it relies on, and answers with citations such as
+`docs/release.md:L40-L58`.
+
+### Search one folder or one file type
+
+```prompt
+Search only the PDFs under specs/ with Ragmir: what response time does the contract promise?
+```
+
+The folder or glob becomes `includePaths`, so code and other documents do not compete with the
+contract.
+
+### Check the documents before a change
+
+```prompt
+Before you change the retry policy, use Ragmir to find what the docs and decision records say about retries, and list what the change would contradict.
+```
+
+### Read a long document in order
+
+```prompt
+Read docs/migration.md through Ragmir from the start and list every breaking change with its citation.
+```
+
+The agent expands the first passage and follows `nextCitation` window by window, instead of
+loading the whole file at once.
+
+### Refresh after an edit
+
+```prompt
+I updated docs/release.md. Refresh the Ragmir index, then answer again.
+```
+
+The agent calls `ragmir_ingest`, which reads only new and changed files. The previous index stays
+searchable until the new one passes validation.
+
 ## Search documentation from Cursor
 
 Path filters keep a documentation question out of the code. `includePaths` and `excludePaths` take

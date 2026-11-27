@@ -40,7 +40,8 @@ another language.
 
 These figures come from the
 [system requirements](https://github.com/jcode-works/ragmir#system-requirements) in Ragmir's
-README. Check them against your own machine, a container's memory limit included:
+README. In a project that installs Ragmir, check them against your own machine, a container's
+memory limit included:
 
 ```bash
 npx rgr models list

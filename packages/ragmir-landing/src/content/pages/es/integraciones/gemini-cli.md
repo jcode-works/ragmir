@@ -33,6 +33,13 @@ Ejecuta la primera línea para Gemini CLI y la segunda para Qwen Code. Ambas exp
 servidor, con cinco herramientas de solo lectura, `ragmir_ingest` para actualizar el índice y tres
 prompts.
 
+Desde el 18 de junio de 2026, Gemini CLI atiende las licencias Standard y Enterprise de Gemini Code
+Assist y las claves de pago de la API de Gemini. Google trasladó las cuentas de Google AI Pro, Ultra
+y Code Assist gratuitas a Antigravity CLI
+([anuncio de Google](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli)).
+Antigravity CLI lee los servidores MCP de `.agents/mcp_config.json` en el espacio de trabajo: añade
+allí la entrada genérica `mcpServers` de la [guía del servidor MCP de RAG](/es/servidor-mcp-rag/).
+
 El 27 de noviembre de 2026, Gemini CLI 0.71.1 pidió primero confirmar la instalación de una
 extensión de terceros. Después, ambas herramientas imprimieron la misma línea (Qwen Code 0.28.7 para
 el segundo comando):
@@ -58,6 +65,56 @@ npx --yes @jcode.labs/ragmir@6.20.0 ingest
 Para usar en el proyecto una instalación de Ragmir en lugar de la extensión, pon la entrada genérica
 `mcpServers` de la [guía del servidor MCP de RAG](/es/servidor-mcp-rag/) en el archivo
 `.gemini/settings.json` del proyecto.
+
+## Úsalo día a día
+
+El archivo de contexto ya pide al modelo que busque antes de responder una pregunta sobre el
+proyecto. Pregunta con palabras sencillas. Estas peticiones cubren casi todo el día a día, tanto en
+Gemini CLI como en Qwen Code.
+
+### Responde una pregunta con sus fuentes
+
+```prompt
+Usa Ragmir: ¿cómo revertimos un despliegue fallido? Cita el archivo y las líneas de cada paso.
+```
+
+El modelo busca, amplía la cita que necesita y responde con citas como `docs/release.md:L40-L58`.
+
+### Busca en una carpeta o en un tipo de archivo
+
+```prompt
+Busca solo los PDF bajo specs/ con Ragmir: ¿qué tiempo de respuesta promete el contrato?
+```
+
+La carpeta o el glob pasa a `includePaths`, así el código y otros documentos no compiten con el
+contrato.
+
+### Lee un documento largo en orden
+
+```prompt
+Lee docs/migration.md con Ragmir desde el principio y enumera cada cambio incompatible con su cita.
+```
+
+El agente amplía el primer pasaje y sigue `nextCitation` ventana a ventana, en lugar de cargar el
+archivo entero de una vez.
+
+### Convierte una fuente en páginas de wiki
+
+```prompt
+Compila notes/interview-2026-11.md en páginas Markdown con citas bajo wiki/, y luego audita la base de conocimiento con Ragmir.
+```
+
+El modelo escribe las páginas y cita cada afirmación. `ragmir_audit` con `knowledge: true` lista
+después los enlaces rotos y las páginas cuyas fuentes cambiaron.
+
+### Actualiza tras una edición
+
+```prompt
+He actualizado docs/release.md. Actualiza el índice de Ragmir y vuelve a responder.
+```
+
+El agente llama a `ragmir_ingest`, que lee solo los archivos nuevos y modificados. El índice anterior
+sigue disponible para buscar hasta que el nuevo supere la validación.
 
 ## Qué pide el archivo de contexto al modelo
 

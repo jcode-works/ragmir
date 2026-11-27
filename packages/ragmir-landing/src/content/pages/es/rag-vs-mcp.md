@@ -75,8 +75,8 @@ lo que devuelve cada llamada:
   evidencia), y no cuentan para `topK`.
 - El agente amplía solo lo que va a usar: `ragmir_expand` devuelve el texto completo de una cita y
   sus vecinos acotados, o hasta cinco citas dentro de un único presupuesto.
-- Cuando la evidencia es débil, la búsqueda no devuelve nada, así que una pregunta fuera de tema
-  cuesta un resultado vacío.
+- Cuando ningún pasaje tiene evidencia real, la búsqueda no devuelve nada, así que una pregunta
+  fuera de tema cuesta un resultado vacío. Un pasaje débil que sí llega lleva `weakEvidence`.
 
 ```json
 { "queries": ["release approval", "rollback owner"], "scope": "docs", "maxBytes": 4096 }

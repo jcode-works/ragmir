@@ -19,7 +19,8 @@ changes its wording between calls and reads one passage in full before deciding 
 next. It can also conclude that the documents do not cover the question.
 
 Ragmir is built for that pattern. It returns compact citations, expands the ones the agent selects,
-and returns nothing when the evidence is weak. It does not run the agent loop or write the answer.
+returns nothing when no passage holds real evidence, and flags a thin passage with `weakEvidence`.
+It does not run the agent loop or write the answer.
 
 ## Agentic RAG vs RAG
 

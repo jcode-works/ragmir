@@ -129,7 +129,66 @@ result = agent.invoke({"messages": [{"role": "user", "content": "What is the ref
 - `ragmir_search` 以编号引用和段落文本回应模型。它会标记弱匹配和已变化的文件，并将文档保留在工具消息的 artifact 中。
 - `ragmir_expand` 读取一条引用，并附上其相邻段落，以及接下来要读取的引用。
 
-在 LangChain.js 中，`createRagmirTools({ client })` 会为 `createAgent` 和 LangGraph 智能体提供相同的两个工具。这些工具通过了 LangChain 标准的检索器和工具测试套件。
+在 LangChain.js 中，`createRagmirTools({ client })` 会为 `createAgent` 和 LangGraph 智能体提供相同的两个工具。Python 检索器和工具通过了 LangChain 标准测试套件。
+
+## 日常用法示例
+
+这些示例使用 Python 包。检索器调用于 2026 年 11 月 27 日，针对 Ragmir 自身仓库的索引进行了检查。
+
+### 缩小单次搜索范围
+
+检索器的选项也可以按次调用生效，因此同一个检索器可以服务所有问题：
+
+```python
+retriever = RagmirRetriever(project_root="/path/to/project", k=3)
+documents = retriever.invoke("run on a server without internet access", include_paths=["docs"])
+```
+
+`scope` 的用法相同，只需传入 `ragmir.config.json` 中定义的命名范围。
+
+### 附带引用作答，或说明没有相关内容
+
+文档未涵盖的问题会返回空列表。请告诉模型这一点，并把每条引用与其段落放在一起：
+
+```python
+from langchain.chat_models import init_chat_model
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+def with_citations(documents):
+    if not documents:
+        return "NO EVIDENCE"
+    return "\n\n".join(f"[{d.metadata['citation']}]\n{d.page_content}" for d in documents)
+
+prompt = ChatPromptTemplate.from_template(
+    "Answer from the context only and cite each claim with its [citation]. If the context is "
+    "NO EVIDENCE, say the documents do not cover the question.\n\n"
+    "Context:\n{context}\n\nQuestion: {question}"
+)
+chain = (
+    {"context": retriever | with_citations, "question": RunnablePassthrough()}
+    | prompt
+    | init_chat_model("anthropic:claude-sonnet-5-5")
+    | StrOutputParser()
+)
+print(chain.invoke("How do I run Ragmir on a server without internet access?"))
+```
+
+这条链会调用 Anthropic 的 API，本页面未运行。可以用任何聊天模型替代。
+
+### 文档变化时刷新索引
+
+请在部署步骤或定时任务中运行刷新，不要放在请求路径里：
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+它只读取新增和变化的文件，在新索引通过校验之前，旧索引仍可用于回答。
 
 ## 限制
 

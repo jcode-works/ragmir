@@ -66,8 +66,8 @@ search spends its budget on new evidence.
 The agent then calls `ragmir_expand` on the one citation it will rely on. It returns the indexed
 passage with bounded neighbours and a `nextCitation` to read a long document window by window.
 
-When the evidence is weak, search returns nothing. The agent can then say the documents do not cover
-the question.
+When no passage holds real evidence, search returns nothing, and a thin passage it does return
+carries `weakEvidence`. The agent can then say the documents do not cover the question.
 
 ## PDF and Markdown in one index
 

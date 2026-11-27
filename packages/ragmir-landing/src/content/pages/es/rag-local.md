@@ -8,7 +8,7 @@ setup: local
 translationKey: "local-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "rag-vs-mcp"]
+related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "local-vs-cloud-rag"]
 ---
 
 Puedes ejecutar RAG en una sola máquina con Ragmir para la recuperación y un modelo local para las respuestas.
@@ -101,7 +101,7 @@ npx rgr search "run on a server without internet access" --compact
 
 Cada resultado lleva una cita. En este caso es un rango de líneas. Un PDF recibe una página (`contracts/msa-acme-2026.pdf:p7#3`), y los demás formatos reciben coordenadas de diapositiva, hoja y celda, o de sección.
 
-Cuando la evidencia es débil, la búsqueda no muestra nada en lugar del pasaje más cercano. También nombra las palabras de la pregunta que ningún pasaje indexado contiene:
+Cuando ningún pasaje contiene evidencia real, la búsqueda no muestra nada en lugar del pasaje más cercano. También nombra las palabras de la pregunta que ningún pasaje indexado contiene:
 
 ```bash
 npx rgr search "weather forecast for Lyon tomorrow" --compact

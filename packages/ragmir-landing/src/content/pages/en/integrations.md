@@ -13,7 +13,7 @@ notes:
     cards:
       - title: "Kimi, OpenCode, and Cline"
         text: "Ragmir's setup prepares all three in one command, in the project you run it from."
-        command: "npx rgr setup --agents kimi,opencode,cline"
+        command: "npx --yes @jcode.labs/ragmir setup --agents kimi,opencode,cline"
       - title: "Any client that speaks MCP over stdio"
         text: "Start the server from a generic entry. The MCP Registry lists it as io.github.jcode-works/ragmir."
         command: "node .ragmir/run.cjs serve-mcp"

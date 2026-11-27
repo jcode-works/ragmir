@@ -111,7 +111,7 @@ Each result carries a citation. Here it is a line range. A PDF gets a page
 (`contracts/msa-acme-2026.pdf:p7#3`), and other formats get slide, sheet and cell, or section
 coordinates.
 
-When the evidence is weak, search prints nothing instead of the nearest passage. It also names the
+When no passage holds real evidence, search prints nothing instead of the nearest passage. It also names the
 question words that no indexed passage holds:
 
 ```bash

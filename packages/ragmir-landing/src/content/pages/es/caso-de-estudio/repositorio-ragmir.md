@@ -69,9 +69,9 @@ versionado define la base:
 }
 ```
 
-- **`name` y `description` son lo que ven los agentes.** El servidor MCP los indica en sus
-  instrucciones y en la descripción de cada herramienta. Así, un agente sabe a qué proyecto sirve la
-  base.
+- **`name` y `description` son lo que ven los agentes.** El servidor MCP indica el nombre en sus
+  instrucciones y en el título y la descripción de cada herramienta, y la descripción en sus
+  instrucciones. Así, un agente sabe a qué proyecto sirve la base.
 - **Las copias exactas quedan fuera.** `skills/ragmir/` y `plugins/ragmir/skills/ragmir/` son copias
   de la skill de recuperación de Core, así que la skill se indexa una sola vez, desde su origen. Los
   tests de Core también quedan excluidos.

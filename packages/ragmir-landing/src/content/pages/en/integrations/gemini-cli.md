@@ -32,6 +32,12 @@ qwen extensions install jcode-works/ragmir:ragmir
 Run the first line for Gemini CLI and the second for Qwen Code. Both expose the same server. It
 has five read-only tools, `ragmir_ingest` to refresh the index, and three prompts.
 
+Since June 18, 2026, Gemini CLI serves Gemini Code Assist Standard and Enterprise licenses and paid
+Gemini API keys. Google moved Google AI Pro, Ultra, and free Code Assist accounts to Antigravity CLI
+([Google's announcement](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli)).
+Antigravity CLI reads MCP servers from `.agents/mcp_config.json` in the workspace: add the generic
+`mcpServers` entry from the [RAG MCP server guide](/mcp-rag-server/) there.
+
 On November 27, 2026, Gemini CLI 0.71.1 first asked to confirm that it installs a third-party
 extension. Then both tools printed the same line (Qwen Code 0.28.7 for the second command):
 
@@ -54,6 +60,56 @@ npx --yes @jcode.labs/ragmir@6.20.0 ingest
 
 To use a project install of Ragmir instead of the extension, put the generic `mcpServers` entry
 from the [RAG MCP server guide](/mcp-rag-server/) in the project's `.gemini/settings.json`.
+
+## Use it day to day
+
+The context file already asks the model to search before it answers a question about the project.
+Ask in plain words. These requests cover most days, in Gemini CLI and Qwen Code alike.
+
+### Answer a question with its sources
+
+```prompt
+Use Ragmir: how do we roll back a failed release? Cite the file and lines behind each step.
+```
+
+The model searches, expands the citation it needs, and answers with citations such as
+`docs/release.md:L40-L58`.
+
+### Search one folder or one file type
+
+```prompt
+Search only the PDFs under specs/ with Ragmir: what response time does the contract promise?
+```
+
+The folder or glob becomes `includePaths`, so code and other documents do not compete with the
+contract.
+
+### Read a long document in order
+
+```prompt
+Read docs/migration.md through Ragmir from the start and list every breaking change with its citation.
+```
+
+The agent expands the first passage and follows `nextCitation` window by window, instead of
+loading the whole file at once.
+
+### Turn a source into wiki pages
+
+```prompt
+Compile notes/interview-2026-11.md into cited Markdown pages under wiki/, then audit the knowledge base with Ragmir.
+```
+
+The model writes the pages and cites each claim. `ragmir_audit` with `knowledge: true` then lists
+broken links and pages whose sources changed.
+
+### Refresh after an edit
+
+```prompt
+I updated docs/release.md. Refresh the Ragmir index, then answer again.
+```
+
+The agent calls `ragmir_ingest`, which reads only new and changed files. The previous index stays
+searchable until the new one passes validation.
 
 ## What the context file asks of the model
 

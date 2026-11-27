@@ -30,9 +30,9 @@ agents](https://www.anthropic.com/engineering/effective-context-engineering-for-
 Anthropic, 29 septembre 2025).
 
 La [référence des outils](https://code.claude.com/docs/en/tools-reference) ajoute deux précisions.
-Sous macOS, Linux et WSL, Claude cherche avec `find` et `grep` via l’outil Bash. Windows conserve
-les outils Glob et Grep. Grep repose sur ripgrep. Aucun index d’embeddings n’est construit ni
-interrogé.
+Sous macOS, Linux et WSL, Claude cherche avec `find` et `grep` via l’outil Bash, par défaut.
+Sous Windows, les outils dédiés Glob et Grep, construits sur ripgrep, restent par défaut. Aucun
+index d’embeddings n’est construit ni interrogé.
 
 Cette conception a de vrais atouts. Rien ne devient obsolète, les identifiants exacts sont toujours
 trouvés, et il n’y a rien à installer. Ses coûts apparaissent ailleurs : dans la quantité de texte

@@ -1,6 +1,6 @@
 ---
 title: "RAG en red aislada: recuperación sin salida a internet | Ragmir"
-description: "Ejecuta RAG sin internet: prepara una vez la imagen o el paquete npm de Ragmir, un modelo opcional y el OCR, mantén el tráfico saliente en cero y verifícalo sin conexión."
+description: "Ejecuta RAG sin internet: prepara una vez la imagen o el paquete npm de Ragmir, un modelo opcional y OCR, y verifica sin conexión que el tráfico saliente es cero."
 h1: "RAG en red aislada: recuperación sin acceso a internet"
 summary: "La recuperación predeterminada de Ragmir no hace ninguna llamada de red. En una red aislada solo necesitas preparar de antemano lo que se usa: la imagen de Docker o el paquete npm y, de forma opcional, un modelo semántico y los motores de OCR. Después, la indexación, la búsqueda y la evaluación se ejecutan con la red desconectada."
 section: guide

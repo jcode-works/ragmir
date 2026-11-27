@@ -89,15 +89,62 @@ docs/python.md:L211-L218#12
 docs/agent-integration.md:L43-L54#6
 ```
 
-从节点元数据来看，只有引用及其上下文路径会进入 LLM 提示词。
+从节点元数据来看，进入 LLM 提示词的有来源路径、引用及其上下文路径，文件在建立索引后发生变化时还会包含 `source_status`。行范围、页码范围以及弱证据标记不会进入提示词。
 
 节点保持 Ragmir 的排序顺序，且没有相似度分数。请看它们的顺序，而不是分数。
+
+## 日常用法
+
+以下检索器调用已于 2026 年 11 月 27 日，在 Ragmir 自身仓库的索引上检验过。
+
+### 不借助 LLM 查看证据
+
+`retrieve` 只返回带引用的节点。这是检查某个问题能找到什么内容最快的方式：
+
+```python
+from llama_index.retrievers.ragmir import RagmirRetriever
+
+retriever = RagmirRetriever("/path/to/project", similarity_top_k=4)
+for node in retriever.retrieve("How do I run Ragmir on a server without internet access?"):
+    print(node.node.metadata["citation"], node.node.get_content()[:60])
+```
+
+### 只搜索部分文件
+
+`include_paths` 和 `exclude_paths` 接受文件夹、文件或 glob。`scope` 接受 `ragmir.config.json` 中定义的命名范围：
+
+```python
+contracts = RagmirRetriever("/path/to/project", include_paths=["contracts/**/*.pdf"])
+```
+
+### 文档无内容时给出说明
+
+文档未涵盖的问题不会返回任何节点。在信任回答之前先检查一下：
+
+```python
+response = engine.query("What is the refund policy for enterprise plans?")
+if not response.source_nodes:
+    print("The documents do not cover this question.")
+```
+
+### 文档变化时刷新索引
+
+在部署步骤或定时任务中，使用 `ragmir` 客户端运行刷新：
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+只读取新增和已变化的文件，在新索引通过校验之前，由旧索引继续应答。
 
 ## 检索器为本地文件带来的能力
 
 - 无需额外安装，即可索引超过 900 种扩展名和文件名。扫描的 PDF、照片和旧版 `.doc` 文件则使用你启用的本地提取器。
 - 引用遵循各格式的规则。`docs/runbook.md:L12-L18#3` 引用行，`contracts/msa-acme-2026.pdf:p7#3` 引用 PDF 页。其他格式使用幻灯片、表格与单元格，或命名章节的坐标。
-- 证据薄弱时，检索返回空结果。对于文档未涵盖的问题，可以据此明确回答，而不是用最接近的段落作答。
+- 当没有段落包含真正的证据时，检索返回空结果；证据薄弱的段落会带有 `weak_evidence`。文档未涵盖的问题因此可以据实回答，而不是用最接近的段落作答。
 - 默认的 `local-hash` 检索不需要嵌入 API 或 GPU。本地语义模型是可选的。
 
 ## 限制

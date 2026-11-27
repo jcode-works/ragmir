@@ -15,7 +15,7 @@ Le RAG agentique fait de la recherche un outil que l’agent appelle lorsqu’il
 
 Dans le RAG classique (génération augmentée par la recherche), une application prend la question de l’utilisateur, récupère les passages une seule fois et les transmet à un modèle. Dans le RAG agentique, l’agent lance la recherche quand il en a besoin. Il change de formulation entre deux appels, lit un passage en entier avant de décider quoi chercher ensuite, et peut conclure que les documents ne couvrent pas la question.
 
-Ragmir est conçu pour ce schéma : il renvoie des citations compactes, développe celles que l’agent sélectionne, et ne renvoie rien lorsque les preuves sont faibles. Il n’exécute ni la boucle de l’agent ni la rédaction de la réponse.
+Ragmir est conçu pour ce schéma : il renvoie des citations compactes, développe celles que l’agent sélectionne, ne renvoie rien lorsqu’aucun passage ne contient de preuve réelle, et signale un passage fragile avec `weakEvidence`. Il n’exécute ni la boucle de l’agent ni la rédaction de la réponse.
 
 ## RAG agentique ou RAG classique
 

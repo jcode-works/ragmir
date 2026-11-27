@@ -1,6 +1,6 @@
 ---
 title: "Benchmarks de recuperación RAG que puedes repetir | Ragmir"
-description: "La recuperación de Ragmir medida en su repositorio público frente a grep, LangChain.js, Orama y MiniSearch: método, resultados con fecha, informes completos y comandos."
+description: "Resultados de recuperación de Ragmir en su repositorio público frente a grep, LangChain.js, Orama y MiniSearch: método, fechas, informes y comandos."
 h1: "Benchmarks de recuperación RAG que puedes repetir"
 summary: "Con 89 preguntas de desarrolladores sobre el repositorio público de Ragmir, el código de la versión 6.20.0 colocó un archivo que responde entre los 10 primeros resultados en entre el 99 y el 100 % de los casos, y no devolvió nada en entre 23 y 28 de 30 preguntas fuera de tema. La primera pasada de un agente con grep ordenó los archivos casi igual de bien, pero leyó una mediana de 71 KiB hasta llegar a una respuesta, frente a menos de 5 KiB con Ragmir. Medido el 27 de noviembre de 2026."
 section: benchmark

@@ -20,7 +20,7 @@ find the right passage, which files it can search at all, and where your documen
 | --- | --- | --- | --- |
 | Setup | Nothing to install | Upload the files to a project | Install Ragmir, index once, connect it through MCP or the plugin |
 | How it finds text | grep and find, then whole files | Whole files, or a project knowledge search once they outgrow the context window | A local index returns ranked passages with citations |
-| PDFs, Office files, scans | grep cannot search inside them | Uploaded like any file | Searched like text, cited to the page, slide, or cell; scans through local OCR |
+| PDFs, Office files, scans | Opened one at a time; grep cannot search inside them | Uploaded like any file | Searched like text, cited to the page, slide, or cell; scans through local OCR |
 | Where the documents go | Claude reads them on your machine and sends what it reads to its model provider | Uploaded to Anthropic | The index stays on your machine; Claude receives the passages it reads |
 | Text read per answer | A median of 71.4 KiB with a grep first pass | Not measured | A median of 4.7 to 4.8 KiB |
 | Questions the documents do not answer | grep still matched files for 28 of 30 | Not measured | Nothing returned for 23 to 28 of 30 |

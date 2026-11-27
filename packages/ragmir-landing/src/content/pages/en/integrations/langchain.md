@@ -143,7 +143,69 @@ The toolkit has two tools:
 - `ragmir_expand` reads one citation with its neighbours and the next citation to read on.
 
 In LangChain.js, `createRagmirTools({ client })` gives `createAgent` and LangGraph agents the same
-two tools. The tools pass LangChain's standard retriever and tool test suites.
+two tools. The Python retriever and tools pass LangChain's standard test suites.
+
+## Everyday recipes
+
+These recipes use the Python package. The retriever calls were checked on November 27, 2026 against
+the index of Ragmir's own repository.
+
+### Narrow one search
+
+The retriever's options also work per call, so one retriever can serve every question:
+
+```python
+retriever = RagmirRetriever(project_root="/path/to/project", k=3)
+documents = retriever.invoke("run on a server without internet access", include_paths=["docs"])
+```
+
+`scope` works the same way with a named scope from `ragmir.config.json`.
+
+### Answer with citations, or say nothing is there
+
+A question the documents do not cover returns an empty list. Tell the model so, and give it each
+citation next to its passage:
+
+```python
+from langchain.chat_models import init_chat_model
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+def with_citations(documents):
+    if not documents:
+        return "NO EVIDENCE"
+    return "\n\n".join(f"[{d.metadata['citation']}]\n{d.page_content}" for d in documents)
+
+prompt = ChatPromptTemplate.from_template(
+    "Answer from the context only and cite each claim with its [citation]. If the context is "
+    "NO EVIDENCE, say the documents do not cover the question.\n\n"
+    "Context:\n{context}\n\nQuestion: {question}"
+)
+chain = (
+    {"context": retriever | with_citations, "question": RunnablePassthrough()}
+    | prompt
+    | init_chat_model("anthropic:claude-sonnet-5-5")
+    | StrOutputParser()
+)
+print(chain.invoke("How do I run Ragmir on a server without internet access?"))
+```
+
+This chain calls Anthropic's API and was not run for this page. Any chat model works in its place.
+
+### Refresh the index when documents change
+
+Run the refresh from a deployment step or a scheduled job, not in the request path:
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+It reads only new and changed files, and the previous index answers until the new one passes
+validation.
 
 ## Limits
 

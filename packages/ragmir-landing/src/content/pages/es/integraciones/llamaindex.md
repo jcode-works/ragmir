@@ -102,10 +102,65 @@ docs/python.md:L211-L218#12
 docs/agent-integration.md:L43-L54#6
 ```
 
-Desde los metadatos de los nodos, solo la cita y su ruta de contexto llegan al prompt del LLM.
+Desde los metadatos de los nodos, llegan al prompt del LLM la ruta de la fuente, la cita y la ruta
+de contexto, junto con `source_status` cuando un archivo cambió después de indexarlo. Los rangos de
+líneas o páginas y la marca de evidencia débil se quedan fuera.
 
 Los nodos conservan el orden de ranking de Ragmir y no tienen puntuación de similitud. Lee su orden,
 no una puntuación.
+
+## Recetas de uso habitual
+
+Las llamadas al retriever de abajo se comprobaron el 27 de noviembre de 2026 contra el índice del
+propio repositorio de Ragmir.
+
+### Ver la evidencia sin un LLM
+
+`retrieve` devuelve solo los nodos citados. Es la forma más rápida de comprobar qué encuentra una
+pregunta:
+
+```python
+from llama_index.retrievers.ragmir import RagmirRetriever
+
+retriever = RagmirRetriever("/path/to/project", similarity_top_k=4)
+for node in retriever.retrieve("How do I run Ragmir on a server without internet access?"):
+    print(node.node.metadata["citation"], node.node.get_content()[:60])
+```
+
+### Buscar solo en algunos archivos
+
+`include_paths` y `exclude_paths` aceptan carpetas, archivos o globs. `scope` acepta un ámbito con
+nombre definido en `ragmir.config.json`:
+
+```python
+contracts = RagmirRetriever("/path/to/project", include_paths=["contracts/**/*.pdf"])
+```
+
+### Indicar cuándo los documentos no tienen nada
+
+Una pregunta que los documentos no cubren no devuelve ningún nodo. Compruébalo antes de fiarte de la
+respuesta:
+
+```python
+response = engine.query("What is the refund policy for enterprise plans?")
+if not response.source_nodes:
+    print("The documents do not cover this question.")
+```
+
+### Actualizar el índice cuando cambian los documentos
+
+Ejecuta la actualización desde un paso de despliegue o un trabajo programado, con el cliente
+`ragmir`:
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+Solo lee los archivos nuevos y modificados, y el índice anterior responde hasta que el nuevo supera
+la validación.
 
 ## Lo que el retriever aporta a los archivos locales
 
@@ -114,8 +169,9 @@ no una puntuación.
 - Las citas siguen el formato de cada archivo. `docs/runbook.md:L12-L18#3` cita líneas, y
   `contracts/msa-acme-2026.pdf:p7#3` cita una página PDF. Otros formatos usan coordenadas de
   diapositiva, hoja y celda, o de sección con nombre.
-- La búsqueda no devuelve nada cuando la evidencia es débil. Así, una pregunta que los documentos no
-  cubren puede responderse como tal, en lugar de hacerlo con el pasaje más cercano.
+- La búsqueda no devuelve nada cuando ningún pasaje contiene evidencia real, y un pasaje poco sólido
+  lleva `weak_evidence`. Así, una pregunta que los documentos no cubren puede responderse como tal,
+  en lugar de hacerlo con el pasaje más cercano.
 - La recuperación predeterminada `local-hash` no necesita API de embeddings ni GPU. Un modelo
   semántico local es opcional.
 

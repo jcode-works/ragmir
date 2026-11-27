@@ -69,8 +69,9 @@ versionné définit la base :
 }
 ```
 
-- **`name` et `description` sont ce que voient les agents.** Le serveur MCP les indique dans ses
-  instructions et dans la description de chaque outil. Un agent sait donc quel projet la base sert.
+- **`name` et `description` sont ce que voient les agents.** Le serveur MCP indique le `name` dans
+  ses instructions et dans le titre et la description de chaque outil, et la `description` dans ses
+  instructions. Un agent sait donc quel projet la base sert.
 - **Les copies exactes restent exclues.** `skills/ragmir/` et `plugins/ragmir/skills/ragmir/` sont
   des copies du skill de recherche de Core : le skill n’est donc indexé qu’une fois, depuis sa
   source. Les tests de Core sont aussi exclus.

@@ -19,7 +19,7 @@ RAG 会在打开任何文件之前，先给出一份带排序和引用的候选�
 
 默认不会。Anthropic 把 Claude Code 描述为一种混合方案。`CLAUDE.md` 文件会被“简单地预先放入上下文”，而“glob 和 grep 等基本工具让它能够探索所在环境，并即时检索文件，从而有效规避索引过期和复杂语法树的问题”（[面向 AI 智能体的有效上下文工程](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)，Anthropic，2025 年 9 月 29 日）。
 
-当前的[工具参考](https://code.claude.com/docs/en/tools-reference)补充了两个细节。在 macOS、Linux 和 WSL 上，Claude 通过 Bash 工具使用 `find` 和 `grep` 搜索。Windows 则保留 Glob 和 Grep 工具。Grep 基于 ripgrep 构建。它不构建也不查询嵌入索引。
+当前的[工具参考](https://code.claude.com/docs/en/tools-reference)补充了两个细节。在 macOS、Linux 和 WSL 上，Claude 默认通过 Bash 工具使用 `find` 和 `grep` 搜索。在 Windows 上，基于 ripgrep 构建的专用 Glob 和 Grep 工具仍是默认方式。它不构建也不查询嵌入索引。
 
 这种设计有真正的优势：内容不会过期，精确的标识符每次都能找到，而且无需安装任何东西。它的代价体现在别处：智能体读取了多少内容，以及答案根本不在仓库里时会发生什么。
 

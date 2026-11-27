@@ -28,6 +28,8 @@ qwen extensions install jcode-works/ragmir:ragmir
 
 第一行适用于 Gemini CLI，第二行适用于 Qwen Code。两者提供的是同一个服务器，它有五个只读工具、用于刷新索引的 `ragmir_ingest`，以及三个提示词。
 
+自 2026 年 6 月 18 日起，Gemini CLI 面向 Gemini Code Assist Standard 和 Enterprise 许可证以及付费 Gemini API 密钥提供服务。Google 已将 Google AI Pro、Ultra 以及免费的 Code Assist 账户迁移到 Antigravity CLI（[Google 的公告](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli)）。Antigravity CLI 会从工作区中的 `.agents/mcp_config.json` 读取 MCP 服务器：请在该文件中添加 [RAG MCP 服务器指南](/zh/mcp-rag-server/)里通用的 `mcpServers` 条目。
+
 2026 年 11 月 27 日，Gemini CLI 0.71.1 首先要求确认安装第三方扩展。之后两个工具都输出了同一行内容（第二条命令对应的是 Qwen Code 0.28.7）：
 
 ```text
@@ -47,6 +49,50 @@ npx --yes @jcode.labs/ragmir@6.20.0 ingest
 ```
 
 若想使用项目内安装的 Ragmir 而不是扩展，请把 [RAG MCP 服务器指南](/zh/mcp-rag-server/)中通用的 `mcpServers` 条目放入项目的 `.gemini/settings.json`。
+
+## 日常使用
+
+上下文文件已经要求模型在回答有关项目的问题前先进行搜索。直接用平实的语言提问即可。以下请求覆盖了大多数日常场景，在 Gemini CLI 和 Qwen Code 中都适用。
+
+### 用来源回答问题
+
+```prompt
+用 Ragmir 回答：失败的发布如何回滚？请引用每个步骤背后的文件和行号。
+```
+
+模型会进行搜索，展开所需的引用，并给出带有 `docs/release.md:L40-L58` 之类引用的回答。
+
+### 只搜索一个文件夹或一类文件
+
+```prompt
+只用 Ragmir 搜索 specs/ 下的 PDF：合同承诺的响应时间是多少？
+```
+
+`includePaths` 由文件夹或 glob 生成，因此代码和其他文档不会与合同争夺结果。
+
+### 按顺序阅读长文档
+
+```prompt
+用 Ragmir 从头到尾按顺序阅读 docs/migration.md，列出每个破坏性变更及其引用。
+```
+
+智能体会展开第一段，并沿着 `nextCitation` 逐个窗口阅读，而不是一次性加载整个文件。
+
+### 把来源编译为 wiki 页面
+
+```prompt
+将 notes/interview-2026-11.md 编译为带引用的 Markdown 页面，放在 wiki/ 下，然后用 Ragmir 审计知识库。
+```
+
+模型撰写页面并为每项论断添加引用。随后 `ragmir_audit` 配合 `knowledge: true` 会列出失效链接以及来源已变化的页面。
+
+### 编辑后刷新
+
+```prompt
+我更新了 docs/release.md。请刷新 Ragmir 索引，然后重新回答。
+```
+
+智能体调用 `ragmir_ingest`，它只读取新增和已修改的文件。在新索引通过校验之前，旧索引仍可搜索。
 
 ## 上下文文件对模型的要求
 

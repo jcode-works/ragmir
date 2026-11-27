@@ -1,6 +1,6 @@
 ---
 title: "Servidor MCP de RAG: búsqueda local con citas exactas | Ragmir"
-description: "Qué es un servidor MCP de RAG, las herramientas y límites del servidor local de Ragmir, cómo lo inician Claude Code, Codex y Cursor, y cinco criterios para compararlos."
+description: "Qué es un servidor MCP de RAG, las herramientas y límites de Ragmir, cómo lo inician Claude Code, Codex y Cursor, y cinco criterios para compararlos."
 h1: "Un servidor MCP de RAG local para tu código y tus documentos"
 summary: "Un servidor MCP de RAG da a un agente de IA herramientas de búsqueda sobre un índice de documentos. El servidor de Ragmir se ejecuta en tu máquina mediante stdio e indexa código, Markdown, PDF y archivos de Office. Cada búsqueda devuelve tres citas compactas dentro de un presupuesto de 32 KB, así que el agente solo amplía los pasajes que necesita."
 section: guide
@@ -68,8 +68,9 @@ Después, el agente llama a `ragmir_expand` con la única cita en la que se apoy
 devuelve el pasaje indexado con vecinos acotados y un `nextCitation` para leer un documento largo
 ventana a ventana.
 
-Cuando la evidencia es débil, la búsqueda no devuelve nada. Entonces el agente puede decir que los
-documentos no cubren la pregunta.
+Cuando ningún pasaje contiene evidencia real, la búsqueda no devuelve nada, y un pasaje escaso que
+sí devuelve lleva `weakEvidence`. Entonces el agente puede decir que los documentos no cubren la
+pregunta.
 
 ## PDF y Markdown en un mismo índice
 

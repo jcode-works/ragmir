@@ -81,6 +81,53 @@ y la imagen oficial `ghcr.io/jcode-works/ragmir`.
 3. Haz una pregunta que respondan las fuentes. El agente ejecuta un único `ragmir_search`. Revisa la
    cita que devuelve.
 
+## Úsalo a diario
+
+Pregunta en el chat del agente de Cursor y menciona Ragmir cuando la respuesta deba venir de los
+archivos del proyecto. Estas peticiones cubren casi todo el día a día.
+
+### Responde una pregunta con sus fuentes
+
+```prompt
+Usa Ragmir: ¿cómo revertimos un despliegue fallido? Cita el archivo y las líneas de cada paso.
+```
+
+El agente busca, amplía las citas en las que se apoya y responde con citas como
+`docs/release.md:L40-L58`.
+
+### Busca en una carpeta o en un tipo de archivo
+
+```prompt
+Busca solo los PDF de specs/ con Ragmir: ¿qué tiempo de respuesta promete el contrato?
+```
+
+La carpeta o el glob se convierte en `includePaths`, así que el código y otros documentos no
+compiten con el contrato.
+
+### Revisa los documentos antes de un cambio
+
+```prompt
+Antes de cambiar la política de reintentos, usa Ragmir para encontrar lo que dicen la documentación y los registros de decisiones sobre los reintentos, y enumera lo que el cambio contradiría.
+```
+
+### Lee un documento largo en orden
+
+```prompt
+Lee docs/migration.md con Ragmir desde el principio y enumera cada cambio incompatible con su cita.
+```
+
+El agente amplía el primer pasaje y sigue `nextCitation` ventana a ventana, en lugar de cargar el
+archivo completo de una vez.
+
+### Actualiza tras una edición
+
+```prompt
+Actualicé docs/release.md. Actualiza el índice de Ragmir y responde de nuevo.
+```
+
+El agente llama a `ragmir_ingest`, que lee solo los archivos nuevos y modificados. El índice
+anterior sigue disponible para búsquedas hasta que el nuevo supera la validación.
+
 ## Busca en la documentación desde Cursor
 
 Los filtros de ruta evitan que una pregunta sobre documentación se mezcle con el código.

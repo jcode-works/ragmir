@@ -15,7 +15,7 @@ En el RAG agéntico, la recuperación es una herramienta que el agente invoca cu
 
 En el RAG clásico (generación aumentada por recuperación), una aplicación toma la pregunta del usuario, recupera los pasajes una sola vez y se los entrega a un modelo. En el RAG agéntico, el agente busca cuando lo necesita. Cambia la redacción entre llamadas y lee un pasaje completo antes de decidir qué buscar después. También puede concluir que los documentos no cubren la pregunta.
 
-Ragmir está diseñado para ese patrón. Devuelve citas compactas, amplía las que el agente selecciona y no devuelve nada cuando la evidencia es débil. No ejecuta el bucle del agente ni redacta la respuesta.
+Ragmir está diseñado para ese patrón. Devuelve citas compactas, amplía las que el agente selecciona, no devuelve nada cuando ningún pasaje tiene evidencia real y marca un pasaje débil con `weakEvidence`. No ejecuta el bucle del agente ni redacta la respuesta.
 
 ## RAG agéntico frente a RAG clásico
 

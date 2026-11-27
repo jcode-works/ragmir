@@ -1,6 +1,6 @@
 ---
 title: "Retriever LlamaIndex pour fichiers locaux avec citations | Ragmir"
-description: "Installez llama-index-retrievers-ragmir pour doter un moteur LlamaIndex d’un retriever sur le code, les PDF et les fichiers Office, avec la citation dans chaque nœud."
+description: "Installez llama-index-retrievers-ragmir pour doter un moteur LlamaIndex d’un retriever sur le code, les PDF et fichiers Office, avec la citation dans chaque nœud."
 h1: "Retriever LlamaIndex pour les fichiers locaux"
 summary: "Le paquet llama-index-retrievers-ragmir ajoute un RagmirRetriever, accepté par les moteurs de requête LlamaIndex. Il cherche dans un index Ragmir de vos fichiers locaux, construit et interrogé sur votre machine, et chaque nœud porte la citation du passage."
 section: integration
@@ -104,11 +104,65 @@ docs/python.md:L211-L218#12
 docs/agent-integration.md:L43-L54#6
 ```
 
-Depuis les métadonnées du nœud, seuls la citation et son chemin de contexte atteignent le prompt du
-LLM.
+Depuis les métadonnées du nœud, le chemin de la source, la citation et le chemin de contexte
+atteignent le prompt du LLM, avec `source_status` lorsqu’un fichier a changé après l’indexation. Les
+plages de lignes ou de pages et l’indicateur de preuves faibles restent en dehors.
 
 Les nœuds conservent l’ordre de classement de Ragmir et n’ont pas de score de similarité. Lisez leur
 ordre, pas un score.
+
+## Recettes courantes
+
+Les appels du retriever ci-dessous ont été vérifiés le 27 novembre 2026 sur l’index du dépôt de
+Ragmir lui-même.
+
+### Consulter les preuves sans LLM
+
+`retrieve` renvoie les nœuds cités seuls. C’est le moyen le plus rapide de vérifier ce qu’une
+question trouve :
+
+```python
+from llama_index.retrievers.ragmir import RagmirRetriever
+
+retriever = RagmirRetriever("/path/to/project", similarity_top_k=4)
+for node in retriever.retrieve("How do I run Ragmir on a server without internet access?"):
+    print(node.node.metadata["citation"], node.node.get_content()[:60])
+```
+
+### Chercher seulement dans certains fichiers
+
+`include_paths` et `exclude_paths` acceptent des dossiers, des fichiers ou des globs. `scope`
+accepte un périmètre nommé défini dans `ragmir.config.json` :
+
+```python
+contracts = RagmirRetriever("/path/to/project", include_paths=["contracts/**/*.pdf"])
+```
+
+### Signaler quand les documents ne contiennent rien
+
+Une question que les documents ne couvrent pas ne renvoie aucun nœud. Vérifiez-le avant de faire
+confiance à la réponse :
+
+```python
+response = engine.query("What is the refund policy for enterprise plans?")
+if not response.source_nodes:
+    print("The documents do not cover this question.")
+```
+
+### Actualiser l’index quand les documents changent
+
+Lancez l’actualisation depuis une étape de déploiement ou une tâche planifiée, avec le client
+`ragmir` :
+
+```python
+from ragmir import Ragmir
+
+with Ragmir("/path/to/project") as rag:
+    rag.ingest()
+```
+
+Elle ne lit que les fichiers nouveaux ou modifiés, et l’index précédent répond tant que le nouveau
+n’a pas franchi la validation.
 
 ## Ce que le retriever apporte aux fichiers locaux
 
@@ -118,9 +172,9 @@ ordre, pas un score.
 - Les citations suivent chaque format. `docs/runbook.md:L12-L18#3` cite des lignes, et
   `contracts/msa-acme-2026.pdf:p7#3` cite une page PDF. Les autres formats utilisent des coordonnées
   de diapositive, de feuille et de cellule, ou de section nommée.
-- La recherche ne renvoie rien lorsque les preuves sont faibles. Une question que les documents ne
-  couvrent pas peut alors être traitée comme telle, au lieu de répondre à partir du passage le plus
-  proche.
+- La recherche ne renvoie rien lorsqu’aucun passage ne contient de preuve réelle, et un passage
+  léger porte `weak_evidence`. Une question que les documents ne couvrent pas peut alors être
+  traitée comme telle, au lieu de répondre à partir du passage le plus proche.
 - La recherche par défaut `local-hash` n’exige ni API d’embeddings ni GPU. Un modèle sémantique
   local est facultatif.
 

@@ -68,6 +68,53 @@ into the project's `.codex/config.toml`. Codex loads it once the project is trus
 Pick one route per project. Next to the plugin, `rgr setup --agents codex` would register a second
 server.
 
+## Use it day to day
+
+Ask in plain words, and name Ragmir when the answer must come from the project's files. Codex then
+searches before it writes. These requests cover most days.
+
+### Answer a question with its sources
+
+```prompt
+Use Ragmir: how do we roll back a failed release? Cite the file and lines behind each step.
+```
+
+Codex searches, reads the citation it relies on with `ragmir_expand`, and answers with citations
+such as `docs/release.md:L40-L58`.
+
+### Ask related questions together
+
+```prompt
+With Ragmir, answer together: who approves a release, who owns the rollback, and where is the on-call rota?
+```
+
+Codex can send the three questions in one `ragmir_search` call. They share one output budget, and
+a passage that answers two of them appears once.
+
+### Search one folder or one file type
+
+```prompt
+Search only the PDFs under specs/ with Ragmir: what response time does the contract promise?
+```
+
+The folder or glob becomes `includePaths`, so code and other documents do not compete with the
+contract.
+
+### Check the documents before a change
+
+```prompt
+Before you change the retry policy, use Ragmir to find what the docs and decision records say about retries, and list what the change would contradict.
+```
+
+### Refresh after an edit
+
+```prompt
+I updated docs/release.md. Refresh the Ragmir index, then answer again.
+```
+
+The agent calls `ragmir_ingest`, which reads only new and changed files. The previous index stays
+searchable until the new one passes validation.
+
 ## Keep the server scoped to one project
 
 Avoid `~/.codex/config.toml`. A server registered there answers every workspace from the same

@@ -1,6 +1,6 @@
 ---
-title: "RAG MCP pour Cursor : recherche citée dans la documentation | Ragmir"
-description: "Connectez Cursor au serveur MCP local de Ragmir via le dossier du plugin ou .cursor/mcp.json, puis cherchez dans la documentation, les PDF et le code, avec citations."
+title: "RAG MCP pour Cursor : recherche citée dans les docs | Ragmir"
+description: "Connectez Cursor au serveur MCP de Ragmir via le dossier du plugin ou .cursor/mcp.json, puis cherchez dans la documentation, les PDF et le code, avec citations."
 h1: "Cursor et RAG MCP : cherchez dans votre documentation avec citations"
 summary: "L’agent de Cursor peut appeler le serveur MCP local de Ragmir pour chercher dans la documentation, le code, les PDF et les fichiers Office d’un projet. Installez le dossier du plugin Ragmir ou ajoutez une entrée dans .cursor/mcp.json, indexez le projet, et chaque résultat revient avec une citation."
 section: integration
@@ -81,6 +81,53 @@ commande et l’image officielle `ghcr.io/jcode-works/ragmir`.
    est prête.
 3. Posez une question à laquelle les sources répondent. L’agent lance un seul `ragmir_search`.
    Vérifiez la citation renvoyée.
+
+## Utilisez-le au quotidien
+
+Posez vos questions dans le chat de l’agent de Cursor, et mentionnez Ragmir lorsque la réponse doit
+venir des fichiers du projet. Ces demandes couvrent l’essentiel du quotidien.
+
+### Répondre à une question avec ses sources
+
+```prompt
+Utilisez Ragmir : comment revenir en arrière après une publication échouée ? Citez le fichier et les lignes derrière chaque étape.
+```
+
+L’agent lance une recherche, développe les citations sur lesquelles il s’appuie et répond avec des
+citations telles que `docs/release.md:L40-L58`.
+
+### Chercher dans un dossier ou un type de fichier
+
+```prompt
+Cherchez uniquement les PDF sous specs/ avec Ragmir : quel temps de réponse le contrat promet-il ?
+```
+
+Le dossier ou le glob devient `includePaths`, afin que le code et les autres documents ne fassent
+pas concurrence au contrat.
+
+### Vérifier les documents avant une modification
+
+```prompt
+Avant de modifier la politique de nouvelles tentatives, utilisez Ragmir pour trouver ce que la documentation et les registres de décisions disent des nouvelles tentatives, et listez ce que la modification contredirait.
+```
+
+### Lire un long document dans l’ordre
+
+```prompt
+Lisez docs/migration.md avec Ragmir depuis le début et listez chaque changement incompatible avec sa citation.
+```
+
+L’agent développe le premier passage et suit `nextCitation` fenêtre par fenêtre, au lieu de charger
+tout le fichier d’un coup.
+
+### Actualiser après une modification
+
+```prompt
+J’ai mis à jour docs/release.md. Actualisez l’index Ragmir, puis répondez de nouveau.
+```
+
+L’agent appelle `ragmir_ingest`, qui ne lit que les fichiers nouveaux et modifiés. L’ancien index
+reste interrogeable tant que le nouveau n’a pas passé la validation.
 
 ## Chercher dans la documentation depuis Cursor
 

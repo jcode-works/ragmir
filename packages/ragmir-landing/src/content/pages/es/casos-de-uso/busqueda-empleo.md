@@ -1,6 +1,6 @@
 ---
 title: "RAG para buscar empleo: cartas que citan tus pruebas | Ragmir"
-description: "Indexa tus CV, evaluaciones anuales e informes de proyecto, relaciona una oferta con tus propias pruebas y redacta cartas sin inventar nada, con cada afirmación citada."
+description: "Indexa tu CV, evaluaciones anuales e informes de proyecto, cruza una oferta con tus pruebas y redacta cartas sin inventar nada, con cada afirmación citada."
 h1: "Buscar empleo con RAG: relaciona cada oferta con tus pruebas, sin inventar nada"
 summary: "Indexa todos tus CV, evaluaciones anuales e informes de proyecto. Después, compara una oferta de trabajo con tus propias pruebas y redacta una carta de presentación en la que cada afirmación apunte a la página de la que procede. Ragmir encuentra y cita; el asistente redacta, y tú decides qué se envía."
 section: use-case

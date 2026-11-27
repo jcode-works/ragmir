@@ -69,9 +69,9 @@ the base:
 }
 ```
 
-- **`name` and `description` are what agents see.** The MCP server states them in its
-  instructions and in every tool description. An agent therefore knows which project the base
-  serves.
+- **`name` and `description` are what agents see.** The MCP server states the name in its
+  instructions and in every tool title and description, and the description in its instructions.
+  An agent therefore knows which project the base serves.
 - **Exact copies stay out.** `skills/ragmir/` and `plugins/ragmir/skills/ragmir/` are copies of the
   Core retrieval skill, so the skill is indexed once, from its source. Core tests are excluded too.
 - **Defaults do the rest.** The file names no embedding provider, model, or retrieval profile. A

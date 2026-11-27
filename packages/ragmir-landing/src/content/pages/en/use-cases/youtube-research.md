@@ -1,5 +1,5 @@
 ---
-title: "RAG for YouTube research: cited scripts from your sources | Ragmir"
+title: "RAG for YouTube research: scripts cited to sources | Ragmir"
 description: "Use Ragmir as the research desk of a YouTube channel: index books, papers, and past captions, check scripts against cited sources, and keep a topic wiki current."
 h1: "RAG for YouTube creators: research, scripts, and a wiki from your sources"
 summary: "Index the books, papers, articles, and caption files behind your videos once. Your AI assistant then answers research questions with citations, checks a script against your sources, and keeps a wiki of topics that grows from one video to the next. Ragmir finds and cites; it does not write, record, or publish."

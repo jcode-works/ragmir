@@ -74,6 +74,61 @@ project-level server. Without the plugin, that command is the alternative.
 Claude Code starts the server declared in `.mcp.json` only after you approve it. Until then,
 `rgr doctor` reports `approval=pending`.
 
+## Use it day to day
+
+Ask in plain words. The retrieval skill has Claude search the index before it answers a question
+about the project. Name Ragmir in the request to be sure it does. These requests cover most days.
+
+### Answer a question with its sources
+
+```prompt
+Use Ragmir: how do we roll back a failed release? Cite the file and lines behind each step.
+```
+
+Claude searches, opens the one or two citations it needs with `ragmir_expand`, and answers with
+citations such as `docs/release.md:L40-L58`.
+
+### Search one folder or one file type
+
+```prompt
+Search only the PDFs under specs/ with Ragmir: what response time does the contract promise?
+```
+
+The folder or glob becomes `includePaths`, so code and other documents do not compete with the
+contract.
+
+### Check the documents before a change
+
+```prompt
+Before you change the retry policy, use Ragmir to find what the docs and decision records say about retries, and list what the change would contradict.
+```
+
+### Read a long document in order
+
+```prompt
+Read docs/migration.md through Ragmir from the start and list every breaking change with its citation.
+```
+
+The agent expands the first passage and follows `nextCitation` window by window, instead of
+loading the whole file at once.
+
+### Find what the index lacks
+
+```prompt
+Use Ragmir to list the indexed PDFs, then audit the sources for missing or stale files.
+```
+
+`ragmir_sources` lists the documents, and `ragmir_audit` compares the files on disk with the index.
+
+### Refresh after an edit
+
+```prompt
+I updated docs/release.md. Refresh the Ragmir index, then answer again.
+```
+
+The agent calls `ragmir_ingest`, which reads only new and changed files. The previous index stays
+searchable until the new one passes validation.
+
 ## What Claude Code gains over grep and file reads
 
 | | Claude Code alone | With Ragmir |
@@ -81,7 +136,7 @@ Claude Code starts the server declared in `.mcp.json` only after you approve it.
 | PDF, Office, scans | Opened one at a time; grep cannot search inside them | Indexed once, scans through optional local OCR, each passage cited to its line, page, slide, or cell |
 | Different words | Only exact words match | Up to five rewordings fused in one search, and a notice naming the words no file contains |
 | Context window | Whole files, read again in every session | Three compact citations by default within 32 KB per call; passages already seen return as one-line stubs |
-| Not in the documents | Partial matches can still become an answer | Nothing returned when the evidence is weak |
+| Not in the documents | Partial matches can still become an answer | Nothing returned when no passage holds real evidence; thin passages flagged `weakEvidence` |
 
 On a small code repository, Claude Code's own search is often enough. Grep stays the tool to list
 every occurrence or match a regular expression. Ragmir returns ranked passages.

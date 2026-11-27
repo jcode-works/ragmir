@@ -82,7 +82,7 @@ Without any model, Ragmir ranked an answering file in the top 3 more often (82%)
 LangChain.js pipeline with an embedding model (70%). It also returned nothing for most off-topic
 questions.
 
-Adding the model raised the top 3 from 82 to 87%. It also raised the refusals of off-topic and
+Adding `mxbai-embed-xsmall-v1` raised the top 3 from 82 to 87%. It also raised the refusals of off-topic and
 near-domain questions.
 
 ## Trade-offs to weigh

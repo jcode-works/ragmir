@@ -8,7 +8,7 @@ setup: local
 translationKey: "local-rag"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "rag-vs-mcp"]
+related: ["self-hosted-rag", "air-gapped-rag", "rag-citations", "local-vs-cloud-rag"]
 ---
 
 Vous pouvez exécuter un RAG sur une seule machine : Ragmir assure la recherche, et un modèle local rédige la réponse.
@@ -101,7 +101,7 @@ npx rgr search "run on a server without internet access" --compact
 
 Chaque résultat porte une citation : ici, une plage de lignes. Un PDF reçoit une page (`contracts/msa-acme-2026.pdf:p7#3`), et les autres formats reçoivent des coordonnées de diapositive, de feuille et de cellule, ou de section.
 
-Quand les preuves sont faibles, la recherche n’affiche rien plutôt que le passage le plus proche. Elle nomme aussi les mots de la question qu’aucun passage indexé ne contient :
+Quand aucun passage ne contient de preuve réelle, la recherche n’affiche rien plutôt que le passage le plus proche. Elle nomme aussi les mots de la question qu’aucun passage indexé ne contient :
 
 ```bash
 npx rgr search "weather forecast for Lyon tomorrow" --compact

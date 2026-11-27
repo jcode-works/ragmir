@@ -1,5 +1,5 @@
 ---
-title: "Claude ou Claude avec Ragmir : quand ajouter un RAG local | Ragmir"
+title: "Claude seul ou avec Ragmir : quand ajouter un RAG local | Ragmir"
 description: "Quand Claude répond bien à partir de vos fichiers seul, et quand un index Ragmir local aide : PDF et fichiers Office, documents privés, citations et contexte."
 h1: "Claude seul ou Claude avec Ragmir : quand ajouter un index local"
 summary: "Claude lit déjà vos fichiers : Claude Code parcourt le dépôt avec grep, et un projet dans les applications Claude cherche dans ce que vous importez. Ragmir ajoute un index local avec citations exactes là où cela ne suffit pas : PDF et fichiers Office dans un dépôt, documents qui doivent rester sur votre machine, citations à vérifier, et tâches longues où le contexte compte."
@@ -21,7 +21,7 @@ le trajet de vos documents avant d’atteindre Claude.
 | --- | --- | --- | --- |
 | Mise en place | Rien à installer | Importer les fichiers dans un projet | Installer Ragmir, indexer une fois, le connecter par MCP ou par le plugin |
 | Comment il trouve le texte | grep et find, puis fichiers entiers | Fichiers entiers, ou recherche dans les connaissances du projet une fois qu’ils dépassent la fenêtre de contexte | Un index local renvoie des passages classés, avec citations |
-| PDF, fichiers Office, scans | grep ne peut pas chercher à l’intérieur | Importés comme n’importe quel fichier | Recherchés comme du texte, cités à la page, à la diapositive ou à la cellule ; scans via l’OCR local |
+| PDF, fichiers Office, scans | Ouverts un par un ; grep ne peut pas chercher à l’intérieur | Importés comme n’importe quel fichier | Recherchés comme du texte, cités à la page, à la diapositive ou à la cellule ; scans via l’OCR local |
 | Où vont les documents | Claude les lit sur votre machine et envoie ce qu’il lit à son fournisseur de modèle | Importés chez Anthropic | L’index reste sur votre machine ; Claude reçoit les passages qu’il lit |
 | Texte lu par réponse | Une médiane de 71,4 Kio avec un premier passage grep | Non mesuré | Une médiane de 4,7 à 4,8 Kio |
 | Questions auxquelles les documents ne répondent pas | grep trouvait encore des fichiers pour 28 questions sur 30 | Non mesuré | Aucun résultat pour 23 à 28 questions sur 30 |

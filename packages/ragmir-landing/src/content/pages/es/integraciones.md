@@ -1,6 +1,6 @@
 ---
 title: "Integraciones: Claude Code, Codex, Cursor, LangChain | Ragmir"
-description: "Elige la página de Ragmir para tu herramienta: plugins para Claude Code, Codex y Cursor, extensiones para Gemini CLI y Qwen Code, y retrievers de LangChain y LlamaIndex."
+description: "Página de Ragmir por herramienta: plugins para Claude Code, Codex y Cursor, extensiones para Gemini CLI y Qwen Code, y retrievers para LangChain y LlamaIndex."
 h1: "Conecta Ragmir con tu agente o framework"
 summary: "Ragmir sirve un único índice local y las mismas citas a Claude Code, Codex, Cursor y Gemini CLI mediante plugins y MCP, y a las aplicaciones mediante LangChain.js, LangChain, LangGraph y LlamaIndex. Cambiar de herramienta no obliga a volver a indexar."
 section: hub
@@ -13,7 +13,7 @@ notes:
     cards:
       - title: "Kimi, OpenCode y Cline"
         text: "La configuración de Ragmir prepara los tres en un solo comando, en la carpeta del proyecto desde la que lo ejecutes."
-        command: "npx rgr setup --agents kimi,opencode,cline"
+        command: "npx --yes @jcode.labs/ragmir setup --agents kimi,opencode,cline"
       - title: "Cualquier cliente que hable MCP por stdio"
         text: "Inicia el servidor desde una entrada genérica. El MCP Registry lo lista como io.github.jcode-works/ragmir."
         command: "node .ragmir/run.cjs serve-mcp"

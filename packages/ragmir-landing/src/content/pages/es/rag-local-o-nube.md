@@ -41,7 +41,8 @@ que tus documentos no usan, como sinónimos u otro idioma.
 
 Estas cifras proceden de los [requisitos del
 sistema](https://github.com/jcode-works/ragmir#system-requirements) del README de Ragmir.
-Compruébalas con tu propia máquina, incluido el límite de memoria de un contenedor:
+En un proyecto que instala Ragmir, compruébalas con tu propia máquina, incluido el límite de
+memoria de un contenedor:
 
 ```bash
 npx rgr models list

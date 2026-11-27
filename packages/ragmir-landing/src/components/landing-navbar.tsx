@@ -5,12 +5,13 @@ import {
   Briefcase,
   ChevronRight,
   CircleHelp,
+  Compass,
   Download,
   FileCode,
   Gauge,
   GitCompareArrows,
   History,
-  Languages,
+  House,
   Layers,
   type LucideIcon,
   Menu,
@@ -23,17 +24,20 @@ import {
   Users,
   X,
 } from "lucide-react"
+import type * as React from "react"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { JCODE_URL } from "../lib/maintainer"
 import {
   GITHUB_URL,
+  isExternalLink,
   NPM_URL,
   PROJECT_LINK_LABEL_KEYS,
-  PROJECT_LINKS,
   type ProjectLinkKey,
   PYPI_URL,
 } from "../lib/project-links"
 import { cn } from "../lib/utils"
 import { GithubIcon, NpmIcon, PypiIcon } from "./brand-icons"
+import { LanguageSelect } from "./language-select"
 import { Button } from "./ui/button"
 
 interface AlternateLocale {
@@ -56,6 +60,10 @@ interface LandingNavbarProps {
   localizedTeamUrl: string
   /** Path of the page on screen, so the drawer can light its own row. */
   currentPath?: string
+  /** Root-relative URL of the hub the page belongs to, so the bar can light its link. */
+  currentSection?: string
+  /** The project links in this locale: pages of this site lead to their translation. */
+  projectLinks: Record<ProjectLinkKey, string>
 }
 
 const externalLinkProps = {
@@ -79,6 +87,7 @@ const DRAWER_SECTIONS: ReadonlyArray<{
     titleKey: "nav_section_docs",
     links: [
       { key: "docs", icon: BookOpen },
+      { key: "guides", icon: Compass },
       { key: "apiReference", icon: FileCode },
       { key: "supportedFormats", icon: Layers },
       { key: "serverGuide", icon: Server },
@@ -105,8 +114,15 @@ const DRAWER_ROW_CLASS_NAME =
 const HEADER_ICON_CLASS_NAME =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
-/** BCP 47 tag of each landing locale, so screen readers read every language name in its language. */
-const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
+/** The hubs, named in the bar after Home on wide screens; narrower ones reach them through the drawer. */
+// The build year, as in the footer: the site is static, and every release rebuilds it.
+const COPYRIGHT_YEAR = new Date().getUTCFullYear()
+
+const HUB_LINKS: ReadonlyArray<{ key: ProjectLinkKey; labelKey: string }> = [
+  { key: "guides", labelKey: "nav_guides" },
+  { key: "agentPlugins", labelKey: "nav_integrations" },
+  { key: "docs", labelKey: "footer_link_docs" },
+]
 
 /**
  * Sends a language link to the section the reader is on: every language shares the section ids,
@@ -121,94 +137,6 @@ function keepReadingPlace(event: React.MouseEvent<HTMLAnchorElement>, href: stri
     section = candidate.id
   }
   event.currentTarget.href = section && section !== "top" ? `${href}#${section}` : href
-}
-
-interface LanguageMenuProps {
-  alternateLocales: AlternateLocale[]
-  label: string
-  locale: string
-}
-
-/**
- * The page language in the header: a disclosure that lists every locale in its own language.
- * Below 360px the header has no room left, and the drawer keeps its own language switch.
- */
-function LanguageMenu({ alternateLocales, label, locale }: LanguageMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const listId = useId()
-  const current = alternateLocales.find((entry) => entry.locale === locale)
-
-  useEffect(() => {
-    if (!open) return
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      setOpen(false)
-      buttonRef.current?.focus()
-    }
-    // Tab past the last language, or back before the button, and the menu closes behind focus.
-    const onFocusIn = (event: FocusEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
-    }
-    document.addEventListener("pointerdown", onPointerDown)
-    document.addEventListener("keydown", onKeyDown)
-    document.addEventListener("focusin", onFocusIn)
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown)
-      document.removeEventListener("keydown", onKeyDown)
-      document.removeEventListener("focusin", onFocusIn)
-    }
-  }, [open])
-
-  return (
-    <div className="relative max-[359px]:hidden" ref={rootRef}>
-      <button
-        aria-controls={listId}
-        aria-expanded={open}
-        aria-label={`${label}: ${current?.label ?? locale}`}
-        className={cn(
-          HEADER_ICON_CLASS_NAME,
-          "w-auto gap-1.5 px-2.5",
-          open && "bg-[var(--card-hover)]",
-        )}
-        onClick={() => setOpen((value) => !value)}
-        ref={buttonRef}
-        type="button"
-      >
-        <Languages aria-hidden="true" className="size-[18px]" />
-        <span aria-hidden="true" className="font-bold text-xs uppercase">
-          {locale}
-        </span>
-      </button>
-      <ul
-        className="absolute top-full right-0 mt-2 grid min-w-44 gap-0.5 rounded-2xl bg-card p-1.5 shadow-2xl shadow-black/60"
-        hidden={!open}
-        id={listId}
-      >
-        {alternateLocales.map((entry) => (
-          <li key={entry.locale}>
-            <a
-              aria-current={entry.locale === locale ? "page" : undefined}
-              className="flex items-center justify-between gap-4 rounded-xl px-3 py-2 font-semibold text-muted-foreground text-sm transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
-              href={entry.href}
-              hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-              lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-              onClick={(event) => keepReadingPlace(event, entry.href)}
-            >
-              {entry.label}
-              <span aria-hidden="true" className="font-mono text-[10px] uppercase tracking-[0.2em]">
-                {entry.locale}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
 }
 
 const DRAWER_SECTION_TITLE_CLASS_NAME =
@@ -299,6 +227,7 @@ export function RagmirLogo(): React.JSX.Element {
     <span
       className="logo-stack font-black text-2xl text-foreground leading-none tracking-tight md:text-3xl"
       data-logo-text="Ragmir"
+      translate="no"
     >
       <span className="logo-index-1 logo-text">Ragmir</span>
     </span>
@@ -318,6 +247,8 @@ export function LandingNavbar({
   localizedFaqUrl,
   localizedTeamUrl,
   currentPath,
+  currentSection,
+  projectLinks,
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
   const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
@@ -334,7 +265,14 @@ export function LandingNavbar({
   const localizedIntegrationsUrl = localizedLibraryUrl.replace(/#library$/u, "#integrations")
   const localizedComparisonUrl = localizedLibraryUrl.replace(/#library$/u, "#comparison")
   // In page order, so the drawer reads like the page.
+  const homePath = localizedHomeUrl.replace(/#.*$/u, "")
+  // Home, then the hubs: the bar lights the page on screen, or the hub that lists it.
+  const barLinks = [
+    { href: homePath, label: t("nav_home") },
+    ...HUB_LINKS.map(({ key, labelKey }) => ({ href: projectLinks[key], label: t(labelKey) })),
+  ]
   const drawerPageLinks: DrawerLink[] = [
+    { href: homePath, label: t("nav_home"), icon: House },
     { href: localizedUseCasesUrl, label: t("nav_use_cases"), icon: Layers },
     { href: localizedFeaturesUrl, label: t("nav_features"), icon: Sparkles },
     { href: localizedComparisonUrl, label: t("nav_comparison"), icon: GitCompareArrows },
@@ -349,10 +287,10 @@ export function LandingNavbar({
     title: t(section.titleKey),
     links: section.links.map(
       ({ key, icon }): DrawerLink => ({
-        href: PROJECT_LINKS[key],
+        href: projectLinks[key],
         label: t(PROJECT_LINK_LABEL_KEYS[key]),
         icon,
-        external: true,
+        external: isExternalLink(projectLinks[key]),
       }),
     ),
   }))
@@ -442,13 +380,13 @@ export function LandingNavbar({
             <a aria-label="Ragmir" className="flex items-center" href={localizedHomeUrl}>
               <RagmirLogo />
             </a>
-            {/* Below 420px the language menu and brand icons need its room; the drawer still shows the version. */}
+            {/* Below 420px the brand icons need its room; the drawer still shows the version. */}
             {version && (
               <a
                 href={NPM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 text-[0.7rem] font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
+                className="ml-2 text-micro font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
               >
                 v{version}
                 <span className="sr-only">{` ${newTab}`}</span>
@@ -457,11 +395,23 @@ export function LandingNavbar({
           </div>
 
           <div className="flex items-center gap-1">
-            <LanguageMenu
-              alternateLocales={alternateLocales}
-              label={t("language_label")}
-              locale={locale}
-            />
+            <nav
+              aria-label={t("nav_aria_label")}
+              className="mr-3 hidden items-center gap-4 lg:flex xl:mr-5 xl:gap-6"
+            >
+              {barLinks.map(({ href, label }) => (
+                <a
+                  aria-current={
+                    currentPath === href ? "page" : currentSection === href ? "true" : undefined
+                  }
+                  className="rounded-sm px-2 py-2 font-medium text-small text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
+                  href={href}
+                  key={href}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
             <a
               aria-label={`${t("hero_github_cta")} ${newTab}`}
               className={HEADER_ICON_CLASS_NAME}
@@ -512,40 +462,19 @@ export function LandingNavbar({
       >
         <div className="flex h-full flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 bg-background px-5 pt-3 pb-3">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background px-5 pt-3 pb-3">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-full h-4 bg-linear-to-b from-background to-transparent"
               />
-              {/* The language row moves under the logo when the panel is too narrow for both. */}
-              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                <a
-                  aria-label="Ragmir"
-                  className="flex h-10 items-center"
-                  href={localizedHomeUrl}
-                  onClick={closeMenu}
-                >
-                  <RagmirLogo />
-                </a>
-                <nav
-                  aria-label={t("language_label")}
-                  className="flex items-center gap-1 rounded-full bg-card p-1"
-                >
-                  {alternateLocales.map((entry) => (
-                    <a
-                      aria-current={entry.locale === locale ? "page" : undefined}
-                      className="rounded-full px-3 py-1.5 font-bold text-muted-foreground text-xs uppercase transition-colors hover:text-foreground active:bg-[var(--card-hover)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
-                      href={entry.href}
-                      hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-                      key={entry.locale}
-                      lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-                      onClick={(event) => keepReadingPlace(event, entry.href)}
-                    >
-                      {entry.locale}
-                    </a>
-                  ))}
-                </nav>
-              </div>
+              {/* The bar behind the drawer already shows the logo; the drawer leads with the language. */}
+              <LanguageSelect
+                label={t("language_label")}
+                locale={locale}
+                menuClassName="top-full left-0 mt-2"
+                onSelect={keepReadingPlace}
+                options={alternateLocales}
+              />
               <button
                 aria-label={t("nav_menu_close")}
                 className="flex size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -576,7 +505,7 @@ export function LandingNavbar({
                 />
               ))}
 
-              <div className="mt-7 flex items-center justify-end gap-3">
+              <div className="mt-8 flex flex-col items-center gap-1.5 text-center">
                 {version && (
                   <a
                     className="font-medium text-muted-foreground text-xs no-underline transition-colors hover:text-foreground active:text-foreground/70"
@@ -587,6 +516,16 @@ export function LandingNavbar({
                     <span className="sr-only">{` ${newTab}`}</span>
                   </a>
                 )}
+                <p className="text-muted-foreground text-xs">
+                  © {COPYRIGHT_YEAR}{" "}
+                  <a
+                    className="font-semibold text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70"
+                    href={JCODE_URL}
+                    {...externalLinkProps}
+                  >
+                    JCode Works<span className="sr-only">{` ${newTab}`}</span>
+                  </a>
+                </p>
               </div>
             </nav>
           </div>

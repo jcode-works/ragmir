@@ -26,6 +26,7 @@ import {
   type TranslationSelection,
   USE_CASE_TRANSLATIONS,
 } from "./lib/island-translations.js"
+import { MAINTAINER } from "./lib/maintainer.js"
 import { FOOTER_LINK_KEYS, PROJECT_LINK_LABEL_KEYS, PROJECT_LINKS } from "./lib/project-links.js"
 import { cn } from "./lib/utils.js"
 
@@ -97,16 +98,16 @@ const footerSource = readFileSync(
   fileURLToPath(new URL("./components/sections/footer.astro", import.meta.url)),
   "utf8",
 )
+const promptBlockSource = readFileSync(
+  fileURLToPath(new URL("./components/prompt-block.tsx", import.meta.url)),
+  "utf8",
+)
 const deploySource = readFileSync(
   fileURLToPath(new URL("./components/sections/deploy.astro", import.meta.url)),
   "utf8",
 )
 const navbarSource = readFileSync(
   fileURLToPath(new URL("./components/landing-navbar.tsx", import.meta.url)),
-  "utf8",
-)
-const textareaSource = readFileSync(
-  fileURLToPath(new URL("./components/ui/textarea.tsx", import.meta.url)),
   "utf8",
 )
 const coreCliSource = readFileSync(
@@ -133,7 +134,9 @@ const agentIntegrationSource = readFileSync(
   fileURLToPath(new URL("../../../docs/agent-integration.md", import.meta.url)),
   "utf8",
 )
-const localizedWebPageId = /"@id": `\$\{pageUrl\}#webpage`/
+// WebStorm parses source snippets that look like JSX or TypeScript as code; a `language=TEXT`
+// comment before an assertion keeps its expected snippet plain text.
+const localizedWebPageId = /"@id": `\$\{pageUrl}#webpage`/
 
 function collectUiSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -178,8 +181,9 @@ describe("landing public contract", () => {
     expect([fr.hero_proof_recall_value, fr.hero_proof_speed_value]).toEqual(["94 %", "36 ms"])
     expect(en.hero_proof_speed_label).toContain("30,171-chunk monorepo")
     expect(heroSource).toContain('t("hero_proof_recall_value")')
-    expect(PROJECT_LINKS.benchmarks).toBe("https://github.com/jcode-works/ragmir#benchmarks")
-    expect(heroSource).toContain("PROJECT_LINKS.benchmarks")
+    expect(PROJECT_LINKS.benchmarks).toBe("/benchmarks/")
+    // The hero links the benchmarks page in the reader's language.
+    expect(heroSource).toContain("href={benchmarksUrl}")
   })
 
   it("should send visitors to GitHub, npm, and PyPI from the navbar and the footer", () => {
@@ -206,7 +210,9 @@ describe("landing public contract", () => {
   it("should list every project link in the footer and label it in both locales", () => {
     expect([...FOOTER_LINK_KEYS].sort()).toEqual(Object.keys(PROJECT_LINKS).sort())
     expect(footerSource).toContain("FOOTER_SECTIONS.map")
-    expect(navbarSource).toContain("PROJECT_LINKS[key]")
+    // Links to pages of this site lead to their translation in the reader's language.
+    expect(navbarSource).toContain("projectLinks[key]")
+    expect(footerSource).toContain("links[key]")
     for (const key of Object.values(PROJECT_LINK_LABEL_KEYS)) {
       expect(en).toHaveProperty(key)
       expect(fr).toHaveProperty(key)
@@ -336,17 +342,14 @@ describe("landing public contract", () => {
   })
 
   it("should show teams shipping RAG how to deploy on their own servers", () => {
-    expect(homePageSource.indexOf("<Agents translations={translations} />")).toBeLessThan(
-      homePageSource.indexOf("<Deploy translations={translations} />"),
-    )
-    expect(homePageSource.indexOf("<Deploy translations={translations} />")).toBeLessThan(
-      homePageSource.indexOf("<Privacy translations={translations} />"),
-    )
+    expect(homePageSource.indexOf("<Agents")).toBeGreaterThan(0)
+    // language=TEXT
+    expect(homePageSource.indexOf("<Agents")).toBeLessThan(homePageSource.indexOf("<Deploy "))
+    // language=TEXT
+    expect(homePageSource.indexOf("<Deploy ")).toBeLessThan(homePageSource.indexOf("<Privacy "))
     expect(deploySource).toContain('id="deploy"')
     expect(deploySource).toContain("PROJECT_LINKS.serverGuide")
-    expect(PROJECT_LINKS.serverGuide).toBe(
-      "https://github.com/jcode-works/ragmir/blob/main/docs/server-deployment.md",
-    )
+    expect(PROJECT_LINKS.serverGuide).toBe("/docs/server-deployment/")
     expect(navbarSource).toContain('t("nav_deploy")')
     expect(en.deploy_text).toContain("Forward deployed engineers")
     expect(fr.deploy_text).toContain("forward deployed engineers")
@@ -356,9 +359,7 @@ describe("landing public contract", () => {
     for (const source of [rootReadmeSource, coreReadmeSource, llmsSource, aiSource]) {
       expect(source).toContain("docs/python.md")
     }
-    expect(PROJECT_LINKS.pythonGuide).toBe(
-      "https://github.com/jcode-works/ragmir/blob/main/docs/python.md",
-    )
+    expect(PROJECT_LINKS.pythonGuide).toBe("/docs/python/")
   })
 
   it("should present the bounded agent setup prompt before manual package-manager tabs", () => {
@@ -370,11 +371,11 @@ describe("landing public contract", () => {
     expect(librarySource.indexOf('t("quickstart_prompt_tab")')).toBeLessThan(
       librarySource.indexOf("packageManagers.map((manager)"),
     )
-    expect(librarySource).toContain("<Textarea")
-    expect(librarySource).toContain("readOnly")
-    expect(librarySource).toContain("overflow-y-auto")
-    expect(librarySource).toContain('className="h-[5.5rem] min-h-[5.5rem]')
-    expect(librarySource).toContain("rounded-xl border-0 bg-background")
+    // The prompt is a compact code block with its own copy button, like every prompt on the site.
+    expect(librarySource).toContain("<PromptBlock")
+    expect(librarySource).toContain('promptClassName="max-h-[7.5rem]')
+    expect(promptBlockSource).toContain("overflow-y-auto whitespace-pre-wrap")
+    expect(promptBlockSource).toContain("<TextCopyButton")
   })
 
   it("should round actions and cards while keeping copy inputs compact", () => {
@@ -399,7 +400,6 @@ describe("landing public contract", () => {
     expect(commandCopySource).toContain("rounded-xl bg-background")
     expect(useCaseSource).toContain("rounded-xl bg-card")
     expect(useCaseSource).toContain("rounded-xl bg-background")
-    expect(textareaSource).toContain("rounded-sm border border-input")
     expect(purpleCtaViolations).toEqual([])
   })
 
@@ -412,17 +412,20 @@ describe("landing public contract", () => {
     expect(homePageSource).toContain('"@type": "WebPage"')
     expect(homePageSource).toMatch(localizedWebPageId)
     expect(homePageSource).toContain('about: { "@id": "https://ragmir.com/#source" }')
-    expect(teamPageSource).toContain('url: "https://github.com/jb-thery"')
+    expect(teamPageSource).toContain("...MAINTAINER")
+    expect(MAINTAINER.url).toBe("https://github.com/jb-thery")
   })
 
   it("should use generic hreflang values while keeping regional Open Graph locales", () => {
     // Chinese pages are Simplified Chinese: a script subtag, still no region.
+    // language=TEXT
     expect(layoutSource).toContain(
       'const hreflangLocaleMap: Record<string, string> = {\n  en: "en",\n  fr: "fr",\n  es: "es",\n  zh: "zh-Hans",',
     )
     expect(astroConfigSource).toContain(
-      'locales: {\n                en: "en",\n                fr: "fr",\n                es: "es",\n                zh: "zh-Hans",',
+      'const sitemapLanguages = { en: "en", fr: "fr", es: "es", zh: "zh-Hans" }',
     )
+    expect(astroConfigSource).toContain("locales: sitemapLanguages")
     expect(layoutSource).toContain('en: "en_US"')
     expect(layoutSource).toContain('fr: "fr_FR"')
     expect(layoutSource).toContain('es: "es_ES"')
@@ -447,6 +450,7 @@ describe("landing public contract", () => {
     expect(layoutSource).toContain(
       'const INDEXABLE_ROBOTS = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"',
     )
+    // language=TEXT
     expect(layoutSource).toContain(
       '{isIndexable && <link rel="canonical" href={canonicalURL.href} />}',
     )
@@ -530,7 +534,7 @@ describe("landing public contract", () => {
     expect(en.demo_chat_model_options).toContain("self-hosted")
     expect(fr.demo_chat_model_options).toContain("auto-hébergé")
     expect(coreCliSource).toContain('.command("ocr")')
-    expect(agentsSource).toContain("docs/agent-integration.md")
+    expect(agentsSource).toContain('href="/docs/agent-integration/"')
   })
 
   it("should keep hero terminal stories aligned with the current CLI and MCP contracts", () => {
@@ -681,7 +685,8 @@ describe("landing public contract", () => {
     for (const messages of [en, fr, es, zh]) {
       expect(getFaqItems(messages)).toHaveLength(16)
     }
-    expect(homePageSource).toContain("<Faq translations={translations} />")
+    // language=TEXT
+    expect(homePageSource).toContain("<Faq translations={translations} deepLinkUrl=")
     expect(homePageSource).not.toContain('"@type": "FAQPage"')
     expect(homePageSource).not.toContain("mainEntity: faqItems.map")
   })
@@ -705,6 +710,9 @@ describe("landing public contract", () => {
   })
 
   it("should merge conditional and conflicting utility classes", () => {
-    expect(cn("px-2", false && "hidden", "px-4")).toBe("px-4")
+    const classesFor = (hidden: boolean) => cn("px-2", hidden && "hidden", "px-4")
+
+    expect(classesFor(false)).toBe("px-4")
+    expect(classesFor(true)).toBe("hidden px-4")
   })
 })

@@ -14,7 +14,7 @@ const t = (key: string): string => translations[key] ?? key
 <section id="cta-final" class="container-wide relative w-full overflow-hidden">
   <div class="relative flex flex-col min-h-[60vh]">
     <div class="container-default mx-auto w-full px-5 pt-12 md:pt-16">
-      <div class="flex justify-between text-[10px] font-mono tracking-[0.25em] uppercase text-muted-foreground">
+      <div class="flex justify-between text-micro font-mono tracking-[0.25em] uppercase text-muted-foreground">
         <span>{t("closing_eyebrow")}</span>
         <span class="hidden md:inline">{t("closing_open_source")}</span>
       </div>
@@ -22,10 +22,10 @@ const t = (key: string): string => translations[key] ?? key
 
     <div class="flex flex-1 items-center justify-center px-5 text-center">
       <div class="max-w-3xl mx-auto">
-        <h2 class="display-title font-black text-3xl leading-[1.06] sm:text-4xl lg:text-5xl">
+        <h2 class="display-title type-title">
           <span class="block">{t("closing_title")}</span>
         </h2>
-        <p class="mt-2 text-muted-foreground text-sm leading-6 md:text-base">
+        <p class="type-lead mt-2 text-muted-foreground">
           {t("closing_text")}
         </p>
         <div class="mt-8 flex flex-col items-center gap-3">
@@ -40,7 +40,7 @@ const t = (key: string): string => translations[key] ?? key
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground tracking-wide no-underline transition-colors hover:text-foreground active:text-foreground/80"
+            class="mt-1 inline-flex items-center gap-1 text-micro text-muted-foreground tracking-wide no-underline transition-colors hover:text-foreground active:text-foreground/80"
           >
             {t("closing_primary_cta")} | {GITHUB_URL.replace(/^https:\/\//u, "")}
             <span class="sr-only">{` ${t("new_tab_label")}`}</span>

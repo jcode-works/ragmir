@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-27T06:47:10.002Z",
+  "commit": "10bb9f691200a3f089f20a7f5d94be8a4129f79c",
+  "environment": {
+    "commit": "10bb9f691200a3f089f20a7f5d94be8a4129f79c",
+    "machine": {
+      "platform": "darwin",
+      "release": "27.2.0",
+      "architecture": "arm64",
+      "cpuModel": "Apple M3 Max",
+      "logicalCpuCount": 14,
+      "totalMemoryBytes": 38654705664,
+      "nodeVersion": "v22.23.4"
+    },
+    "machineFingerprint": "dd9c03d57bf49578c65d9b6a0fe31a0fdee311b922195acfb44efd24de0d9266",
+    "runtimeDependencies": {
+      "lanceDb": "0.30.0",
+      "lanceDbNative": {
+        "name": "@lancedb/lancedb-darwin-arm64",
+        "version": "0.30.0"
+      },
+      "apacheArrow": "18.1.0",
+      "transformers": "4.3.2",
+      "onnxRuntime": "1.30.0",
+      "sharp": "0.35.5"
+    }
+  },
+  "corpus": {
+    "trackedFiles": 287,
+    "langchainChunks": 4365
+  },
+  "model": {
+    "name": "mixedbread-ai/mxbai-embed-xsmall-v1",
+    "revision": "e6ac24e5d6efb8782b59de1647b3ececb4ece94e"
+  },
+  "questions": {
+    "answerable": 89,
+    "unrelated": 30,
+    "nearDomain": 40
+  },
+  "systems": [
+    {
+      "name": "Ragmir (hybrid, mxbai-embed-xsmall-v1)",
+      "indexSeconds": 88.1,
+      "hitAt1": 0.461,
+      "hitAt3": 0.865,
+      "hitAt10": 1,
+      "mrrAt10": 0.658,
+      "ndcgAt10": 0.46,
+      "unrelatedRefused": 28,
+      "nearDomainRefused": 13,
+      "medianMs": 19.1,
+      "p95Ms": 58
+    },
+    {
+      "name": "Ragmir (local-hash, no model)",
+      "indexSeconds": 8.8,
+      "hitAt1": 0.494,
+      "hitAt3": 0.82,
+      "hitAt10": 0.989,
+      "mrrAt10": 0.675,
+      "ndcgAt10": 0.461,
+      "unrelatedRefused": 23,
+      "nearDomainRefused": 7,
+      "medianMs": 17.3,
+      "p95Ms": 40.9
+    },
+    {
+      "name": "LangChain.js splitter + MemoryVectorStore-style cosine",
+      "indexSeconds": 80,
+      "hitAt1": 0.416,
+      "hitAt3": 0.697,
+      "hitAt10": 0.933,
+      "mrrAt10": 0.581,
+      "ndcgAt10": 0.391,
+      "unrelatedRefused": 0,
+      "nearDomainRefused": 0,
+      "medianMs": 6.5,
+      "p95Ms": 7.3
+    },
+    {
+      "name": "Orama hybrid (similarity 0.8)",
+      "indexSeconds": 80.3,
+      "hitAt1": 0.056,
+      "hitAt3": 0.135,
+      "hitAt10": 0.202,
+      "mrrAt10": 0.102,
+      "ndcgAt10": 0.048,
+      "unrelatedRefused": 2,
+      "nearDomainRefused": 0,
+      "medianMs": 8.5,
+      "p95Ms": 13.6
+    },
+    {
+      "name": "Orama hybrid (similarity 0.1)",
+      "indexSeconds": 80.3,
+      "hitAt1": 0.169,
+      "hitAt3": 0.348,
+      "hitAt10": 0.708,
+      "mrrAt10": 0.303,
+      "ndcgAt10": 0.181,
+      "unrelatedRefused": 0,
+      "nearDomainRefused": 0,
+      "medianMs": 9.9,
+      "p95Ms": 15.4
+    },
+    {
+      "name": "MiniSearch BM25",
+      "indexSeconds": 0.3,
+      "hitAt1": 0.404,
+      "hitAt3": 0.742,
+      "hitAt10": 0.978,
+      "mrrAt10": 0.596,
+      "ndcgAt10": 0.386,
+      "unrelatedRefused": 2,
+      "nearDomainRefused": 0,
+      "medianMs": 1.5,
+      "p95Ms": 2.7
+    }
+  ]
+}

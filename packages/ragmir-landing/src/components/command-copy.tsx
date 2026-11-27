@@ -1,4 +1,5 @@
 import { Check, Copy, X } from "lucide-react"
+import type * as React from "react"
 import { useEffect, useRef, useState } from "react"
 import { highlightCommand } from "../lib/command-syntax"
 import { cn } from "../lib/utils"
@@ -62,6 +63,9 @@ async function writeCommandToClipboard(command: string): Promise<void> {
   textarea.style.left = "-9999px"
   document.body.append(textarea)
   textarea.select()
+  // The deprecated command is the only copy path where the async clipboard is missing (plain HTTP,
+  // older browsers), so it stays as the fallback.
+  // noinspection JSDeprecatedSymbols
   const copyFallback = document.execCommand.bind(document) as (commandId: string) => boolean
   const copied = copyFallback("copy")
   textarea.remove()
@@ -80,10 +84,13 @@ function selectText(element: Element | null | undefined): void {
   selection.addRange(range)
 }
 
-/** Focuses a text field and selects all of it, ready for the copy shortcut. */
+/** Selects all of a text field or a block of text, ready for the copy shortcut. */
 function selectField(id: string | undefined): void {
   const field = id ? document.getElementById(id) : null
-  if (!(field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement)) return
+  if (!(field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement)) {
+    selectText(field)
+    return
+  }
   field.focus()
   field.select()
 }
@@ -208,6 +215,35 @@ export function CommandCopyButton({
       type="button"
     >
       <CopyStateIcon className={cn("size-3.5", iconClassName)} state={state} />
+    </button>
+  )
+}
+
+/**
+ * The icon-only copy button of a code block in an article. A refused copy selects the block's
+ * code, found as the `pre` of the enclosing `[data-code-block]`.
+ */
+export function CodeCopyButton({
+  code,
+  copyLabel,
+}: {
+  code: string
+  copyLabel: string
+}): React.JSX.Element {
+  const { state, copy } = useCopy(code, { toast: true })
+
+  return (
+    <button
+      aria-label={copyLabel}
+      className="inline-flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground transition-colors hover:bg-[var(--card-hover)] hover:text-foreground active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onClick={(event) => {
+        const block = event.currentTarget.closest("[data-code-block]")
+        void copy(() => selectText(block?.querySelector("pre")))
+      }}
+      title={copyLabel}
+      type="button"
+    >
+      <CopyStateIcon className="size-4" state={state} />
     </button>
   )
 }

@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions"
 import "../styles/global.css"
-import { defaultLang, getLocalizedUrl, locales } from "../i18n/utils"
+import { defaultLang, getLocalizedUrl, locales, useTranslations } from "../i18n/utils"
 
 interface Props {
   title?: string
@@ -18,6 +18,10 @@ interface Props {
   structuredData?: Record<string, unknown> | Record<string, unknown>[]
   canonicalOverride?: string
   availableLocales?: readonly string[] | string[]
+  /** Root-relative URL of each locale's version, for a page whose path differs between locales. */
+  alternatePaths?: Readonly<Record<string, string>>
+  /** Id of the element the skip link jumps to, past the navigation bar. */
+  skipTarget?: string
 }
 
 // Full snippets, which also bound what AI Overviews and AI Mode may quote, and large image and video
@@ -38,7 +42,10 @@ const {
   structuredData,
   canonicalOverride,
   availableLocales = locales,
+  alternatePaths,
+  skipTarget = "main-content",
 } = Astro.props
+const { t } = await useTranslations(locale)
 
 const siteBase = Astro.site ?? new URL("https://ragmir.com")
 const canonicalURL = canonicalOverride
@@ -52,6 +59,8 @@ const isIndexable = !/\bnoindex\b/iu.test(robotsProp)
 const localesForAlternates = Array.from(new Set(availableLocales)).filter((entry) =>
   (locales as readonly string[]).includes(entry),
 )
+// hreflang names alternates, so a page in one language lists none (like its sitemap entry).
+const hasAlternates = localesForAlternates.length > 1
 const hreflangLocaleMap: Record<string, string> = {
   en: "en",
   fr: "fr",
@@ -70,6 +79,18 @@ const alternateOgLocales = localesForAlternates
   .filter((entry) => entry !== locale)
   .map((entry) => ogLocaleMap[entry] ?? "en_US")
 
+// An English page that exists in other languages sends a reader whose browser prefers one of them
+// to that version; see the inline script in the head. A translated page never redirects.
+const localeRedirects: Record<string, string> =
+  locale === defaultLang && hasAlternates
+    ? Object.fromEntries(
+        localesForAlternates
+          .filter((entry) => entry !== defaultLang)
+          .map((entry) => [entry, alternatePath(entry)]),
+      )
+    : {}
+const redirectsByLanguage = Object.keys(localeRedirects).length > 0
+
 function getImageType(imageUrl: string): string {
   const pathname = new URL(imageUrl, siteBase).pathname.toLowerCase()
   if (pathname.endsWith(".svg")) return "image/svg+xml"
@@ -79,14 +100,20 @@ function getImageType(imageUrl: string): string {
   return "image/png"
 }
 
-function alternateHref(targetLocale: string): string {
+function alternatePath(targetLocale: string): string {
+  const explicitPath = alternatePaths?.[targetLocale]
+  if (explicitPath) return explicitPath
   const currentPath = Astro.url.pathname
   const prefixedLocale = locales.find(
     (entry) =>
       entry !== defaultLang && (currentPath === `/${entry}` || currentPath.startsWith(`/${entry}/`)),
   )
   const basePath = (prefixedLocale ? currentPath.slice(prefixedLocale.length + 1) : currentPath) || "/"
-  return new URL(getLocalizedUrl(basePath, targetLocale), siteBase).href
+  return getLocalizedUrl(basePath, targetLocale)
+}
+
+function alternateHref(targetLocale: string): string {
+  return new URL(alternatePath(targetLocale), siteBase).href
 }
 ---
 
@@ -94,6 +121,29 @@ function alternateHref(targetLocale: string): string {
 <html lang={htmlLang} dir="ltr" class="dark">
   <head>
     <meta charset="UTF-8" />
+    {
+      redirectsByLanguage && (
+        <script is:inline data-astro-rerun define:vars={{ localeRedirects }}>
+          // Before anything paints: open this page in the reader's language when it exists. A
+          // language picked in the menu wins over the browser's; Chinese of any script gets the
+          // Simplified Chinese pages, and any other language stays on English.
+          ;(() => {
+            let chosen = null
+            try {
+              chosen = localStorage.getItem("ragmir-locale")
+            } catch {}
+            const preferences = navigator.languages?.length ? navigator.languages : [navigator.language]
+            const preferred =
+              chosen ??
+              preferences
+                .map((tag) => String(tag).toLowerCase().split("-")[0])
+                .find((language) => ["en", "fr", "es", "zh"].includes(language))
+            const target = preferred && preferred !== "en" ? localeRedirects[preferred] : undefined
+            if (target) location.replace(target + location.search + location.hash)
+          })()
+        </script>
+      )
+    }
     <script is:inline>
       ;(() => {
         function safeStorageGet(key) {
@@ -107,7 +157,7 @@ function alternateHref(targetLocale: string): string {
         const isDark = theme !== "light"
         document.documentElement.classList.toggle("dark", isDark)
         let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]')
-        if (!colorSchemeMeta) {
+        if (!(colorSchemeMeta instanceof HTMLMetaElement)) {
           colorSchemeMeta = document.createElement("meta")
           colorSchemeMeta.name = "color-scheme"
           document.head.appendChild(colorSchemeMeta)
@@ -165,15 +215,12 @@ function alternateHref(targetLocale: string): string {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     {
-      localesForAlternates.map((entry) => (
-        <link rel="alternate" hreflang={hreflangLocaleMap[entry]} href={alternateHref(entry)} />
-      ))
+      hasAlternates &&
+        localesForAlternates.map((entry) => (
+          <link rel="alternate" hreflang={hreflangLocaleMap[entry]} href={alternateHref(entry)} />
+        ))
     }
-    {
-      localesForAlternates.length > 1 && (
-        <link rel="alternate" hreflang="x-default" href={alternateHref("en")} />
-      )
-    }
+    {hasAlternates && <link rel="alternate" hreflang="x-default" href={alternateHref("en")} />}
 
     {
       structuredData &&
@@ -191,6 +238,12 @@ function alternateHref(targetLocale: string): string {
     <slot name="head" />
   </head>
   <body class="relative min-h-dvh">
+    <a
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:font-bold focus:text-background focus:text-sm"
+      href={`#${skipTarget}`}
+    >
+      {t("skip_to_content")}
+    </a>
     <slot />
   </body>
 </html>

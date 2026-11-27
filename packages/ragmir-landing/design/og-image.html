@@ -141,6 +141,8 @@
       }
       .bar span {
         margin-left: 10px;
+        /* One browser renders this file once into the PNG, so a fractional size cannot drift. */
+        /*noinspection CssNonIntegerLengthInPixels*/
         font: 500 12.5px ui-monospace, "SF Mono", Menlo, monospace;
         color: var(--muted-foreground);
         white-space: nowrap;
@@ -214,6 +216,7 @@
       // A still frame of the landing's dot terrain (same spacing, terrain, perspective, and
       // brightness rules as src/components/ragmir-background.tsx, dark theme).
       const canvas = document.getElementById("dots")
+      if (!(canvas instanceof HTMLCanvasElement)) throw new Error("The #dots canvas is missing.")
       const ratio = window.devicePixelRatio || 1
       canvas.width = 1200 * ratio
       canvas.height = 630 * ratio

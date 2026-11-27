@@ -10,11 +10,16 @@ import { fileURLToPath } from "node:url"
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters"
 import { create, insertMultiple, search as searchOrama } from "@orama/orama"
 import MiniSearch from "minisearch"
-import picomatch from "picomatch"
 import { DEFAULT_CONFIG } from "../dist/defaults.js"
 import { embedTexts } from "../dist/embeddings.js"
 import { createRagmirClient, initProject, loadConfig } from "../dist/index.js"
 import { environmentMetadata } from "./lib/metrics.mjs"
+import {
+  rankingMetrics,
+  REPOSITORY_SOURCES as SOURCES,
+  repositoryFiles,
+  repositoryQuestions,
+} from "./lib/repository-corpus.mjs"
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const repositoryRoot = path.resolve(packageRoot, "../..")
@@ -26,37 +31,9 @@ const resultPath = path.resolve(
   options.result ?? path.join(packageRoot, "benchmarks/.results/competitors.json"),
 )
 const TOP_K = 10
-// The documentation and source a developer agent asks about, tracked in Git.
-const SOURCES = [
-  "README.md",
-  "AGENTS.md",
-  "CLAUDE.md",
-  "CHANGELOG.md",
-  "CONTRIBUTING.md",
-  "RELEASING.md",
-  "SECURITY.md",
-  "SECURITY-HARDENING.md",
-  "llms.txt",
-  "package.json",
-  "docs/**/*.md",
-  "packages/*/README.md",
-  "packages/*/package.json",
-  "packages/ragmir-core/src/**/*.ts",
-  "packages/ragmir-core/skills/**/*.md",
-  "packages/ragmir-core/benchmarks/README.md",
-  "packages/ragmir-landing/src/**/*.{astro,ts,tsx}",
-  "packages/ragmir-landing/messages/*.json",
-  "scripts/*.mjs",
-]
 
-const questions = JSON.parse(
-  await readFile(path.join(packageRoot, "benchmarks/fixtures/repository-questions.json"), "utf8"),
-)
-const isSource = picomatch(SOURCES, { dot: true })
-const files = execFileSync("git", ["ls-files", "-z"], { cwd: repositoryRoot, encoding: "utf8" })
-  .split("\0")
-  .filter((file) => file && isSource(file))
-  .sort()
+const questions = await repositoryQuestions(packageRoot)
+const files = repositoryFiles(repositoryRoot)
 const commit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repositoryRoot, encoding: "utf8" }).trim()
 
 const workspace = await mkdtemp(path.join(os.tmpdir(), "ragmir-competitors-"))
@@ -242,24 +219,6 @@ async function measure(name, indexMs, retrieve) {
     medianMs: round(latencies[Math.floor(latencies.length / 2)], 1),
     p95Ms: round(latencies[Math.floor(latencies.length * 0.95)], 1),
   }
-}
-
-/** File-level metrics: a passage counts when its file answers the question; repeats count once. */
-function rankingMetrics(paths, expectedPaths) {
-  const expected = new Set(expectedPaths)
-  const seen = new Set()
-  let dcg = 0
-  let reciprocalRank = 0
-  for (const [index, file] of paths.slice(0, TOP_K).entries()) {
-    if (!expected.has(file) || seen.has(file)) continue
-    seen.add(file)
-    dcg += 1 / Math.log2(index + 2)
-    if (reciprocalRank === 0) reciprocalRank = 1 / (index + 1)
-  }
-  let ideal = 0
-  for (let index = 0; index < Math.min(expected.size, TOP_K); index += 1) ideal += 1 / Math.log2(index + 2)
-  const hit = (k) => paths.slice(0, k).some((file) => expected.has(file))
-  return { hit1: hit(1), hit3: hit(3), hit10: hit(TOP_K), rr: reciprocalRank, ndcg: dcg / ideal }
 }
 
 function cosine(left, right) {

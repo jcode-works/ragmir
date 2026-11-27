@@ -208,20 +208,75 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   each page linked to its translations by reciprocal hreflang. Localized home pages: English
   https://ragmir.com/, French https://ragmir.com/fr/, Spanish https://ragmir.com/es/, Simplified
   Chinese https://ragmir.com/zh/. Link readers to the page in their language.
+- Every guide, use case, comparison, benchmark page, and integration page exists in all four
+  languages: the [guides](https://ragmir.com/guides/) are at https://ragmir.com/fr/guides/,
+  https://ragmir.com/es/guias/, and https://ragmir.com/zh/guides/, and the
+  [integrations](https://ragmir.com/integrations/) at https://ragmir.com/fr/integrations/,
+  https://ragmir.com/es/integraciones/, and https://ragmir.com/zh/integrations/. The
+  [documentation](https://ragmir.com/docs/) is in English, rendered from the repository's docs.
+- An English page opens in the reader's browser language when that version exists; a language
+  picked in the site's menu takes precedence.
+
+## Guides
+
+- [Local RAG tutorial](https://ragmir.com/local-rag/): index documents on the CPU, search with
+  exact citations, and answer with a local Ollama model, with the outputs of a dated run.
+- [Agentic RAG](https://ragmir.com/agentic-rag/): the agent decides when to search, rewords
+  queries, expands citations, and stops on weak evidence.
+- [RAG MCP server](https://ragmir.com/mcp-rag-server/): the tools and limits of Ragmir's local MCP
+  server, also as a docs MCP server over your own documentation, how each coding agent starts it,
+  and how to compare servers.
+- [RAG vs MCP](https://ragmir.com/rag-vs-mcp/): how the protocol and retrieval differ and work
+  together.
+- [Does Claude Code use RAG?](https://ragmir.com/claude-code-rag/): grep against a local index on
+  89 measured developer questions.
+- [RAG citations](https://ragmir.com/rag-citations/): line, page, slide, cell, and section
+  coordinates per format.
+- [RAG without a vector database](https://ragmir.com/rag-without-vector-database/): when BM25
+  keyword search with optional local embeddings is enough.
+- [Self-hosted RAG](https://ragmir.com/self-hosted-rag/) and
+  [air-gapped RAG](https://ragmir.com/air-gapped-rag/): Docker images, offline staging, and a
+  deployment checklist.
+- [Local or cloud RAG](https://ragmir.com/local-vs-cloud-rag/): the retrieval model and the machine
+  it needs, local, self-hosted, or cloud answers, and what a cloud provider receives.
+- [RAG for forward deployed engineers](https://ragmir.com/use-cases/forward-deployed-engineers/):
+  ship and evaluate retrieval inside a customer's perimeter.
+- [RAG for YouTube creators](https://ragmir.com/use-cases/youtube-research/): books, papers, and
+  caption files in one cited base, script checks, and a topic wiki kept honest by the audit.
+- [RAG for incident response](https://ragmir.com/use-cases/incident-response/): a coding agent
+  diagnoses from runbooks, postmortems, and code with citations before it fixes and tests.
+- [Private RAG for paperwork](https://ragmir.com/use-cases/paperwork/): statements, payslips, and
+  contracts indexed on your computer, answered by a local model with the page as proof.
+- [RAG for job search](https://ragmir.com/use-cases/job-search/): match an offer to your CVs and
+  reviews, and draft cover letters where every claim is cited.
+- [Claude alone or Claude with Ragmir](https://ragmir.com/compare/claude-vs-rag/): when Claude's
+  own file reading is enough, and when a local index with citations helps.
+- [Benchmarks](https://ragmir.com/benchmarks/) and the
+  [case study of Ragmir's own repository](https://ragmir.com/case-studies/ragmir-repository/):
+  dated, reproducible results with their raw reports.
+- Integrations: [Claude Code](https://ragmir.com/integrations/claude-code/),
+  [Codex](https://ragmir.com/integrations/codex/), [Cursor](https://ragmir.com/integrations/cursor/),
+  [Gemini CLI and Qwen Code](https://ragmir.com/integrations/gemini-cli/),
+  [LangChain](https://ragmir.com/integrations/langchain/), and
+  [LlamaIndex](https://ragmir.com/integrations/llamaindex/).
 
 ## Documentation
 
-- [Quick start](https://github.com/jcode-works/ragmir/blob/main/docs/quick-start.md)
-- [CLI reference](https://github.com/jcode-works/ragmir/blob/main/docs/cli-reference.md)
-- [API reference](https://github.com/jcode-works/ragmir/blob/main/docs/api-reference.md)
-- [Configuration](https://github.com/jcode-works/ragmir/blob/main/docs/configuration.md)
-- [Supported formats](https://github.com/jcode-works/ragmir/blob/main/docs/supported-formats.md)
-- [Agent integration: local, self-hosted, or cloud](https://github.com/jcode-works/ragmir/blob/main/docs/agent-integration.md)
-- [Run on a server or in a container](https://github.com/jcode-works/ragmir/blob/main/docs/server-deployment.md)
-- [Run Ragmir with Docker](https://github.com/jcode-works/ragmir/blob/main/docs/docker.md)
-- [Use Ragmir from Python](https://github.com/jcode-works/ragmir/blob/main/docs/python.md)
-- [Migration](https://github.com/jcode-works/ragmir/blob/main/docs/migration.md)
-- [Troubleshooting](https://github.com/jcode-works/ragmir/blob/main/docs/troubleshooting.md)
+Each guide of the repository's `docs/` folder, rendered on the site from the same file. The
+Markdown of each guide is served beside its page, such as
+https://ragmir.com/docs/quick-start.md:
+
+- [Quick start](https://ragmir.com/docs/quick-start/) (`docs/quick-start.md`)
+- [CLI reference](https://ragmir.com/docs/cli-reference/) (`docs/cli-reference.md`)
+- [API reference](https://ragmir.com/docs/api-reference/) (`docs/api-reference.md`)
+- [Configuration](https://ragmir.com/docs/configuration/) (`docs/configuration.md`)
+- [Supported formats](https://ragmir.com/docs/supported-formats/) (`docs/supported-formats.md`)
+- [Agent integration: local, self-hosted, or cloud](https://ragmir.com/docs/agent-integration/) (`docs/agent-integration.md`)
+- [Run on a server or in a container](https://ragmir.com/docs/server-deployment/) (`docs/server-deployment.md`)
+- [Run Ragmir with Docker](https://ragmir.com/docs/docker/) (`docs/docker.md`)
+- [Use Ragmir from Python](https://ragmir.com/docs/python/) (`docs/python.md`)
+- [Migration](https://ragmir.com/docs/migration/) (`docs/migration.md`)
+- [Troubleshooting](https://ragmir.com/docs/troubleshooting/) (`docs/troubleshooting.md`)
 
 ## Distribution
 

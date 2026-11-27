@@ -1,0 +1,307 @@
+---
+import { ArrowRight, ArrowUpRight } from "@lucide/astro"
+import type { IntegrationMarkName } from "../content/integration-logos"
+import type { SetupVariant } from "../content/setup-prompts"
+import { getLocalizedUrl, languageTag, useTranslations } from "../i18n/utils"
+import { MAINTAINER } from "../lib/maintainer"
+import { articleSchema, type Crumb } from "../lib/page-schema"
+import { GITHUB_URL } from "../lib/project-links"
+import ArticleCards, { type ArticleCard } from "./article-cards.astro"
+import ArticleNav from "./article-nav.astro"
+import Breadcrumbs from "./breadcrumbs.astro"
+import { CommandCopyBox } from "./command-copy"
+import IntegrationMark from "./integration-mark.astro"
+import PageShell from "./page-shell.astro"
+import { RagmirBackground } from "./ragmir-background"
+import SetupPromptCard from "./setup-prompt-card.astro"
+
+interface Props {
+  title: string
+  description: string
+  h1: string
+  summary: string
+  locale: string
+  /** Root-relative URL of each locale's version; hreflang lists only these. */
+  alternates: Readonly<Record<string, string>>
+  /** Site path without locale or slashes, such as `integrations/claude-code`. */
+  path: string
+  /** The tool's mark beside the title of an integration page. */
+  mark?: IntegrationMarkName
+  articleType: "TechArticle" | "Article"
+  breadcrumbs: readonly Crumb[]
+  datePublished: Date
+  dateModified: Date
+  headings: ReadonlyArray<{ depth: number; slug: string; text: string }>
+  related: readonly ArticleCard[]
+  /** A hub's pages, shown as groups of cards before its text. */
+  cardGroups?: ReadonlyArray<{ id?: string; title?: string; cards: readonly ArticleCard[] }>
+  /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
+  navSection?: string
+  /** The setup prompt offered before the text, the short way through the page. */
+  setup?: SetupVariant
+  /** The local or cloud guide in this locale, linked from the setup card. */
+  privacyHref?: string
+  /** Key figures shown as tiles before the text, each taken from the page's own tables. */
+  highlights?: ReadonlyArray<{ value: string; label: string }>
+  /** A hub's notes after its page cards, as cards too: a fact, a command, or a link. */
+  notes?: ReadonlyArray<{
+    title: string
+    cards: ReadonlyArray<{
+      title: string
+      text: string
+      command?: string
+      link?: { href: string; label: string }
+    }>
+  }>
+}
+
+const {
+  title,
+  description,
+  h1,
+  summary,
+  locale,
+  alternates,
+  path,
+  mark,
+  articleType,
+  breadcrumbs,
+  datePublished,
+  dateModified,
+  headings,
+  related,
+  cardGroups = [],
+  navSection,
+  setup,
+  privacyHref = "/local-vs-cloud-rag/",
+  notes = [],
+  highlights = [],
+} = Astro.props
+
+const { t } = await useTranslations(locale)
+const siteBase = Astro.site ?? new URL("https://ragmir.com")
+const homeUrl = getLocalizedUrl("/", locale)
+const pageUrl = new URL(alternates[locale] ?? getLocalizedUrl(`/${path}`, locale), siteBase).href
+const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
+  dateStyle: "long",
+  timeZone: "UTC",
+})
+const isHub = cardGroups.some((group) => group.cards.length > 0)
+const hasBody = Astro.slots.has("default")
+// Something to read before a hub's cards.
+const hasLead = Astro.slots.has("lead")
+// A hub lists its pages instead: a contents list would point past the cards.
+const sections = isHub ? [] : headings.filter((heading) => heading.depth === 2)
+// The setup card opens the text, so it opens the contents list too.
+const contents = [
+  ...(setup ? [{ href: "#setup-prompt", title: t("setup_title") }] : []),
+  ...sections.map((heading) => ({ href: `#${heading.slug}`, title: heading.text })),
+]
+const hasContents = contents.length > 1
+const libraryUrl = `${homeUrl}#library`
+const relatedColumns = related.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"
+const structuredData = articleSchema({
+  siteBase,
+  pageUrl,
+  title,
+  description,
+  headline: h1,
+  locale,
+  articleType,
+  datePublished,
+  dateModified,
+  breadcrumbs,
+})
+
+const pillClass =
+  "group inline-flex h-11 items-center gap-2 rounded-full px-5 font-bold text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+---
+
+<PageShell
+  title={title}
+  description={description}
+  locale={locale}
+  alternates={alternates}
+  structuredData={structuredData}
+  navSection={navSection}
+>
+  <!-- Clips the dot band without becoming a scroll container, so the side rail stays sticky. -->
+  <div class="relative overflow-clip">
+    <RagmirBackground
+      behindContent={false}
+      className="inset-x-0 top-0 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]"
+      client:visible
+      height="300px"
+    />
+    <main id="main-content" class="container-default relative z-10 px-5 pt-28 pb-24 md:px-8 md:pt-36">
+      <Breadcrumbs class="text-shadow-hero" crumbs={breadcrumbs} label={t("article_breadcrumb_label")} />
+
+      <article
+        class:list={["article-layout mt-8", hasContents ? "article-layout-guide" : "article-layout-single"]}
+      >
+        <header class="max-w-3xl [grid-area:header]">
+          <h1 class:list={["type-title text-shadow-hero", mark && "flex items-start gap-4"]}>
+            {mark && (
+              <span class="flex h-[1lh] shrink-0 items-center">
+                <IntegrationMark class="size-8 text-foreground md:size-9" mark={mark} />
+              </span>
+            )}
+            {mark ? <span>{h1}</span> : h1}
+          </h1>
+          <p class="type-lead text-shadow-hero mt-5 text-muted-foreground">{summary}</p>
+          <p class="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-xs leading-6">
+            <span>
+              {t("article_by")}{" "}
+              <a
+                class="font-semibold text-foreground underline-offset-4 hover:underline"
+                href={getLocalizedUrl("/team", locale)}
+              >
+                {MAINTAINER.name}
+              </a>
+            </span>
+            <span>
+              {t("article_published")}{" "}
+              <time datetime={datePublished.toISOString()}>{dateFormat.format(datePublished)}</time>
+            </span>
+            {dateModified.getTime() !== datePublished.getTime() && (
+              <span>
+                {t("article_updated")}{" "}
+                <time datetime={dateModified.toISOString()}>{dateFormat.format(dateModified)}</time>
+              </span>
+            )}
+          </p>
+        </header>
+
+        {hasContents && (
+          <div class="mt-10 [grid-area:menus] lg:hidden">
+            <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="disclosure" />
+          </div>
+        )}
+
+        {(hasBody || isHub || hasLead || setup || highlights.length > 0) && (
+          <div class="mt-10 min-w-0 [grid-area:body] lg:mt-12">
+            {highlights.length > 0 && (
+              <ul class="mb-14 grid grid-cols-2 gap-3 lg:grid-cols-4" role="list">
+                {highlights.map((highlight) => (
+                  <li class="flex flex-col rounded-xl bg-card p-5">
+                    <span class="type-section tnum whitespace-nowrap">{highlight.value}</span>
+                    <span class="mt-2 text-muted-foreground text-small leading-5">{highlight.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {setup && <SetupPromptCard class="mb-14" locale={locale} privacyHref={privacyHref} variant={setup} />}
+
+            {hasLead && (
+              <div class="mb-14">
+                <slot name="lead" />
+              </div>
+            )}
+
+            {isHub && (
+              <div class="flex flex-col gap-14">
+                {cardGroups.map((group) => (
+                  <section aria-label={group.title} class="scroll-mt-28" id={group.id}>
+                    {group.title && <h2 class="type-section">{group.title}</h2>}
+                    <ArticleCards
+                      cards={group.cards}
+                      class="mt-6 sm:grid-cols-2 lg:grid-cols-3"
+                      cta={t("article_card_cta")}
+                    />
+                  </section>
+                ))}
+                {notes.map((group) => (
+                  <section aria-label={group.title}>
+                    <h2 class="type-section">{group.title}</h2>
+                    <!--
+                      Four subgrid rows per card (title, text, link, command) line the cards up across a
+                      row. Rows get no gap, which an empty row would keep: cards keep their own margin.
+                    -->
+                    <ul
+                      class:list={["mt-6 -mb-3 grid gap-x-3 sm:grid-cols-2", group.cards.length === 3 && "lg:grid-cols-3"]}
+                      role="list"
+                    >
+                      {group.cards.map((card) => (
+                        <li class="row-span-4 mb-3 grid grid-rows-subgrid rounded-xl bg-card p-6">
+                          <h3 class="row-start-1 font-black text-lg leading-snug">{card.title}</h3>
+                          <p class="row-start-2 mt-2 text-small text-muted-foreground leading-5">{card.text}</p>
+                          {card.link && (
+                            <a
+                              class="row-start-3 mt-4 inline-flex w-fit items-center gap-1.5 self-start rounded-sm font-semibold text-small text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              href={card.link.href}
+                            >
+                              {card.link.label}
+                              <ArrowRight aria-hidden="true" class="arrow-forward size-3.5 text-muted-foreground" />
+                            </a>
+                          )}
+                          {card.command && (
+                            <div class="row-start-4 self-end pt-5">
+                              <CommandCopyBox client:visible command={card.command} copyLabel={t("copy_command")} />
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            )}
+
+            {hasBody && (
+              <div
+                id="article-body"
+                class:list={["prose-article", isHub && "mt-16", (isHub || !hasContents) && "max-w-2xl"]}
+              >
+                <slot />
+              </div>
+            )}
+          </div>
+        )}
+
+        {hasContents && (
+          <aside class="[grid-area:toc] max-lg:hidden">
+            <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="rail" />
+          </aside>
+        )}
+      </article>
+
+      {related.length > 0 && (
+        <section aria-labelledby="related-title" class="mt-20">
+          <h2 id="related-title" class="type-section">{t("article_related_title")}</h2>
+          <ArticleCards cards={related} class={`mt-6 ${relatedColumns}`} cta={t("article_card_cta")} />
+        </section>
+      )}
+      <section aria-labelledby="article-cta-title" class="mt-20 rounded-xl bg-card px-6 py-12 text-center md:px-12">
+        <h2 id="article-cta-title" class="type-section mx-auto max-w-2xl">
+          {t("closing_title")}
+        </h2>
+        <p class="type-lead mx-auto mt-4 max-w-2xl text-muted-foreground">
+          {t("closing_text")}
+        </p>
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            class="group inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 font-bold text-primary-foreground text-sm transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--primary-press)]"
+            href={libraryUrl}
+          >
+            {t("closing_secondary_cta")}
+            <ArrowRight aria-hidden="true" class="arrow-forward size-4" />
+          </a>
+          <a
+            class={`${pillClass} bg-background text-foreground hover:bg-[var(--card-hover)] active:bg-[var(--card-press)]`}
+            href={GITHUB_URL}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {t("closing_primary_cta")}
+            <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+            <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+</PageShell>
+
+<script>
+  import "./article-rails"
+</script>

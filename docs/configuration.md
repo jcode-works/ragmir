@@ -1,5 +1,7 @@
 # Configuration
 
+> On the web: [ragmir.com/docs/configuration](https://ragmir.com/docs/configuration/)
+
 Ragmir reads its configuration from the current directory or an ancestor. Start with `rgr setup`;
 edit JSON only for a real need.
 

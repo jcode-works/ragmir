@@ -7,6 +7,7 @@ import {
   type LucideIcon,
   PackageCheck,
 } from "lucide-react"
+import type * as React from "react"
 import { useState } from "react"
 import { cn } from "../lib/utils"
 import { TabIndicator } from "./tab-indicator"
@@ -179,7 +180,7 @@ function WorkflowStep({
       className="relative flex min-h-28 flex-col rounded-xl bg-background p-4 transition-opacity duration-300 ease-[var(--ease-out-expo)] group-data-[state=active]/panel:delay-[calc(var(--step)*50ms)] group-data-[state=inactive]/panel:opacity-0 group-data-[state=inactive]/panel:duration-150 md:p-5 lg:min-h-36"
       style={{ "--step": position - 1 } as React.CSSProperties}
     >
-      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+      <div className="flex items-center gap-2 font-mono text-micro uppercase tracking-[0.2em]">
         <span className="tnum text-muted-foreground">{String(position).padStart(2, "0")}</span>
         <span
           aria-hidden="true"
@@ -255,9 +256,7 @@ export function UseCaseCarousel({ translations }: UseCaseCarouselProps): React.J
             value={useCase.id}
           >
             <div className="px-1 md:px-2">
-              <h3 className="text-balance font-black text-xl leading-tight md:text-2xl">
-                {t(useCase.titleKey)}
-              </h3>
+              <h3 className="type-subsection">{t(useCase.titleKey)}</h3>
               <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-6">
                 {t(useCase.descriptionKey)}
               </p>

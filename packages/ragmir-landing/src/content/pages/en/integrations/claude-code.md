@@ -8,6 +8,8 @@ translationKey: "integrations/claude-code"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "mcp-rag-server", "integrations/codex", "docs/agent-integration"]
+logo: "claude"
+group: "agents"
 ---
 
 Install the Ragmir plugin, index a project once, and Claude Code can search it with citations.

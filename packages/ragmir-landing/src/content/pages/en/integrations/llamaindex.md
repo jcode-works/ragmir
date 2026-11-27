@@ -8,6 +8,8 @@ translationKey: "integrations/llamaindex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "integrations/langchain", "docs/python", "docs/supported-formats"]
+logo: "library"
+group: "frameworks"
 ---
 
 Ragmir's retriever returns LlamaIndex nodes from local files, and each node carries a citation.

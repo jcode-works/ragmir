@@ -3,7 +3,7 @@ import path from "node:path"
 import { getCollection, render } from "astro:content"
 import ArticlePage from "../../components/article-page.astro"
 import { useTranslations } from "../../i18n/utils"
-import { DOC_ORDER, DOC_PAGES, docTitle } from "../../lib/docs-pages"
+import { DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
 
 export async function getStaticPaths() {
@@ -36,10 +36,7 @@ const neighbours = [1, 2, 3, 4]
   .map((step) => guides[(position + step) % guides.length])
   .filter((id): id is string => id !== undefined && id !== entry.id)
   .map((id) => ({ title: titleOf(id), href: `/docs/${id}/`, summary: DOC_PAGES[id]?.summary ?? "" }))
-const sideNav = {
-  label: t("nav_section_docs"),
-  links: guides.map((id) => ({ title: titleOf(id), href: `/docs/${id}/`, current: id === entry.id })),
-}
+const sideNav = { label: t("nav_section_docs"), groups: docsMenu(titleOf, entry.id) }
 ---
 
 <ArticlePage
@@ -50,7 +47,6 @@ const sideNav = {
   locale="en"
   alternates={{ en: `/docs/${entry.id}/` }}
   path={`docs/${entry.id}`}
-  kicker="Docs"
   articleType="TechArticle"
   breadcrumbs={[
     { name: "Ragmir", href: "/" },

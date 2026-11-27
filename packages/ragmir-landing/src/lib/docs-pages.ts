@@ -4,6 +4,7 @@
  * The guides are written in English only.
  */
 import type { CollectionEntry } from "astro:content"
+import { PROJECT_LINKS } from "./project-links"
 
 export interface DocPage {
   title: string
@@ -86,20 +87,57 @@ export const DOC_PAGES: Readonly<Record<string, DocPage>> = {
   },
 }
 
-/** The guides in reading order for the docs menu. */
-export const DOC_ORDER: readonly string[] = [
-  "quick-start",
-  "agent-integration",
-  "cli-reference",
-  "api-reference",
-  "python",
-  "configuration",
-  "supported-formats",
-  "server-deployment",
-  "docker",
-  "troubleshooting",
-  "migration",
+/** The documentation's sections in its left menu, each with its guides in reading order. */
+export const DOC_GROUPS: ReadonlyArray<{ title: string; ids: readonly string[] }> = [
+  { title: "Get started", ids: ["quick-start", "agent-integration"] },
+  {
+    title: "Reference",
+    ids: ["cli-reference", "api-reference", "python", "configuration", "supported-formats"],
+  },
+  { title: "Deploy", ids: ["server-deployment", "docker"] },
+  { title: "Help", ids: ["troubleshooting", "migration"] },
 ]
+
+/** The guides in reading order, section after section. */
+export const DOC_ORDER: readonly string[] = DOC_GROUPS.flatMap((group) => group.ids)
+
+/** Pages beyond the documentation, listed at the foot of its menu; some leave the site. */
+const DOC_MENU_MORE: ReadonlyArray<{ title: string; href: string; external?: boolean }> = [
+  { title: "All guides", href: "/guides/" },
+  { title: "Integrations", href: "/integrations/" },
+  { title: "Local or cloud RAG", href: "/local-vs-cloud-rag/" },
+  { title: "Benchmarks", href: "/benchmarks/" },
+  { title: "These docs on Context7", href: PROJECT_LINKS.context7, external: true },
+  { title: "Source on GitHub", href: `${PROJECT_LINKS.github}/tree/main/docs`, external: true },
+]
+
+/**
+ * The documentation's left menu: an overview, its sections, then the site's guides. `current` is
+ * the id of the guide on screen, or `undefined` on the overview.
+ */
+export function docsMenu(
+  titleOf: (id: string) => string,
+  current: string | undefined,
+): Array<{
+  title?: string
+  links: Array<{ title: string; href: string; current: boolean; external?: boolean }>
+}> {
+  return [
+    { links: [{ title: "Overview", href: "/docs/", current: current === undefined }] },
+    ...DOC_GROUPS.map((group) => ({
+      title: group.title,
+      links: group.ids.map((id) => ({
+        title: titleOf(id),
+        href: `/docs/${id}/`,
+        current: id === current,
+      })),
+    })),
+    {
+      title: "More",
+      links: DOC_MENU_MORE.map((link) => ({ ...link, current: false })),
+    },
+  ]
+}
 
 /** A guide's title: its own H1, which the docs pages plugin removes from the rendered body. */
 export function docTitle(entry: CollectionEntry<"docs">): string {

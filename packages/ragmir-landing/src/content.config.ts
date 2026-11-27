@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content"
 import { glob } from "astro/loaders"
 import { z } from "astro/zod"
+import { INTEGRATION_MARK_NAMES } from "./content/integration-logos"
 
 /** Kinds of long-form pages; each one picks its JSON-LD type and its breadcrumb parent. */
 export const PAGE_SECTIONS = [
@@ -30,6 +31,10 @@ const pages = defineCollection({
     datePublished: z.coerce.date(),
     dateModified: z.coerce.date(),
     related: z.array(z.string()).default([]),
+    /** The tool's mark on an integration page and on its card in the integrations hub. */
+    logo: z.enum(INTEGRATION_MARK_NAMES).optional(),
+    /** The group of the integrations hub that lists the page: coding agents or frameworks. */
+    group: z.enum(["agents", "frameworks"]).optional(),
   }),
 })
 

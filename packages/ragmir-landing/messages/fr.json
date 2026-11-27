@@ -494,15 +494,7 @@
   "article_updated": "Mis à jour le",
   "article_toc": "Sur cette page",
   "article_source": "Source sur GitHub",
-  "article_related_label": "Voir aussi",
   "article_related_title": "Pour aller plus loin",
-  "article_section_guide": "Guide",
-  "article_section_integration": "Intégration",
-  "article_section_use_case": "Cas d’usage",
-  "article_section_comparison": "Comparatif",
-  "article_section_case_study": "Étude de cas",
-  "article_section_benchmark": "Benchmarks",
-  "article_section_hub": "Vue d’ensemble",
   "nav_guides": "Guides",
   "footer_link_use_case": "Pour les forward deployed engineers",
   "footer_link_case_study": "Étude de cas",
@@ -512,5 +504,8 @@
   "home_link_self_hosted": "Guide du RAG auto-hébergé",
   "home_link_air_gapped": "Guide du RAG en réseau isolé",
   "home_link_agentic_rag": "Comprendre le RAG agentique",
-  "skip_to_content": "Aller au contenu"
+  "skip_to_content": "Aller au contenu",
+  "nav_home": "Accueil",
+  "article_card_cta": "Lire le guide",
+  "hub_group_comparisons": "Comparaisons"
 }

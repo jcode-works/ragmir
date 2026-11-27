@@ -11,6 +11,7 @@ import {
   Gauge,
   GitCompareArrows,
   History,
+  House,
   Layers,
   type LucideIcon,
   Menu,
@@ -111,7 +112,7 @@ const DRAWER_ROW_CLASS_NAME =
 const HEADER_ICON_CLASS_NAME =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
-/** The hubs, named in the bar on wide screens; narrower ones reach them through the drawer. */
+/** The hubs, named in the bar after Home on wide screens; narrower ones reach them through the drawer. */
 const HUB_LINKS: ReadonlyArray<{ href: string; labelKey: string }> = [
   { href: PROJECT_LINKS.guides, labelKey: "nav_guides" },
   { href: PROJECT_LINKS.agentPlugins, labelKey: "nav_integrations" },
@@ -258,7 +259,14 @@ export function LandingNavbar({
   const localizedIntegrationsUrl = localizedLibraryUrl.replace(/#library$/u, "#integrations")
   const localizedComparisonUrl = localizedLibraryUrl.replace(/#library$/u, "#comparison")
   // In page order, so the drawer reads like the page.
+  const homePath = localizedHomeUrl.replace(/#.*$/u, "")
+  // Home, then the hubs: the bar lights the page on screen, or the hub that lists it.
+  const barLinks = [
+    { href: homePath, label: t("nav_home") },
+    ...HUB_LINKS.map(({ href, labelKey }) => ({ href, label: t(labelKey) })),
+  ]
   const drawerPageLinks: DrawerLink[] = [
+    { href: homePath, label: t("nav_home"), icon: House },
     { href: localizedUseCasesUrl, label: t("nav_use_cases"), icon: Layers },
     { href: localizedFeaturesUrl, label: t("nav_features"), icon: Sparkles },
     { href: localizedComparisonUrl, label: t("nav_comparison"), icon: GitCompareArrows },
@@ -383,18 +391,18 @@ export function LandingNavbar({
           <div className="flex items-center gap-1">
             <nav
               aria-label={t("nav_aria_label")}
-              className="mr-3 hidden items-center gap-6 lg:flex xl:mr-5 xl:gap-8"
+              className="mr-3 hidden items-center gap-1 lg:flex xl:mr-5 xl:gap-2"
             >
-              {HUB_LINKS.map(({ href, labelKey }) => (
+              {barLinks.map(({ href, label }) => (
                 <a
                   aria-current={
                     currentPath === href ? "page" : currentSection === href ? "true" : undefined
                   }
-                  className="rounded-sm py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:text-foreground"
+                  className="rounded-full px-3.5 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:bg-foreground/[0.09] [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
                   href={href}
                   key={href}
                 >
-                  {t(labelKey)}
+                  {label}
                 </a>
               ))}
             </nav>

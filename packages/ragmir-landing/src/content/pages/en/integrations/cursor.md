@@ -8,6 +8,8 @@ translationKey: "integrations/cursor"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "mcp-rag-server", "docs-mcp-server", "docs/agent-integration"]
+logo: "cursor"
+group: "agents"
 ---
 
 Connect Cursor to Ragmir's MCP server, index the project once, and the agent can search it with

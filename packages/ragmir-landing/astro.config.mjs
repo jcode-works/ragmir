@@ -82,6 +82,9 @@ export default defineConfig({
       : []),
   ],
   markdown: {
+    // A dark theme whose purples, greens, and oranges stay readable on the card grey that
+    // global.css gives every code block.
+    shikiConfig: { theme: "tokyo-night" },
     processor: satteri({
       hastPlugins: [docsPagesPlugin({ docsDirectory }), noTranslateCodePlugin()],
     }),

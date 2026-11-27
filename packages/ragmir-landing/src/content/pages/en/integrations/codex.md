@@ -8,6 +8,8 @@ translationKey: "integrations/codex"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "integrations/claude-code", "mcp-rag-server", "docs/agent-integration"]
+logo: "terminal"
+group: "agents"
 ---
 
 Add the plugin, index the project once, and Codex can search it with citations.

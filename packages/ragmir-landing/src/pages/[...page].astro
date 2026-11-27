@@ -1,6 +1,8 @@
 ---
 import { getCollection, render } from "astro:content"
+import type { ArticleCard } from "../components/article-cards.astro"
 import ArticlePage from "../components/article-page.astro"
+import type { IntegrationMarkName } from "../content/integration-logos"
 import { getLocalizedUrl, useTranslations } from "../i18n/utils"
 import {
   type ContentPage,
@@ -36,14 +38,12 @@ const { t } = await useTranslations(locale)
 const { Content, headings } = await render(entry)
 const { data } = entry
 
-// A hub page lists the pages of its sections as cards before its own text.
+// A hub page lists the pages of its sections as groups of cards before its own text.
 const hub = data.section === "hub" ? HUBS[path] : undefined
 const hubPages = hub ? sectionPages(hub.sections, locale, all) : []
 const parentHub = hubOf(data.section)
 const parent = parentHub ? findPage(parentHub, locale, all) : undefined
 const parentHref = parentHub && parent ? pageHref(parentHub, pageLocation(parent).locale) : undefined
-const sectionLabel = (section: ContentPage["data"]["section"]): string =>
-  t(`article_section_${section.replace("-", "_")}`)
 
 const breadcrumbs = [
   { name: "Ragmir", href: getLocalizedUrl("/", locale) },
@@ -53,39 +53,52 @@ const breadcrumbs = [
   { name: data.h1, href: pageHref(path, locale) },
 ]
 
-// A card shows the page's search description: one or two sentences, sized for a card.
-const toLink = (page: ContentPage) => {
+// A card shows the page's search description: one or two sentences, sized for a card, and the
+// tool's mark on an integration page.
+const toLink = (page: ContentPage): ArticleCard => {
   const location = pageLocation(page)
   return {
     title: page.data.h1,
     href: pageHref(location.path, location.locale),
     summary: page.data.description,
+    ...(page.data.logo ? { mark: page.data.logo } : {}),
   }
 }
-// A hub that lists several sections groups its cards in the order of its sections, and tags each
-// card with its own.
-const cards = [...hubPages]
-  .sort((a, b) => (hub?.sections.indexOf(a.data.section) ?? 0) - (hub?.sections.indexOf(b.data.section) ?? 0))
-  .map((page) => ({
-    ...toLink(page),
-    ...(hub && hub.sections.length > 1 ? { tag: sectionLabel(page.data.section) } : {}),
-  }))
 
-// `related` names site paths, or `docs/<guide>` for a guide rendered from the repository's docs.
+// A target names a site path, or `docs/<guide>` for a guide rendered from the repository's docs.
 const docs = await getCollection("docs")
+const resolve = (target: string, mark?: IntegrationMarkName): ArticleCard[] => {
+  if (target.startsWith("docs/")) {
+    const id = target.slice("docs/".length)
+    const doc = docs.find((candidate) => candidate.id === id)
+    const meta = DOC_PAGES[id]
+    return doc && meta
+      ? [{ title: docTitle(doc), href: `/${target}/`, summary: meta.summary, ...(mark ? { mark } : {}) }]
+      : []
+  }
+  const page = findPage(target, locale, all)
+  return page ? [{ ...toLink(page), ...(mark ? { mark } : {}) }] : []
+}
+
+const cardGroups = (hub?.groups ?? []).map((group) => ({
+  title: t(group.labelKey),
+  cards: [
+    ...hubPages
+      .filter(
+        (page) =>
+          (group.sections?.includes(page.data.section) ?? false) ||
+          (group.group !== undefined && page.data.group === group.group),
+      )
+      .map(toLink),
+    ...(group.extra ?? []).flatMap((extra) => resolve(extra.target, extra.mark)),
+  ],
+}))
+const hubHrefs = new Set(cardGroups.flatMap((group) => group.cards.map((card) => card.href)))
+
+// A hub's cards already show its own pages.
 const related = data.related
-  .flatMap((target) => {
-    if (target.startsWith("docs/")) {
-      const id = target.slice("docs/".length)
-      const doc = docs.find((candidate) => candidate.id === id)
-      const meta = DOC_PAGES[id]
-      return doc && meta ? [{ title: docTitle(doc), href: `/${target}/`, summary: meta.summary }] : []
-    }
-    const page = findPage(target, locale, all)
-    return page ? [toLink(page)] : []
-  })
-  // A hub's cards already show its own pages.
-  .filter((link) => !cards.some((card) => card.href === link.href))
+  .flatMap((target) => resolve(target))
+  .filter((link) => !hubHrefs.has(link.href))
 ---
 
 <ArticlePage
@@ -96,14 +109,14 @@ const related = data.related
   locale={locale}
   alternates={pageAlternates(entry, all)}
   path={path}
-  kicker={sectionLabel(data.section)}
+  mark={data.logo}
   articleType={data.section === "case-study" ? "Article" : "TechArticle"}
   breadcrumbs={breadcrumbs}
   datePublished={data.datePublished}
   dateModified={data.dateModified}
   headings={headings}
   related={related}
-  cards={cards}
+  cardGroups={cardGroups}
   navSection={hub ? pageHref(path, locale) : parentHref}
 >
   <Content />

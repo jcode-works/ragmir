@@ -635,14 +635,15 @@ header[data-hidden] .logo-text {
 }
 
 /*
- * Long-form page layout. On a phone everything stacks: title, folded lists, a hub's cards, text.
+ * Long-form page layout. On a phone everything stacks: title, folded lists, then the body, where a
+ * hub shows its cards before its text.
  * Wide screens move the contents list into a rail beside the text, and the docs keep their guide
  * list in a rail on the other side.
  */
 .article-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "header" "menus" "hub" "body";
+  grid-template-areas: "header" "menus" "body";
   column-gap: 3rem;
 }
 
@@ -751,13 +752,70 @@ header[data-hidden] .logo-text {
   overflow-wrap: anywhere;
 }
 
+/*
+ * A code block is a card: a bar naming the language (Terminal for shell commands), then the code,
+ * which scrolls sideways on its own so the bar and the copy button stay in place. Shiki writes
+ * its own background and overflow inline, hence the !important.
+ */
 .prose-article pre {
-  overflow-x: auto;
+  overflow: hidden !important;
   border-radius: 0.75rem;
   background-color: var(--card) !important;
-  padding: 1.1rem 1.25rem;
+  padding: 0;
   font-size: 0.85rem;
   line-height: 1.65;
+}
+
+.prose-article pre > code {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.prose-article pre::before {
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding-inline: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  content: "Code";
+}
+
+.prose-article pre:is([data-language="bash"], [data-language="sh"], [data-language="shell"])::before {
+  content: "Terminal";
+}
+
+.prose-article pre[data-language="json"]::before {
+  content: "JSON";
+}
+
+.prose-article pre[data-language="ts"]::before {
+  content: "TypeScript";
+}
+
+.prose-article pre:is([data-language="js"], [data-language="mjs"])::before {
+  content: "JavaScript";
+}
+
+.prose-article pre[data-language="python"]::before {
+  content: "Python";
+}
+
+.prose-article pre[data-language="yaml"]::before {
+  content: "YAML";
+}
+
+.prose-article pre[data-language="dockerfile"]::before {
+  content: "Dockerfile";
+}
+
+/* Plain text is an output or a chat command: no bar, the copy button sits on the first line. */
+.prose-article pre:is([data-language="text"], [data-language="plaintext"])::before {
+  display: none;
 }
 
 .prose-article blockquote {
@@ -836,6 +894,11 @@ header[data-hidden] .logo-text {
 
 .prose-article .code-copy-slot {
   position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+}
+
+.prose-article [data-code-block]:has(pre:is([data-language="text"], [data-language="plaintext"]))
+  .code-copy-slot {
   top: 0.6rem;
-  right: 0.6rem;
 }

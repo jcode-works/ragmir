@@ -1,6 +1,7 @@
 ---
-import { ArrowRight, ArrowUpRight, Bot, Library, Puzzle, SquareTerminal } from "@lucide/astro"
-import { INTEGRATION_LOGOS, type IntegrationLogoKey } from "../../content/integration-logos"
+import { ArrowRight, ArrowUpRight } from "@lucide/astro"
+import type { IntegrationLogoKey } from "../../content/integration-logos"
+import IntegrationMark from "../integration-mark.astro"
 import { SectionHeader } from "../section-header"
 import { isExternalLink, NPM_URL } from "../../lib/project-links"
 
@@ -114,7 +115,6 @@ const groups: { title: string; items: Integration[] }[] = [
         </h3>
         <ul class="grid grid-cols-2 gap-2 lg:grid-cols-1" role="list">
           {group.items.map((item) => {
-            const logo = item.logo ? INTEGRATION_LOGOS[item.logo] : undefined
             return (
               <li>
                 <a
@@ -123,25 +123,7 @@ const groups: { title: string; items: Integration[] }[] = [
                   id={`integration-${item.id}`}
                 >
                   <span class="flex size-6 shrink-0 items-center justify-center text-foreground">
-                    {logo ? (
-                      <svg
-                        class="size-5"
-                        viewBox="0 0 24 24"
-                        fill={logo.color ?? "currentColor"}
-                        role="img"
-                        aria-hidden="true"
-                      >
-                        <path d={logo.path} />
-                      </svg>
-                    ) : item.fallback === "library" ? (
-                      <Library class="size-5" aria-hidden="true" />
-                    ) : item.fallback === "bot" ? (
-                      <Bot class="size-5" aria-hidden="true" />
-                    ) : item.fallback === "skills" ? (
-                      <Puzzle class="size-5" aria-hidden="true" />
-                    ) : (
-                      <SquareTerminal class="size-5" aria-hidden="true" />
-                    )}
+                    <IntegrationMark class="size-5" mark={item.logo ?? item.fallback ?? "terminal"} />
                   </span>
                   <span class="min-w-0">
                     <span class="block font-bold text-sm leading-5">{item.name}</span>

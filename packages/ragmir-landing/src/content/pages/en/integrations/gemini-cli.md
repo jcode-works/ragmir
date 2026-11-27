@@ -8,6 +8,8 @@ translationKey: "integrations/gemini-cli"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "mcp-rag-server", "integrations/claude-code", "docs/agent-integration"]
+logo: "gemini"
+group: "agents"
 ---
 
 Gemini CLI and Qwen Code install the extension straight from the Ragmir repository.

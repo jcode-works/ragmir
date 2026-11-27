@@ -1,14 +1,62 @@
 import type { CollectionEntry } from "astro:content"
+import type { IntegrationMarkName } from "../content/integration-logos"
 import { defaultLang, getLocalizedUrl, locales } from "../i18n/utils"
 
 export type ContentPage = CollectionEntry<"pages">
 
 type Section = ContentPage["data"]["section"]
 
-/** The hub pages, by site path: the sections each one lists and the key of its short label. */
-export const HUBS: Readonly<Record<string, { sections: readonly Section[]; labelKey: string }>> = {
-  integrations: { sections: ["integration"], labelKey: "nav_integrations" },
-  guides: { sections: ["guide", "use-case", "comparison"], labelKey: "nav_guides" },
+/** One group of cards on a hub page, under its own heading. */
+interface HubGroup {
+  labelKey: string
+  /** The hub pages of these sections. */
+  sections?: readonly Section[]
+  /** The integration pages of this group. */
+  group?: ContentPage["data"]["group"]
+  /** Cards for pages outside the hub's sections: a site path or `docs/<guide>`, with its mark. */
+  extra?: ReadonlyArray<{ target: string; mark?: IntegrationMarkName }>
+}
+
+/** The hub pages, by site path: the sections each one lists, its short label, and its groups. */
+export const HUBS: Readonly<
+  Record<string, { sections: readonly Section[]; labelKey: string; groups: readonly HubGroup[] }>
+> = {
+  integrations: {
+    sections: ["integration"],
+    labelKey: "nav_integrations",
+    groups: [
+      {
+        labelKey: "integrations_group_agents",
+        group: "agents",
+        extra: [{ target: "docs/agent-integration", mark: "bot" }],
+      },
+      {
+        labelKey: "integrations_group_frameworks",
+        group: "frameworks",
+        extra: [
+          { target: "docs/api-reference", mark: "typescript" },
+          { target: "docs/python", mark: "python" },
+        ],
+      },
+      {
+        labelKey: "integrations_group_protocols",
+        extra: [
+          { target: "mcp-rag-server", mark: "mcp" },
+          { target: "docs/docker", mark: "docker" },
+          { target: "local-rag", mark: "ollama" },
+        ],
+      },
+    ],
+  },
+  guides: {
+    sections: ["guide", "use-case", "comparison"],
+    labelKey: "nav_guides",
+    groups: [
+      { labelKey: "nav_guides", sections: ["guide"] },
+      { labelKey: "nav_use_cases", sections: ["use-case"] },
+      { labelKey: "hub_group_comparisons", sections: ["comparison"] },
+    ],
+  },
 }
 
 /** The site path of the hub that lists a section, if one does. */

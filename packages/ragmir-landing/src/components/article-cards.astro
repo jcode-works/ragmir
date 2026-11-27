@@ -1,35 +1,41 @@
 ---
+import { ArrowRight } from "@lucide/astro"
+import type { IntegrationMarkName } from "../content/integration-logos"
+import IntegrationMark from "./integration-mark.astro"
+
 export interface ArticleCard {
   title: string
   href: string
   summary: string
-  /** A short line above the title that says what the card is, such as its kind or its rank. */
-  tag?: string
+  /** The tool's mark, on the cards of the integrations hub. */
+  mark?: IntegrationMarkName
 }
 
 interface Props {
   cards: readonly ArticleCard[]
+  /** The words at the foot of each card that say where it leads, such as "Read the guide". */
+  cta: string
   class?: string
 }
 
-const { cards, class: className } = Astro.props
+const { cards, cta, class: className } = Astro.props
 ---
 
 <ul class:list={["grid gap-3", className]} role="list">
   {cards.map((card) => (
     <li>
       <a
-        class="flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+        class="group flex h-full flex-col rounded-xl bg-card p-6 transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
         href={card.href}
       >
-        {card.tag && (
-          <span class="mb-4 flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-            <span aria-hidden="true" class="size-1.5 rounded-full bg-foreground/50" />
-            <span class="tnum">{card.tag}</span>
-          </span>
-        )}
+        {card.mark && <IntegrationMark class="mb-5 size-7 shrink-0 text-foreground" mark={card.mark} />}
         <span class="font-black text-lg leading-snug">{card.title}</span>
         <span class="mt-2 text-muted-foreground text-sm leading-6">{card.summary}</span>
+        <!-- The whole card is the link; this line only shows that it leads somewhere. -->
+        <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-foreground text-sm">
+          {cta}
+          <ArrowRight class="arrow-forward size-4 text-muted-foreground" />
+        </span>
       </a>
     </li>
   ))}

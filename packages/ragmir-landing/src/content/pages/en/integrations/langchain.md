@@ -8,6 +8,8 @@ translationKey: "integrations/langchain"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["integrations", "integrations/llamaindex", "docs/api-reference", "docs/python"]
+logo: "langchain"
+group: "frameworks"
 ---
 
 Ragmir's retriever gives a LangChain chain or agent documents with a citation in their metadata.

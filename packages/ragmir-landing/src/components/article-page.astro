@@ -4,11 +4,13 @@ import { getLocalizedUrl, languages, languageTag, locales, useTranslations } fro
 import Layout from "../layouts/layout.astro"
 import { NAVBAR_TRANSLATIONS, pickTranslations } from "../lib/island-translations"
 import { MAINTAINER } from "../lib/maintainer"
+import type { IntegrationMarkName } from "../content/integration-logos"
 import { GITHUB_URL } from "../lib/project-links"
 import AnimatedBackdrop from "./animated-backdrop.astro"
 import ArticleCards, { type ArticleCard } from "./article-cards.astro"
 import { ArticleCodeCopy } from "./article-code-copy"
 import ArticleNav from "./article-nav.astro"
+import IntegrationMark from "./integration-mark.astro"
 import { LandingNavbar } from "./landing-navbar"
 import { RagmirBackground } from "./ragmir-background"
 import Footer from "./sections/footer.astro"
@@ -20,7 +22,10 @@ interface Crumb {
 
 interface SideNav {
   label: string
-  links: ReadonlyArray<{ title: string; href: string; current: boolean }>
+  groups: ReadonlyArray<{
+    title?: string
+    links: ReadonlyArray<{ title: string; href: string; current: boolean }>
+  }>
 }
 
 interface Props {
@@ -33,7 +38,8 @@ interface Props {
   alternates: Readonly<Record<string, string>>
   /** Site path without locale or slashes, such as `integrations/claude-code`. */
   path: string
-  kicker: string
+  /** The tool's mark above the title of an integration page. */
+  mark?: IntegrationMarkName
   articleType: "TechArticle" | "Article"
   breadcrumbs: readonly Crumb[]
   datePublished: Date
@@ -44,8 +50,8 @@ interface Props {
   sourceHref?: string
   /** Sibling pages listed in a rail beside the text, such as every guide of the documentation. */
   sideNav?: SideNav
-  /** A hub's pages, shown as cards across the page before its text. */
-  cards?: readonly ArticleCard[]
+  /** A hub's pages, shown as groups of cards before its text. */
+  cardGroups?: ReadonlyArray<{ title?: string; cards: readonly ArticleCard[] }>
   /** Root-relative URL of the hub the page belongs to, lit in the navigation bar. */
   navSection?: string
 }
@@ -58,7 +64,7 @@ const {
   locale,
   alternates,
   path,
-  kicker,
+  mark,
   articleType,
   breadcrumbs,
   datePublished,
@@ -67,7 +73,7 @@ const {
   related,
   sourceHref,
   sideNav,
-  cards = [],
+  cardGroups = [],
   navSection,
 } = Astro.props
 
@@ -86,8 +92,10 @@ const dateFormat = new Intl.DateTimeFormat(languageTag(locale), {
   dateStyle: "long",
   timeZone: "UTC",
 })
-const isHub = cards.length > 0
+const isHub = cardGroups.some((group) => group.cards.length > 0)
 const hasBody = Astro.slots.has("default")
+// Something to read before a hub's cards, such as where else the documentation is served.
+const hasLead = Astro.slots.has("lead")
 // A hub lists its pages instead: a contents list would point past the cards.
 const sections = isHub ? [] : headings.filter((heading) => heading.depth === 2)
 const hasContents = sections.length > 1
@@ -224,13 +232,8 @@ const pillClass =
 
       <article class:list={["article-layout mt-8", layoutClass]}>
         <header class="max-w-3xl [grid-area:header]">
-          <p class="text-shadow-hero flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-            <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
-            <span class="tnum">001</span>
-            <span aria-hidden="true" class="opacity-60">·</span>
-            <span>{kicker}</span>
-          </p>
-          <h1 class="display text-shadow-hero mt-6 text-balance text-4xl md:text-5xl">{h1}</h1>
+          {mark && <IntegrationMark class="mb-6 size-11 text-foreground" mark={mark} />}
+          <h1 class="display text-shadow-hero text-balance text-4xl md:text-5xl">{h1}</h1>
           <p class="text-shadow-hero mt-6 text-base text-foreground/85 leading-relaxed md:text-lg">
             {summary}
           </p>
@@ -259,7 +262,12 @@ const pillClass =
 
         {sideNav && (
           <aside class="[grid-area:nav] max-lg:hidden">
-            <ArticleNav label={sideNav.label} links={sideNav.links} variant="rail" />
+            <ArticleNav
+              groups={sideNav.groups}
+              label={sideNav.label}
+              newTabLabel={t("new_tab_label")}
+              variant="rail"
+            />
           </aside>
         )}
 
@@ -271,20 +279,48 @@ const pillClass =
             ]}
           >
             {sideNav && (
-              <ArticleNav class="lg:hidden" label={sideNav.label} links={sideNav.links} variant="disclosure" />
+              <ArticleNav
+                class="lg:hidden"
+                groups={sideNav.groups}
+                label={sideNav.label}
+                newTabLabel={t("new_tab_label")}
+                variant="disclosure"
+              />
             )}
             {hasContents && (
-              <ArticleNav label={t("article_toc")} links={contents} sections variant="disclosure" />
+              <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="disclosure" />
             )}
           </div>
         )}
 
-        {isHub && <ArticleCards cards={cards} class="mt-12 [grid-area:hub] sm:grid-cols-2 lg:grid-cols-3" />}
+        {(hasBody || sourceHref || isHub || hasLead) && (
+        <div class:list={["min-w-0 [grid-area:body]", "mt-10 lg:mt-12"]}>
+          {hasLead && (
+            <div class="mb-14">
+              <slot name="lead" />
+            </div>
+          )}
 
-        {(hasBody || sourceHref) && (
-        <div class:list={["min-w-0 [grid-area:body]", isHub ? "mt-16" : "mt-10 lg:mt-12"]}>
+          {isHub && (
+            <div class="flex flex-col gap-14">
+              {cardGroups.map((group) => (
+                <section aria-label={group.title}>
+                  {group.title && <h2 class="display text-balance text-2xl md:text-3xl">{group.title}</h2>}
+                  <ArticleCards
+                    cards={group.cards}
+                    class:list={["mt-6", sideNav ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"]}
+                    cta={t("article_card_cta")}
+                  />
+                </section>
+              ))}
+            </div>
+          )}
+
           {hasBody && (
-            <div id="article-body" class:list={["prose-article", (isHub || !hasContents) && !sideNav && "max-w-2xl"]}>
+            <div
+              id="article-body"
+              class:list={["prose-article", isHub && "mt-16", (isHub || !hasContents) && !sideNav && "max-w-2xl"]}
+            >
               <slot />
             </div>
           )}
@@ -308,34 +344,19 @@ const pillClass =
 
         {hasContents && (
           <aside class:list={["[grid-area:toc]", sideNav ? "max-xl:hidden" : "max-lg:hidden"]}>
-            <ArticleNav label={t("article_toc")} links={contents} sections variant="rail" />
+            <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="rail" />
           </aside>
         )}
       </article>
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" class="mt-20">
-          <p class="flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-            <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
-            <span class="tnum">002</span>
-            <span aria-hidden="true" class="opacity-60">·</span>
-            <span>{t("article_related_label")}</span>
-          </p>
-          <h2 id="related-title" class="display mt-6 text-balance text-3xl">{t("article_related_title")}</h2>
-          <ArticleCards
-            cards={related.map((card, index) => ({
-              ...card,
-              tag: `${String(index + 1).padStart(2, "0")} / ${String(related.length).padStart(2, "0")}`,
-            }))}
-            class={`mt-8 ${relatedColumns}`}
-          />
+          <h2 id="related-title" class="display text-balance text-3xl">{t("article_related_title")}</h2>
+          <ArticleCards cards={related} class={`mt-8 ${relatedColumns}`} cta={t("article_card_cta")} />
         </section>
       )}
       <section aria-labelledby="article-cta-title" class="mt-20 rounded-xl bg-card px-6 py-12 text-center md:px-12">
-        <p class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-          {t("closing_eyebrow")}
-        </p>
-        <h2 id="article-cta-title" class="display mx-auto mt-5 max-w-2xl text-balance text-3xl">
+        <h2 id="article-cta-title" class="display mx-auto max-w-2xl text-balance text-3xl">
           {t("closing_title")}
         </h2>
         <p class="mx-auto mt-4 max-w-2xl text-muted-foreground text-sm leading-6 md:text-base">

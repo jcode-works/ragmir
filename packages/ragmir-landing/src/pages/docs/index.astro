@@ -2,8 +2,11 @@
 import path from "node:path"
 import { getCollection } from "astro:content"
 import ArticlePage from "../../components/article-page.astro"
-import { DOC_ORDER, DOC_PAGES, docTitle } from "../../lib/docs-pages"
+import { ArrowUpRight } from "@lucide/astro"
+import { useTranslations } from "../../i18n/utils"
+import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "../../lib/docs-pages"
 import { gitDates } from "../../lib/git-dates"
+import { PROJECT_LINKS } from "../../lib/project-links"
 
 const docs = await getCollection("docs")
 const guides = DOC_ORDER.flatMap((id) => {
@@ -24,6 +27,16 @@ const published = guides.flatMap((guide) => (guide.dates ? [guide.dates.publishe
 const modified = guides.flatMap((guide) => (guide.dates ? [guide.dates.modified] : []))
 const earliest = new Date(Math.min(...published.map((date) => date.getTime())))
 const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
+const { t } = await useTranslations("en")
+const titleOf = (id: string): string => guides.find((guide) => guide.id === id)?.title ?? id
+// The overview lists every guide by section, under the same menu as the guides themselves.
+const cardGroups = DOC_GROUPS.map((group) => ({
+  title: group.title,
+  cards: group.ids.flatMap((id) => {
+    const guide = guides.find((candidate) => candidate.id === id)
+    return guide ? [{ title: guide.title, href: `/docs/${id}/`, summary: guide.summary }] : []
+  }),
+}))
 ---
 
 <ArticlePage
@@ -34,7 +47,6 @@ const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
   locale="en"
   alternates={{ en: "/docs/" }}
   path="docs"
-  kicker="Docs"
   articleType="TechArticle"
   breadcrumbs={[
     { name: "Ragmir", href: "/" },
@@ -44,12 +56,25 @@ const latest = new Date(Math.max(...modified.map((date) => date.getTime())))
   dateModified={modified.length > 0 ? latest : new Date()}
   headings={[]}
   related={[]}
-  cards={guides.map((guide, index) => ({
-    title: guide.title,
-    href: `/docs/${guide.id}/`,
-    summary: guide.summary,
-    // The guides keep the reading order of the repository's docs folder.
-    tag: `${String(index + 1).padStart(2, "0")} / ${String(guides.length).padStart(2, "0")}`,
-  }))}
+  cardGroups={cardGroups}
+  sideNav={{ label: t("nav_section_docs"), groups: docsMenu(titleOf, undefined) }}
   navSection="/docs/"
-/>
+>
+  <aside class="rounded-xl bg-card p-6 md:p-8" slot="lead">
+    <h2 class="font-black text-xl leading-snug">Give these docs to your coding agent</h2>
+    <p class="mt-2 max-w-2xl text-muted-foreground text-sm leading-6">
+      Context7 indexes Ragmir's documentation from the repository, so an agent connected to Context7
+      can look up a command or an option while it works, without leaving your editor.
+    </p>
+    <a
+      class="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-background px-5 font-bold text-foreground text-sm transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
+      href={PROJECT_LINKS.context7}
+      rel="noopener"
+      target="_blank"
+    >
+      Open Ragmir on Context7
+      <span class="sr-only">{` ${t("new_tab_label")}`}</span>
+      <ArrowUpRight aria-hidden="true" class="arrow-out size-4 text-muted-foreground" />
+    </a>
+  </aside>
+</ArticlePage>

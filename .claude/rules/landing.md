@@ -19,6 +19,9 @@ paths:
 - An English page with translations redirects, before paint, to the reader's browser language
   (Chinese of any script goes to `zh`); a language picked in the menu is stored as `ragmir-locale`
   and wins. A translated page never redirects.
+- The sitemap gives a long-form page the `lastmod` of its front-matter `dateModified`, and a docs
+  page the date of its last Git commit, and `scripts/audit-seo-build.mjs` checks both: set
+  `dateModified` in every locale whenever a page's content changes, never for a rebuild.
 - The docs use their own layout, `src/components/docs-page.astro`, rather than Starlight, which
   would take over their routes, the Markdown pipeline, and the navigation bar they share with the
   rest of the site.

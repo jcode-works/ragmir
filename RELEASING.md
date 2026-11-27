@@ -64,8 +64,9 @@ The host serves `dist/` as static assets, answers an unknown path with `404.html
 and redirects a directory path to its trailing slash (`/fr` to `/fr/`). After each deployment,
 check that `/`, `/fr/`, `/es/`, `/zh/`, and `/team/` answer 200 and show the released version,
 that an unknown path answers 404 with the error page, and that `/llms.txt` and `/ai.txt` match
-the root `llms.txt`. The sitemap carries no `lastmod`, so when a deployment changed page content,
-not only the version, the maintainer can notify IndexNow:
+the root `llms.txt`. The sitemap dates long-form pages with their front-matter `dateModified` and
+docs pages with their last Git commit; the home and team pages carry no `lastmod`. When a
+deployment changed page content, not only the version, the maintainer can notify IndexNow:
 
 ```bash
 pnpm --filter @jcode.labs/ragmir-landing submit:indexnow --all

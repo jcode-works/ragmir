@@ -28,6 +28,15 @@ const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
  * link per language. Links, not a native select, so crawlers follow every translation and a
  * keyboard user never leaves the page by moving through the options.
  */
+/** Keeps the reader's choice, which the layout's language redirect follows from then on. */
+function rememberLocale(locale: string): void {
+  try {
+    localStorage.setItem("ragmir-locale", locale)
+  } catch {
+    // Storage can be off; the choice then lasts for this page only.
+  }
+}
+
 export function LanguageSelect({
   label,
   locale,
@@ -111,7 +120,10 @@ export function LanguageSelect({
               href={option.href}
               hrefLang={LANGUAGE_TAGS[option.locale] ?? option.locale}
               lang={LANGUAGE_TAGS[option.locale] ?? option.locale}
-              onClick={onSelect ? (event) => onSelect(event, option.href) : undefined}
+              onClick={(event) => {
+                rememberLocale(option.locale)
+                onSelect?.(event, option.href)
+              }}
             >
               {option.label}
               {option.locale === locale && (

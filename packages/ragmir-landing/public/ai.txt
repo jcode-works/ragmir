@@ -208,10 +208,14 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   each page linked to its translations by reciprocal hreflang. Localized home pages: English
   https://ragmir.com/, French https://ragmir.com/fr/, Spanish https://ragmir.com/es/, Simplified
   Chinese https://ragmir.com/zh/. Link readers to the page in their language.
-- The [guides](https://ragmir.com/guides/), [integrations](https://ragmir.com/integrations/), and
-  [documentation](https://ragmir.com/docs/) are in English. The local RAG and agentic RAG guides,
-  the comparison of Claude alone with Claude and Ragmir, and the YouTube research, incident
-  response, paperwork, and job search use cases also exist in French and Spanish.
+- Every guide, use case, comparison, benchmark page, and integration page exists in all four
+  languages: the [guides](https://ragmir.com/guides/) are at https://ragmir.com/fr/guides/,
+  https://ragmir.com/es/guias/, and https://ragmir.com/zh/guides/, and the
+  [integrations](https://ragmir.com/integrations/) at https://ragmir.com/fr/integrations/,
+  https://ragmir.com/es/integraciones/, and https://ragmir.com/zh/integrations/. The
+  [documentation](https://ragmir.com/docs/) is in English, rendered from the repository's docs.
+- An English page opens in the reader's browser language when that version exists; a language
+  picked in the site's menu takes precedence.
 
 ## Guides
 

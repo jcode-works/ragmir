@@ -78,6 +78,14 @@ export function pageHref(path: string, locale: string): string {
   return getLocalizedUrl(`/${path}`, locale)
 }
 
+/** The URL of the page at an English site path, in a locale when it is translated there. */
+export function localizedHref(path: string, locale: string, all: readonly ContentPage[]): string {
+  const page = findPage(path, locale, all)
+  if (!page) return `/${path}/`
+  const location = pageLocation(page)
+  return pageHref(location.path, location.locale)
+}
+
 /**
  * The page at an English site path in a locale, or the English page when it is not translated. A
  * translation may live at another path (`fr/rag-local` for `local-rag`): its `translationKey` ties

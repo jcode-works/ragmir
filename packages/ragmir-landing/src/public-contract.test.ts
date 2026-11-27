@@ -182,7 +182,8 @@ describe("landing public contract", () => {
     expect(en.hero_proof_speed_label).toContain("30,171-chunk monorepo")
     expect(heroSource).toContain('t("hero_proof_recall_value")')
     expect(PROJECT_LINKS.benchmarks).toBe("/benchmarks/")
-    expect(heroSource).toContain("PROJECT_LINKS.benchmarks")
+    // The hero links the benchmarks page in the reader's language.
+    expect(heroSource).toContain("href={benchmarksUrl}")
   })
 
   it("should send visitors to GitHub, npm, and PyPI from the navbar and the footer", () => {
@@ -209,7 +210,9 @@ describe("landing public contract", () => {
   it("should list every project link in the footer and label it in both locales", () => {
     expect([...FOOTER_LINK_KEYS].sort()).toEqual(Object.keys(PROJECT_LINKS).sort())
     expect(footerSource).toContain("FOOTER_SECTIONS.map")
-    expect(navbarSource).toContain("PROJECT_LINKS[key]")
+    // Links to pages of this site lead to their translation in the reader's language.
+    expect(navbarSource).toContain("projectLinks[key]")
+    expect(footerSource).toContain("links[key]")
     for (const key of Object.values(PROJECT_LINK_LABEL_KEYS)) {
       expect(en).toHaveProperty(key)
       expect(fr).toHaveProperty(key)

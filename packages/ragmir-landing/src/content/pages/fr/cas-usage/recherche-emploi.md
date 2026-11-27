@@ -84,7 +84,7 @@ fonctions cloud d’Ollama.
 
 Un assistant cloud fonctionne aussi. Il reçoit les passages qu’il lit, et non tout le dossier, et la
 politique de son fournisseur s’applique alors. Vérifiez l’entraînement, la conservation, la région,
-l’accès et le périmètre dans le [guide local ou cloud](/local-vs-cloud-rag/) avant d’en connecter
+l’accès et le périmètre dans le [guide local ou cloud](/fr/rag-local-ou-cloud/) avant d’en connecter
 un.
 
 ## Limites
@@ -100,6 +100,6 @@ un.
 ## Étapes suivantes
 
 - [Tutoriel RAG local : documents, Ollama et CPU uniquement](/fr/rag-local/)
-- [RAG local ou cloud : modèles, matériel et vos données](/local-vs-cloud-rag/)
-- [Citations RAG : ligne, page, diapositive et cellule](/rag-citations/)
+- [RAG local ou cloud : modèles, matériel et vos données](/fr/rag-local-ou-cloud/)
+- [Citations RAG : ligne, page, diapositive et cellule](/fr/rag-citations/)
 - [Formats pris en charge](/docs/supported-formats/)

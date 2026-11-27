@@ -84,7 +84,7 @@ funciones en la nube de Ollama.
 
 Un asistente en la nube también funciona. Recibe los pasajes que lee, no toda la carpeta, y entonces
 se aplica la política de su proveedor. Revisa entrenamiento, retención, región, acceso y alcance en
-la [guía de RAG local o en la nube](/local-vs-cloud-rag/) antes de conectar uno.
+la [guía de RAG local o en la nube](/es/rag-local-o-nube/) antes de conectar uno.
 
 ## Límites
 
@@ -99,6 +99,6 @@ la [guía de RAG local o en la nube](/local-vs-cloud-rag/) antes de conectar uno
 ## Próximos pasos
 
 - [Tutorial de RAG local: documentos, Ollama y solo CPU](/es/rag-local/)
-- [RAG local o en la nube: modelos, hardware y tus datos](/local-vs-cloud-rag/)
-- [Citas RAG: línea, página, diapositiva y celda](/rag-citations/)
+- [RAG local o en la nube: modelos, hardware y tus datos](/es/rag-local-o-nube/)
+- [Citas RAG: línea, página, diapositiva y celda](/es/rag-citas/)
 - [Formatos admitidos](/docs/supported-formats/)

@@ -27,7 +27,7 @@ el camino.
 | Preguntas que los documentos no responden | grep seguía encontrando archivos en 28 de 30 | No medido | No se devuelve nada en 23 a 28 de 30 |
 
 Las filas medidas proceden de 89 preguntas de desarrolladores sobre el propio repositorio de Ragmir,
-ejecutadas el 27 de noviembre de 2026; [Claude Code y RAG](/claude-code-rag/) explica el método y
+ejecutadas el 27 de noviembre de 2026; [Claude Code y RAG](/es/claude-code-rag/) explica el método y
 muestra todos los resultados. La columna del proyecto procede del centro de ayuda de Anthropic,
 consultado el mismo día: en los planes de pago, un proyecto pasa a la recuperación automáticamente
 cuando su conocimiento se acerca a la ventana de contexto ([RAG para
@@ -63,12 +63,12 @@ modelo en la nube: tu pregunta y los pasajes que lee llegan a su proveedor. Ante
 documentos confidenciales, revisa qué permite tu plan respecto al uso de las conversaciones para
 entrenamiento y cuánto tiempo se conservan.
 
-La [guía de RAG local o en la nube](/local-vs-cloud-rag/) enumera qué revisar y explica cómo
+La [guía de RAG local o en la nube](/es/rag-local-o-nube/) enumera qué revisar y explica cómo
 responder con un modelo local en su lugar, para que nada salga de la máquina.
 
 ## Próximos pasos
 
-- [¿Usa Claude Code RAG? Las mediciones](/claude-code-rag/)
-- [Añade el plugin de Ragmir a Claude Code](/integrations/claude-code/)
-- [RAG local o en la nube: modelos, hardware y tus datos](/local-vs-cloud-rag/)
-- [Todos los benchmarks y cómo volver a ejecutarlos](/benchmarks/)
+- [¿Usa Claude Code RAG? Las mediciones](/es/claude-code-rag/)
+- [Añade el plugin de Ragmir a Claude Code](/es/integraciones/claude-code/)
+- [RAG local o en la nube: modelos, hardware y tus datos](/es/rag-local-o-nube/)
+- [Todos los benchmarks y cómo volver a ejecutarlos](/es/benchmarks/)

@@ -39,6 +39,8 @@ interface Props {
   navSection?: string
   /** The setup prompt offered before the text, the short way through the page. */
   setup?: SetupVariant
+  /** The local or cloud guide in this locale, linked from the setup card. */
+  privacyHref?: string
   /** Key figures shown as tiles before the text, each taken from the page's own tables. */
   highlights?: ReadonlyArray<{ value: string; label: string }>
   /** A hub's notes after its page cards, as cards too: a fact, a command, or a link. */
@@ -71,6 +73,7 @@ const {
   cardGroups = [],
   navSection,
   setup,
+  privacyHref = "/local-vs-cloud-rag/",
   notes = [],
   highlights = [],
 } = Astro.props
@@ -187,7 +190,7 @@ const pillClass =
                 ))}
               </ul>
             )}
-            {setup && <SetupPromptCard class="mb-14" locale={locale} variant={setup} />}
+            {setup && <SetupPromptCard class="mb-14" locale={locale} privacyHref={privacyHref} variant={setup} />}
 
             {hasLead && (
               <div class="mb-14">

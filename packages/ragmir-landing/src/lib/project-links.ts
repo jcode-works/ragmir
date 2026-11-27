@@ -35,6 +35,26 @@ export const PROJECT_LINKS = {
 
 export type ProjectLinkKey = keyof typeof PROJECT_LINKS
 
+/**
+ * The project links for one locale: a link to a long-form page of this site goes to its translation
+ * through `hrefOf`, given the page's English path; the docs and other sites keep their URL.
+ */
+export function localizeProjectLinks(
+  hrefOf: (path: string) => string,
+): Record<ProjectLinkKey, string> {
+  const localized: Partial<Record<ProjectLinkKey, string>> = {}
+  for (const [key, href] of Object.entries(PROJECT_LINKS)) {
+    if (isProjectLinkKey(key) && !isExternalLink(href) && !href.startsWith("/docs/")) {
+      localized[key] = hrefOf(href.replace(/^\/|\/$/gu, ""))
+    }
+  }
+  return { ...PROJECT_LINKS, ...localized }
+}
+
+function isProjectLinkKey(key: string): key is ProjectLinkKey {
+  return key in PROJECT_LINKS
+}
+
 /** Whether a destination leaves the site, so it opens in a new tab and shows the leaning arrow. */
 export function isExternalLink(href: string): boolean {
   return /^https?:\/\//u.test(href)

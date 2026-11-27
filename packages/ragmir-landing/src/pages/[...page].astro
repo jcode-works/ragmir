@@ -39,11 +39,12 @@ const { Content, headings } = await render(entry)
 const { data } = entry
 
 // A hub page lists the pages of its sections as groups of cards before its own text.
-const hub = data.section === "hub" ? HUBS[path] : undefined
+const hub = data.section === "hub" ? HUBS[data.translationKey] : undefined
 const hubPages = hub ? sectionPages(hub.sections, locale, all) : []
 const parentHub = hubOf(data.section)
 const parent = parentHub ? findPage(parentHub, locale, all) : undefined
-const parentHref = parentHub && parent ? pageHref(parentHub, pageLocation(parent).locale) : undefined
+// The hub at its own path in this locale, such as /es/guias/ for the English /guides/.
+const parentHref = parent ? pageHref(pageLocation(parent).path, pageLocation(parent).locale) : undefined
 
 const breadcrumbs = [
   { name: "Ragmir", href: getLocalizedUrl("/", locale) },
@@ -113,6 +114,7 @@ const related = data.related
   path={path}
   mark={data.logo}
   setup={data.setup}
+  privacyHref={resolve("local-vs-cloud-rag")[0]?.href ?? "/local-vs-cloud-rag/"}
   notes={data.notes}
   highlights={data.highlights}
   articleType={data.section === "case-study" ? "Article" : "TechArticle"}

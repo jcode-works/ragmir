@@ -50,7 +50,7 @@ npx rgr ingest
 
 Connectez ensuite votre assistant. Un chat de bureau qui prend en charge les serveurs MCP locaux, ou un
 agent de code comme Claude Code, Codex ou Cursor, lance le serveur de Ragmir sur ce dossier ; les
-[intégrations](/integrations/) détaillent chacune. Pour donner à votre agent les skills qui pilotent
+[intégrations](/fr/integrations/) détaillent chacune. Pour donner à votre agent les skills qui pilotent
 les étapes ci-dessous, dont `ragmir-wiki` :
 
 ```bash
@@ -127,7 +127,7 @@ recherche qui les soutient.
 Dans les deux cas, l’index reste sur votre machine. Avec un modèle local via Ollama, rien ne quitte la
 machine. Avec un assistant dans le cloud, les passages qu’il lit parviennent à son fournisseur, ce qui
 compte pour des scripts non publiés, des contrats de sponsoring ou des notes privées. Le
-[guide local ou cloud](/local-vs-cloud-rag/) couvre les modèles, le matériel et les points à vérifier
+[guide local ou cloud](/fr/rag-local-ou-cloud/) couvre les modèles, le matériel et les points à vérifier
 avant de choisir.
 
 ## Chaque fonctionnalité de Ragmir utilisée dans ce parcours
@@ -137,14 +137,14 @@ avant de choisir.
 | Réunir les sources | Plus de 900 types de fichiers : PDF, EPUB, Word, Excel, Markdown et fichiers de sous-titres | [Formats pris en charge](/docs/supported-formats/) |
 | Livres scannés et photos | OCR local, lancé uniquement une fois activé avec `rgr ocr setup` | [Configuration](/docs/configuration/) |
 | Construire et mettre à jour l’index | `rgr ingest` ne lit que les fichiers nouveaux ou modifiés | [Référence de la CLI](/docs/cli-reference/) |
-| Chercher avec vos propres mots | Recherche par mots-clés par défaut ; un modèle local facultatif pour les synonymes et les autres langues | [RAG local ou cloud](/local-vs-cloud-rag/) |
-| Citer chaque passage | La page, la ligne, la cellule ou la section EPUB de chaque résultat | [Citations RAG](/rag-citations/) |
-| Lire autour d’une citation | `ragmir_expand` renvoie le passage avec ses voisins | [Serveur MCP RAG](/mcp-rag-server/) |
+| Chercher avec vos propres mots | Recherche par mots-clés par défaut ; un modèle local facultatif pour les synonymes et les autres langues | [RAG local ou cloud](/fr/rag-local-ou-cloud/) |
+| Citer chaque passage | La page, la ligne, la cellule ou la section EPUB de chaque résultat | [Citations RAG](/fr/rag-citations/) |
+| Lire autour d’une citation | `ragmir_expand` renvoie le passage avec ses voisins | [Serveur MCP RAG](/fr/serveur-mcp-rag/) |
 | Vérifier un script | Le prompt `answer` demande une citation pour chaque affirmation | Cette page |
 | Rédiger le wiki | Le skill `ragmir-wiki` et le prompt `compile-source` | Cette page |
 | Auditer le wiki | `rgr audit --knowledge` : liens cassés, pages manquantes, citations modifiées | Cette page |
 | Reprendre là où vous en étiez | `ragmir_sources` avec `changedSince` liste ce qui a changé | Cette page |
-| Garder vos données privées | L’index reste sur votre machine ; un modèle local peut rédiger les réponses | [RAG local ou cloud](/local-vs-cloud-rag/) |
+| Garder vos données privées | L’index reste sur votre machine ; un modèle local peut rédiger les réponses | [RAG local ou cloud](/fr/rag-local-ou-cloud/) |
 
 ## Limites
 
@@ -156,7 +156,7 @@ avant de choisir.
 
 ## Étapes suivantes
 
-- [RAG local ou cloud : modèles, matériel et vos données](/local-vs-cloud-rag/)
-- [Citations RAG : ligne, page, diapositive et cellule](/rag-citations/)
+- [RAG local ou cloud : modèles, matériel et vos données](/fr/rag-local-ou-cloud/)
+- [Citations RAG : ligne, page, diapositive et cellule](/fr/rag-citations/)
 - [RAG agentique : comment l’assistant recherche](/fr/rag-agentique/)
 - [Formats pris en charge](/docs/supported-formats/)

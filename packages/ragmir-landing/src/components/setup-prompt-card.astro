@@ -6,6 +6,8 @@ import { PromptBlock } from "./prompt-block"
 interface Props {
   variant: SetupVariant
   locale: string
+  /** The local or cloud guide in this locale. */
+  privacyHref: string
   class?: string
 }
 
@@ -13,7 +15,7 @@ interface Props {
  * The short way through a guide: one prompt to paste into an AI agent, set as a code block, then
  * what the agent does with it, step by step, as cards. The page keeps the manual steps after it.
  */
-const { variant, locale, class: className } = Astro.props
+const { variant, locale, privacyHref, class: className } = Astro.props
 const { t } = await useTranslations(locale)
 const steps = [1, 2, 3, 4].map((step) => ({
   title: t(`setup_${variant}_step${step}_title`),
@@ -49,7 +51,7 @@ const steps = [1, 2, 3, 4].map((step) => ({
 
   <p class="mt-5 max-w-2xl text-muted-foreground text-xs leading-5">
     {t("setup_privacy")}{" "}
-    <a class="font-semibold text-foreground underline-offset-4 hover:underline" href="/local-vs-cloud-rag/">
+    <a class="font-semibold text-foreground underline-offset-4 hover:underline" href={privacyHref}>
       {t("setup_privacy_link")}
     </a>
   </p>

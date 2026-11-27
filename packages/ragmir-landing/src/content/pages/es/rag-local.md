@@ -181,7 +181,7 @@ El script realiza una sola pasada de recuperación. No es un agente autónomo. A
 
 ## RAG local en CPU, y cuándo añadir un modelo
 
-`local-hash` ordena primero la evidencia por palabras clave BM25 y se ejecuta en CPU. En el propio repositorio de Ragmir, colocó un archivo de respuesta entre los 3 primeros en el 82 % de 89 preguntas de desarrolladores, y entre los 10 primeros en el 99 %, sin ningún modelo ([benchmarks](/benchmarks/), medido el 27 de noviembre de 2026). Ejecuta `rgr evaluate` con tus propias preguntas antes de confiar en una cifra.
+`local-hash` ordena primero la evidencia por palabras clave BM25 y se ejecuta en CPU. En el propio repositorio de Ragmir, colocó un archivo de respuesta entre los 3 primeros en el 82 % de 89 preguntas de desarrolladores, y entre los 10 primeros en el 99 %, sin ningún modelo ([benchmarks](/es/benchmarks/), medido el 27 de noviembre de 2026). Ejecuta `rgr evaluate` con tus propias preguntas antes de confiar en una cifra.
 
 Añade un modelo semántico cuando las preguntas usen palabras que tus documentos no usan: sinónimos, paráfrasis u otro idioma.
 
@@ -226,7 +226,7 @@ Un índice local no convierte en local una conversación remota. Si conectas un 
 
 ## Próximos pasos
 
-- [RAG autoalojado en un VPS o en un servidor local](/self-hosted-rag/)
-- [RAG en red aislada, sin acceso a internet](/air-gapped-rag/)
+- [RAG autoalojado en un VPS o en un servidor local](/es/rag-autoalojado/)
+- [RAG en red aislada, sin acceso a internet](/es/rag-sin-conexion/)
 - [Integración con agentes](/docs/agent-integration/), con la variante de este script para vLLM autoalojado
-- [Citas RAG, formato por formato](/rag-citations/)
+- [Citas RAG, formato por formato](/es/rag-citas/)

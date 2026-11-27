@@ -7,15 +7,17 @@ import { isExternalLink, NPM_URL } from "../../lib/project-links"
 
 interface Props {
   translations: Record<string, string>
+  /** The URL of a long-form page in this locale, given its English path. */
+  pageUrl: (path: string) => string
 }
 
-const { translations } = Astro.props
+const { translations, pageUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 
 // The guides of `docs/` and the integration pages are pages of this site.
 const docsUrl = (file: string, anchor?: string): string =>
   `/docs/${file.replace(/\.md$/u, "")}/${anchor ? `#${anchor}` : ""}`
-const integrationUrl = (page: string): string => `/integrations/${page}/`
+const integrationUrl = (page: string): string => pageUrl(`integrations/${page}`)
 
 interface Integration {
   /** Anchor of the card, `#integration-<id>`, which the hero's "Works with" logos link to. */
@@ -151,7 +153,7 @@ const groups: { title: string; items: Integration[] }[] = [
 
   <a
     class="mx-auto mt-10 flex w-fit h-11 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[var(--card-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-press)]"
-    href="/integrations/"
+    href={pageUrl("integrations")}
   >
     {t("integrations_all_link")}
     <ArrowRight class="arrow-forward size-4" aria-hidden="true" />

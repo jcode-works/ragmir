@@ -181,7 +181,7 @@ Le script ne fait qu’une passe de recherche, et non un agent autonome : adapte
 
 ## RAG local sur CPU, et quand ajouter un modèle
 
-`local-hash` classe d’abord les preuves par mots-clés BM25 et s’exécute sur CPU. Sur le dépôt de Ragmir, sans aucun modèle, il a placé un fichier de réponse dans le top 3 pour 82 % des 89 questions de développeurs. Il l’a fait dans le top 10 pour 99 % ([benchmarks](/benchmarks/), mesurés le 27 novembre 2026). Exécutez `rgr evaluate` sur vos propres questions avant de vous fier à un chiffre.
+`local-hash` classe d’abord les preuves par mots-clés BM25 et s’exécute sur CPU. Sur le dépôt de Ragmir, sans aucun modèle, il a placé un fichier de réponse dans le top 3 pour 82 % des 89 questions de développeurs. Il l’a fait dans le top 10 pour 99 % ([benchmarks](/fr/benchmarks/), mesurés le 27 novembre 2026). Exécutez `rgr evaluate` sur vos propres questions avant de vous fier à un chiffre.
 
 Ajoutez un modèle sémantique lorsque les questions emploient des mots que vos documents n’utilisent pas. Cela couvre les synonymes, les paraphrases et une autre langue.
 
@@ -226,7 +226,7 @@ Un index local ne rend pas local une conversation distante. Si vous connectez un
 
 ## Étapes suivantes
 
-- [RAG auto-hébergé sur un VPS ou un serveur sur site](/self-hosted-rag/)
-- [RAG en réseau isolé, sans accès à internet](/air-gapped-rag/)
+- [RAG auto-hébergé sur un VPS ou un serveur sur site](/fr/rag-auto-heberge/)
+- [RAG en réseau isolé, sans accès à internet](/fr/rag-hors-ligne/)
 - [Intégration d’agent](/docs/agent-integration/), avec la variante vLLM auto-hébergée de ce script
-- [Citations RAG, format par format](/rag-citations/)
+- [Citations RAG, format par format](/fr/rag-citations/)

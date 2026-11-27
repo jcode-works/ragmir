@@ -79,6 +79,18 @@ const alternateOgLocales = localesForAlternates
   .filter((entry) => entry !== locale)
   .map((entry) => ogLocaleMap[entry] ?? "en_US")
 
+// An English page that exists in other languages sends a reader whose browser prefers one of them
+// to that version; see the inline script in the head. A translated page never redirects.
+const localeRedirects: Record<string, string> =
+  locale === defaultLang && hasAlternates
+    ? Object.fromEntries(
+        localesForAlternates
+          .filter((entry) => entry !== defaultLang)
+          .map((entry) => [entry, alternatePath(entry)]),
+      )
+    : {}
+const redirectsByLanguage = Object.keys(localeRedirects).length > 0
+
 function getImageType(imageUrl: string): string {
   const pathname = new URL(imageUrl, siteBase).pathname.toLowerCase()
   if (pathname.endsWith(".svg")) return "image/svg+xml"
@@ -88,16 +100,20 @@ function getImageType(imageUrl: string): string {
   return "image/png"
 }
 
-function alternateHref(targetLocale: string): string {
+function alternatePath(targetLocale: string): string {
   const explicitPath = alternatePaths?.[targetLocale]
-  if (explicitPath) return new URL(explicitPath, siteBase).href
+  if (explicitPath) return explicitPath
   const currentPath = Astro.url.pathname
   const prefixedLocale = locales.find(
     (entry) =>
       entry !== defaultLang && (currentPath === `/${entry}` || currentPath.startsWith(`/${entry}/`)),
   )
   const basePath = (prefixedLocale ? currentPath.slice(prefixedLocale.length + 1) : currentPath) || "/"
-  return new URL(getLocalizedUrl(basePath, targetLocale), siteBase).href
+  return getLocalizedUrl(basePath, targetLocale)
+}
+
+function alternateHref(targetLocale: string): string {
+  return new URL(alternatePath(targetLocale), siteBase).href
 }
 ---
 
@@ -105,6 +121,29 @@ function alternateHref(targetLocale: string): string {
 <html lang={htmlLang} dir="ltr" class="dark">
   <head>
     <meta charset="UTF-8" />
+    {
+      redirectsByLanguage && (
+        <script is:inline data-astro-rerun define:vars={{ localeRedirects }}>
+          // Before anything paints: open this page in the reader's language when it exists. A
+          // language picked in the menu wins over the browser's; Chinese of any script gets the
+          // Simplified Chinese pages, and any other language stays on English.
+          ;(() => {
+            let chosen = null
+            try {
+              chosen = localStorage.getItem("ragmir-locale")
+            } catch {}
+            const preferences = navigator.languages?.length ? navigator.languages : [navigator.language]
+            const preferred =
+              chosen ??
+              preferences
+                .map((tag) => String(tag).toLowerCase().split("-")[0])
+                .find((language) => ["en", "fr", "es", "zh"].includes(language))
+            const target = preferred && preferred !== "en" ? localeRedirects[preferred] : undefined
+            if (target) location.replace(target + location.search + location.hash)
+          })()
+        </script>
+      )
+    }
     <script is:inline>
       ;(() => {
         function safeStorageGet(key) {

@@ -90,7 +90,7 @@ equipo. Haz copias de seguridad de la carpeta como haces con tus otros archivos 
 
 Un asistente en la nube también funciona, pero recibe los pasajes que lee. En trámites, eso puede
 incluir números de cuenta, salarios y direcciones. La [guía de RAG local o en la
-nube](/local-vs-cloud-rag/) enumera qué revisar: entrenamiento, retención, región, acceso y alcance.
+nube](/es/rag-local-o-nube/) enumera qué revisar: entrenamiento, retención, región, acceso y alcance.
 Mantén fuera de la base que lee un asistente en la nube los documentos más sensibles.
 
 ## Límites
@@ -106,6 +106,6 @@ Mantén fuera de la base que lee un asistente en la nube los documentos más sen
 ## Próximos pasos
 
 - [Tutorial de RAG local: documentos, Ollama y solo CPU](/es/rag-local/)
-- [RAG local o en la nube: modelos, hardware y tus datos](/local-vs-cloud-rag/)
-- [Citas RAG: línea, página, diapositiva y celda](/rag-citations/)
+- [RAG local o en la nube: modelos, hardware y tus datos](/es/rag-local-o-nube/)
+- [Citas RAG: línea, página, diapositiva y celda](/es/rag-citas/)
 - [Formatos admitidos](/docs/supported-formats/)

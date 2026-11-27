@@ -5,7 +5,6 @@ import { RagmirBackground } from "../ragmir-background"
 import { INTEGRATION_LOGOS, type IntegrationLogoKey } from "../../content/integration-logos"
 import { languageTag } from "../../i18n/utils"
 import { HERO_DEMO_TRANSLATIONS, pickTranslations } from "../../lib/island-translations"
-import { PROJECT_LINKS } from "../../lib/project-links"
 import { getMonthlyNpmDownloads } from "../../services/npm-downloads"
 
 interface Props {
@@ -13,9 +12,11 @@ interface Props {
   locale: string
   localizedLibraryUrl: string
   localizedUseCasesUrl: string
+  /** The benchmarks page in this locale. */
+  benchmarksUrl: string
 }
 
-const { translations, locale, localizedLibraryUrl, localizedUseCasesUrl } = Astro.props
+const { translations, locale, localizedLibraryUrl, localizedUseCasesUrl, benchmarksUrl } = Astro.props
 const t = (key: string): string => translations[key] ?? key
 const monthlyNpmDownloads = await getMonthlyNpmDownloads()
 // Fixed at build time and written in the page language's number format (7,587, 7 587, 7587).
@@ -93,7 +94,7 @@ const heroTitleLines = [
         {` ${t("hero_proof_speed_label")}. `}
         <a
           class="font-semibold text-white underline decoration-white/40 underline-offset-2 transition-colors hover:decoration-white active:text-white/70"
-          href={PROJECT_LINKS.benchmarks}
+          href={benchmarksUrl}
         >
           {t("hero_proof_link")}
           <ArrowUpRight aria-hidden="true" class="arrow-out ml-0.5 inline size-3 align-[-1px]" />

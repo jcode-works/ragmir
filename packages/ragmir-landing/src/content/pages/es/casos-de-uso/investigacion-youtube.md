@@ -126,6 +126,22 @@ El índice se queda en tu equipo en cualquier caso. Con un modelo local a travé
 con guiones sin publicar, acuerdos con patrocinadores o notas privadas. La [guía de RAG local o en la
 nube](/local-vs-cloud-rag/) explica los modelos, el hardware y qué revisar antes de elegir.
 
+## Cada función de Ragmir que usa este flujo de trabajo
+
+| Paso | Función | Más información |
+| --- | --- | --- |
+| Reúne las fuentes | Más de 900 tipos de archivo: PDF, EPUB, Word, Excel, Markdown y archivos de subtítulos | [Formatos admitidos](/docs/supported-formats/) |
+| Libros escaneados y fotos | OCR local, que solo se ejecuta cuando lo activas con `rgr ocr setup` | [Configuración](/docs/configuration/) |
+| Construye y actualiza el índice | `rgr ingest` lee solo los archivos nuevos y modificados | [Referencia de la CLI](/docs/cli-reference/) |
+| Busca con tus propias palabras | Búsqueda por palabras clave de forma predeterminada; un modelo local opcional para sinónimos y otros idiomas | [RAG local o en la nube](/local-vs-cloud-rag/) |
+| Cita cada pasaje | La página, la línea, la celda o la sección del EPUB de cada resultado | [Citas RAG](/rag-citations/) |
+| Consulta el contexto de una cita | `ragmir_expand` devuelve el pasaje con sus vecinos | [Servidor MCP de RAG](/mcp-rag-server/) |
+| Revisa un guión | El prompt `answer` pide una cita para cada afirmación | Esta página |
+| Escribe el wiki | La habilidad `ragmir-wiki` y el prompt `compile-source` | Esta página |
+| Audita el wiki | `rgr audit --knowledge`: enlaces rotos, páginas que faltan, citas cambiadas | Esta página |
+| Retoma donde lo dejaste | `ragmir_sources` con `changedSince` lista lo que ha cambiado | Esta página |
+| Mantenlo en privado | El índice se queda en tu equipo; un modelo local puede escribir las respuestas | [RAG local o en la nube](/local-vs-cloud-rag/) |
+
 ## Límites
 
 - Ragmir no transcribe audio ni vídeo. Exporta los subtítulos o transcribe antes.

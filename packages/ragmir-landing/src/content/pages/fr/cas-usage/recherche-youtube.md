@@ -130,6 +130,22 @@ compte pour des scripts non publiés, des contrats de sponsoring ou des notes pr
 [guide local ou cloud](/local-vs-cloud-rag/) couvre les modèles, le matériel et les points à vérifier
 avant de choisir.
 
+## Chaque fonctionnalité de Ragmir utilisée dans ce parcours
+
+| Étape | Fonctionnalité | En savoir plus |
+| --- | --- | --- |
+| Réunir les sources | Plus de 900 types de fichiers : PDF, EPUB, Word, Excel, Markdown et fichiers de sous-titres | [Formats pris en charge](/docs/supported-formats/) |
+| Livres scannés et photos | OCR local, lancé uniquement une fois activé avec `rgr ocr setup` | [Configuration](/docs/configuration/) |
+| Construire et mettre à jour l’index | `rgr ingest` ne lit que les fichiers nouveaux ou modifiés | [Référence de la CLI](/docs/cli-reference/) |
+| Chercher avec vos propres mots | Recherche par mots-clés par défaut ; un modèle local facultatif pour les synonymes et les autres langues | [RAG local ou cloud](/local-vs-cloud-rag/) |
+| Citer chaque passage | La page, la ligne, la cellule ou la section EPUB de chaque résultat | [Citations RAG](/rag-citations/) |
+| Lire autour d’une citation | `ragmir_expand` renvoie le passage avec ses voisins | [Serveur MCP RAG](/mcp-rag-server/) |
+| Vérifier un script | Le prompt `answer` demande une citation pour chaque affirmation | Cette page |
+| Rédiger le wiki | Le skill `ragmir-wiki` et le prompt `compile-source` | Cette page |
+| Auditer le wiki | `rgr audit --knowledge` : liens cassés, pages manquantes, citations modifiées | Cette page |
+| Reprendre là où vous en étiez | `ragmir_sources` avec `changedSince` liste ce qui a changé | Cette page |
+| Garder vos données privées | L’index reste sur votre machine ; un modèle local peut rédiger les réponses | [RAG local ou cloud](/local-vs-cloud-rag/) |
+
 ## Limites
 
 - Ragmir ne transcrit ni l’audio ni la vidéo. Exportez les sous-titres, ou transcrivez d’abord.

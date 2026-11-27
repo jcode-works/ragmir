@@ -126,6 +126,22 @@ With a cloud assistant, the passages it reads reach its provider, which matters 
 scripts, sponsor agreements, or private notes. The [local or cloud guide](/local-vs-cloud-rag/)
 covers the models, the hardware, and what to check before you choose.
 
+## Every Ragmir feature this workflow uses
+
+| Step | Feature | Read more |
+| --- | --- | --- |
+| Gather the sources | More than 900 file types: PDF, EPUB, Word, Excel, Markdown, and caption files | [Supported formats](/docs/supported-formats/) |
+| Scanned books and photos | Local OCR, run only once you enable it with `rgr ocr setup` | [Configuration](/docs/configuration/) |
+| Build and refresh the index | `rgr ingest` reads only new and changed files | [CLI reference](/docs/cli-reference/) |
+| Search in your own words | Keyword search by default; an optional local model for synonyms and other languages | [Local or cloud RAG](/local-vs-cloud-rag/) |
+| Cite every passage | The page, line, cell, or EPUB section of each result | [RAG citations](/rag-citations/) |
+| Read around a citation | `ragmir_expand` returns the passage with its neighbours | [RAG MCP server](/mcp-rag-server/) |
+| Check a script | The `answer` prompt asks for a citation on every claim | This page |
+| Write the wiki | The `ragmir-wiki` skill and the `compile-source` prompt | This page |
+| Audit the wiki | `rgr audit --knowledge`: broken links, missing pages, changed citations | This page |
+| Pick up where you left off | `ragmir_sources` with `changedSince` lists what changed | This page |
+| Keep it private | The index stays on your machine; a local model can write the answers | [Local or cloud RAG](/local-vs-cloud-rag/) |
+
 ## Limits
 
 - Ragmir does not transcribe audio or video. Export captions, or transcribe first.

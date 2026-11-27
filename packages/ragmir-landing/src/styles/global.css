@@ -267,10 +267,21 @@ textarea {
 }
 
 /*
- * One type scale for every page, the hero apart. Each step names a job: a page or chapter title, a
- * section inside a page, a subsection or feature block, and the lead under a title. Markdown
- * headings take the same steps, so a section reads the same size on a guide, a hub, the docs, or
- * the home page.
+ * The two small steps of the type scale, as Tailwind tokens: `text-small` (13px) for card text and
+ * navigation, `text-micro` (11px) for mono labels, tags, and terminal captions. Body text uses
+ * `text-base`, `text-sm`, and `text-xs` between them.
+ */
+@theme {
+  --text-small: 0.8125rem;
+  --text-micro: 0.6875rem;
+}
+
+/*
+ * One type scale for every page. Each step names a job: a page or chapter title, a section inside a
+ * page, a subsection or feature block, and the lead under a title. The home hero keeps its own size,
+ * bound to its three lines beside the demo, and the logo, footer wordmark, and error code are
+ * artwork. Markdown headings take the same steps, so a section reads the same size on a guide, a
+ * hub, the docs, or the home page.
  */
 .type-title {
   font-weight: 900;
@@ -297,8 +308,9 @@ textarea {
   text-wrap: balance;
 }
 
+/* The grey line under a title, one step below the body text of a long page. */
 .type-lead {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   line-height: 1.7;
 }
 
@@ -318,7 +330,7 @@ textarea {
   }
 
   .type-lead {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 }
 

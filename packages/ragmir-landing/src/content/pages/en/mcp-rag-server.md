@@ -1,6 +1,6 @@
 ---
 title: "RAG MCP server: local search with exact citations | Ragmir"
-description: "What a RAG MCP server is, the tools and limits of Ragmir's local server, how each coding agent starts it, and five criteria to compare servers."
+description: "What a RAG MCP server is, the tools and limits of Ragmir's local server, how Claude Code, Codex, and Cursor start it, and five criteria to compare servers."
 h1: "A local RAG MCP server for your code and documents"
 summary: "A RAG MCP server gives an AI agent search tools over an index of documents. Ragmir's server runs on your machine over stdio and indexes code, Markdown, PDFs, and Office files. Each search returns three compact citations within a 32 KB budget, so the agent expands only the passages it needs."
 section: guide
@@ -8,7 +8,7 @@ setup: agents
 translationKey: "mcp-rag-server"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["docs-mcp-server", "integrations", "integrations/claude-code", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "integrations", "integrations/claude-code", "docs/agent-integration"]
 ---
 
 A RAG MCP server gives an agent tools to search an index. The agent sends a question and gets ranked
@@ -17,6 +17,10 @@ passages back. It then decides what to read next.
 Ragmir's server answers from the index that `rgr ingest` builds in the project's Git-ignored
 `.ragmir/` folder. It runs as a local process over stdio, with no HTTP port, account, or hosted
 store. The default `local-hash` retrieval needs no model, GPU, or API key.
+
+It also works as a docs MCP server for your own documentation: specifications, architecture
+decisions, runbooks, and API descriptions stay in the repository, and the agent searches them where
+they are.
 
 The server retrieves and cites. The agent plans, reasons, and writes with the model you chose.
 
@@ -149,5 +153,5 @@ your own golden questions.
 
 - [Add the plugin to Claude Code](/integrations/claude-code/)
 - [Agent integration guide](/docs/agent-integration/)
-- [Serve your own documentation to agents](/docs-mcp-server/)
+- [Local or cloud RAG: what each setup sends](/local-vs-cloud-rag/)
 - [Supported formats](/docs/supported-formats/)

@@ -62,6 +62,8 @@ interface LandingNavbarProps {
   currentPath?: string
   /** Root-relative URL of the hub the page belongs to, so the bar can light its link. */
   currentSection?: string
+  /** The page shows the logo in its own side panel on wide screens, so the bar leaves it out there. */
+  sidebarLogo?: boolean
 }
 
 const externalLinkProps = {
@@ -243,6 +245,7 @@ export function LandingNavbar({
   localizedTeamUrl,
   currentPath,
   currentSection,
+  sidebarLogo = false,
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
   const version = import.meta.env.PUBLIC_RAGMIR_VERSION?.trim()
@@ -370,7 +373,7 @@ export function LandingNavbar({
         ref={headerRef}
       >
         <div className="container-navbar flex h-16 items-center justify-between px-5 md:px-8">
-          <div className="flex items-center">
+          <div className={cn("flex items-center", sidebarLogo && "lg:invisible")}>
             <a aria-label="Ragmir" className="flex items-center" href={localizedHomeUrl}>
               <RagmirLogo />
             </a>
@@ -380,7 +383,7 @@ export function LandingNavbar({
                 href={NPM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 text-[0.7rem] font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
+                className="ml-2 text-micro font-medium text-muted-foreground/60 no-underline transition-colors hover:text-muted-foreground active:text-foreground max-[419px]:hidden"
               >
                 v{version}
                 <span className="sr-only">{` ${newTab}`}</span>
@@ -398,7 +401,7 @@ export function LandingNavbar({
                   aria-current={
                     currentPath === href ? "page" : currentSection === href ? "true" : undefined
                   }
-                  className="rounded-sm px-2 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
+                  className="rounded-sm px-2 py-2 font-medium text-small text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:text-foreground/70 [&[aria-current]]:font-bold [&[aria-current]]:text-foreground"
                   href={href}
                   key={href}
                 >

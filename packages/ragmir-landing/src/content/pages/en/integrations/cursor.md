@@ -8,7 +8,7 @@ setup: agents
 translationKey: "integrations/cursor"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["local-vs-cloud-rag", "mcp-rag-server", "docs-mcp-server", "docs/agent-integration"]
+related: ["local-vs-cloud-rag", "mcp-rag-server", "integrations/claude-code", "docs/agent-integration"]
 logo: "cursor"
 group: "agents"
 ---
@@ -122,5 +122,4 @@ its first passage. `ragmir_expand` follows `nextCitation` to read the document w
 ## Next steps
 
 - [How Ragmir's MCP server works](/mcp-rag-server/)
-- [Serve your own documentation to agents](/docs-mcp-server/)
 - [Run Ragmir with Docker](/docs/docker/)

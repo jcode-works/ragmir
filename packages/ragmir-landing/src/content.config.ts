@@ -36,6 +36,31 @@ const pages = defineCollection({
     logo: z.enum(INTEGRATION_MARK_NAMES).optional(),
     /** The group of the integrations hub that lists the page: coding agents or frameworks. */
     group: z.enum(["agents", "frameworks"]).optional(),
+    /** Cards after a hub's page cards, for notes that are not pages, such as a command. */
+    notes: z
+      .array(
+        z.object({
+          title: z.string().min(3),
+          cards: z
+            .array(
+              z.object({
+                title: z.string().min(3),
+                text: z.string().min(20),
+                command: z.string().min(3).optional(),
+                link: z
+                  .object({ href: z.string().startsWith("/"), label: z.string().min(3) })
+                  .optional(),
+              }),
+            )
+            .min(2),
+        }),
+      )
+      .default([]),
+    /** Key figures shown as tiles before the text, each taken from the page's own tables. */
+    highlights: z
+      .array(z.object({ value: z.string().min(1).max(12), label: z.string().min(20).max(120) }))
+      .max(4)
+      .default([]),
     /** The setup prompt the page offers before its text, from `src/content/setup-prompts.ts`. */
     setup: z.enum(SETUP_VARIANTS).optional(),
   }),

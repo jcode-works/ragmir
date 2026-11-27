@@ -49,12 +49,12 @@ export const HUBS: Readonly<
     ],
   },
   guides: {
-    sections: ["guide", "use-case", "comparison"],
+    sections: ["guide", "use-case", "comparison", "benchmark", "case-study"],
     labelKey: "nav_guides",
     groups: [
       { labelKey: "nav_guides", sections: ["guide"] },
       { labelKey: "nav_use_cases", sections: ["use-case"] },
-      { labelKey: "hub_group_comparisons", sections: ["comparison"] },
+      { labelKey: "hub_group_comparisons", sections: ["comparison", "benchmark", "case-study"] },
     ],
   },
 }

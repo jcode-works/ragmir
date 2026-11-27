@@ -219,9 +219,8 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
 - [Agentic RAG](https://ragmir.com/agentic-rag/): the agent decides when to search, rewords
   queries, expands citations, and stops on weak evidence.
 - [RAG MCP server](https://ragmir.com/mcp-rag-server/): the tools and limits of Ragmir's local MCP
-  server, how each coding agent starts it, and how to compare servers.
-- [Docs MCP server](https://ragmir.com/docs-mcp-server/): a local MCP server over your own
-  documentation, complementary to Context7.
+  server, also as a docs MCP server over your own documentation, how each coding agent starts it,
+  and how to compare servers.
 - [RAG vs MCP](https://ragmir.com/rag-vs-mcp/): how the protocol and retrieval differ and work
   together.
 - [Does Claude Code use RAG?](https://ragmir.com/claude-code-rag/): grep against a local index on
@@ -239,10 +238,17 @@ the documents: a laptop for the first demo, then a VPS, an on-premise server, or
   ship and evaluate retrieval inside a customer's perimeter.
 - [RAG for YouTube creators](https://ragmir.com/use-cases/youtube-research/): books, papers, and
   caption files in one cited base, script checks, and a topic wiki kept honest by the audit.
+- [RAG for incident response](https://ragmir.com/use-cases/incident-response/): a coding agent
+  diagnoses from runbooks, postmortems, and code with citations before it fixes and tests.
+- [Private RAG for paperwork](https://ragmir.com/use-cases/paperwork/): statements, payslips, and
+  contracts indexed on your computer, answered by a local model with the page as proof.
+- [RAG for job search](https://ragmir.com/use-cases/job-search/): match an offer to your CVs and
+  reviews, and draft cover letters where every claim is cited.
+- [Claude alone or Claude with Ragmir](https://ragmir.com/compare/claude-vs-rag/): when Claude's
+  own file reading is enough, and when a local index with citations helps.
 - [Benchmarks](https://ragmir.com/benchmarks/) and the
   [case study of Ragmir's own repository](https://ragmir.com/case-studies/ragmir-repository/):
   dated, reproducible results with their raw reports.
-- [Ragmir and Context7](https://ragmir.com/compare/context7/): a dated, sourced comparison.
 - Integrations: [Claude Code](https://ragmir.com/integrations/claude-code/),
   [Codex](https://ragmir.com/integrations/codex/), [Cursor](https://ragmir.com/integrations/cursor/),
   [Gemini CLI and Qwen Code](https://ragmir.com/integrations/gemini-cli/),

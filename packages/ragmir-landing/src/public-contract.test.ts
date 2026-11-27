@@ -98,16 +98,16 @@ const footerSource = readFileSync(
   fileURLToPath(new URL("./components/sections/footer.astro", import.meta.url)),
   "utf8",
 )
+const promptBlockSource = readFileSync(
+  fileURLToPath(new URL("./components/prompt-block.tsx", import.meta.url)),
+  "utf8",
+)
 const deploySource = readFileSync(
   fileURLToPath(new URL("./components/sections/deploy.astro", import.meta.url)),
   "utf8",
 )
 const navbarSource = readFileSync(
   fileURLToPath(new URL("./components/landing-navbar.tsx", import.meta.url)),
-  "utf8",
-)
-const textareaSource = readFileSync(
-  fileURLToPath(new URL("./components/ui/textarea.tsx", import.meta.url)),
   "utf8",
 )
 const coreCliSource = readFileSync(
@@ -368,11 +368,11 @@ describe("landing public contract", () => {
     expect(librarySource.indexOf('t("quickstart_prompt_tab")')).toBeLessThan(
       librarySource.indexOf("packageManagers.map((manager)"),
     )
-    expect(librarySource).toContain("<Textarea")
-    expect(librarySource).toContain("readOnly")
-    expect(librarySource).toContain("overflow-y-auto")
-    expect(librarySource).toContain('className="h-[5.5rem] min-h-[5.5rem]')
-    expect(librarySource).toContain("rounded-xl border-0 bg-background")
+    // The prompt is a compact code block with its own copy button, like every prompt on the site.
+    expect(librarySource).toContain("<PromptBlock")
+    expect(librarySource).toContain('promptClassName="max-h-[7.5rem]')
+    expect(promptBlockSource).toContain("overflow-y-auto whitespace-pre-wrap")
+    expect(promptBlockSource).toContain("<TextCopyButton")
   })
 
   it("should round actions and cards while keeping copy inputs compact", () => {
@@ -397,7 +397,6 @@ describe("landing public contract", () => {
     expect(commandCopySource).toContain("rounded-xl bg-background")
     expect(useCaseSource).toContain("rounded-xl bg-card")
     expect(useCaseSource).toContain("rounded-xl bg-background")
-    expect(textareaSource).toContain("rounded-sm border border-input")
     expect(purpleCtaViolations).toEqual([])
   })
 

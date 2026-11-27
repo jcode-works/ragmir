@@ -1,7 +1,7 @@
 ---
 import { SETUP_PROMPTS, type SetupVariant } from "../content/setup-prompts"
 import { useTranslations } from "../i18n/utils"
-import { TextCopyButton } from "./command-copy"
+import { PromptBlock } from "./prompt-block"
 
 interface Props {
   variant: SetupVariant
@@ -10,49 +10,39 @@ interface Props {
 }
 
 /*
- * The short way through a guide: one prompt to paste into an AI agent, the prompt itself to read
- * before pasting it, and what the agent does with it, step by step. The page keeps the manual
- * steps after it.
+ * The short way through a guide: one prompt to paste into an AI agent, set as a code block, then
+ * what the agent does with it, step by step, as cards. The page keeps the manual steps after it.
  */
 const { variant, locale, class: className } = Astro.props
 const { t } = await useTranslations(locale)
-const prompt = SETUP_PROMPTS[variant]
-const promptId = `setup-prompt-${variant}`
 const steps = [1, 2, 3, 4].map((step) => ({
   title: t(`setup_${variant}_step${step}_title`),
   text: t(`setup_${variant}_step${step}`),
 }))
 ---
 
-<section aria-labelledby="setup-prompt" class:list={["rounded-xl bg-card p-6 md:p-8", className]}>
+<section aria-labelledby="setup-prompt" class={className}>
   <h2 id="setup-prompt" class="type-section scroll-mt-28">{t("setup_title")}</h2>
   <p class="mt-3 max-w-2xl text-muted-foreground text-sm leading-6">{t(`setup_${variant}_intro`)}</p>
-  <textarea
-    aria-label={t("quickstart_prompt_label")}
-    class="mt-5 block h-36 w-full resize-none overflow-y-auto whitespace-pre-wrap rounded-lg border-0 bg-background px-4 py-3 font-mono text-[12px] text-foreground/80 leading-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    id={promptId}
-    readonly
-    spellcheck="false"
-    translate="no">{prompt}</textarea
-  >
-  <TextCopyButton
-    className="mt-3"
+  <PromptBlock
+    className="mt-5"
     client:visible
     copiedLabel={t("command_copied")}
     copyLabel={t("copy_prompt")}
-    selectTargetId={promptId}
-    text={prompt}
+    id={`setup-prompt-${variant}`}
+    label={t("quickstart_prompt_tab")}
+    prompt={SETUP_PROMPTS[variant]}
   />
 
   <h3 class="mt-8 font-bold text-sm">{t("setup_steps_title")}</h3>
   <ol class="mt-3 grid gap-3 sm:grid-cols-2" role="list">
     {steps.map((step, index) => (
-      <li class="rounded-lg bg-background p-4">
+      <li class="rounded-xl bg-card p-5">
         <p class="flex items-baseline gap-2 font-bold text-sm">
           <span aria-hidden="true" class="tnum text-muted-foreground text-xs">{index + 1}</span>
           {step.title}
         </p>
-        <p class="mt-1 text-[13px] text-muted-foreground leading-5">{step.text}</p>
+        <p class="mt-1 text-muted-foreground text-small leading-5">{step.text}</p>
       </li>
     ))}
   </ol>

@@ -22,7 +22,7 @@ const pages = [
   entry("fr/rag-local", "guide", "local-rag"),
   entry("es/rag-local", "guide", "local-rag"),
   entry("en/agentic-rag", "guide", "agentic-rag"),
-  entry("en/compare/context7", "comparison", "compare/context7"),
+  entry("en/compare/claude-vs-rag", "comparison", "compare/claude-vs-rag"),
   entry("en/integrations/claude-code", "integration", "integrations/claude-code"),
   entry("en/guides", "hub", "guides"),
 ]
@@ -52,7 +52,8 @@ describe("content pages", () => {
     expect(hubOf("integration")).toBe("integrations")
     expect(hubOf("use-case")).toBe("guides")
     expect(hubOf("comparison")).toBe("guides")
-    expect(hubOf("benchmark")).toBeUndefined()
+    expect(hubOf("benchmark")).toBe("guides")
+    expect(hubOf("case-study")).toBe("guides")
     expect(HUBS.guides?.labelKey).toBe("nav_guides")
   })
 
@@ -60,7 +61,7 @@ describe("content pages", () => {
     expect(HUBS.guides?.groups.map((group) => group.sections)).toEqual([
       ["guide"],
       ["use-case"],
-      ["comparison"],
+      ["comparison", "benchmark", "case-study"],
     ])
     expect(HUBS.integrations?.groups.map((group) => group.labelKey)).toEqual([
       "integrations_group_agents",
@@ -90,7 +91,7 @@ describe("content pages", () => {
   it("should list a hub's sections in a locale, translations first", () => {
     expect(sectionPages(["guide", "comparison"], "fr", pages).map((page) => page.id)).toEqual([
       "en/agentic-rag",
-      "en/compare/context7",
+      "en/compare/claude-vs-rag",
       "fr/rag-local",
     ])
     expect(sectionPages(["integration"], "en", pages).map((page) => page.id)).toEqual([

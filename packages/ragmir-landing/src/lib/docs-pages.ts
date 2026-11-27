@@ -25,7 +25,7 @@ export const DOC_PAGES: Readonly<Record<string, DocPage>> = {
     description:
       "Connect Claude Code, Codex, Cursor, Gemini CLI, or any MCP client to a local Ragmir index, run the retrieval loop, and choose where inference runs.",
     summary:
-      "Connect a coding agent or a chat to Ragmir through MCP, plugins, or skills, and run the search, expand, and answer loop.",
+      "Connect Claude Code, Codex, a chat, or any MCP client through plugins, skills, or MCP, and run the search, expand, and answer loop.",
   },
   "cli-reference": {
     title: "rgr CLI reference: commands and options | Ragmir docs",
@@ -107,8 +107,21 @@ const DOC_MENU_MORE: ReadonlyArray<{ title: string; href: string; external?: boo
   { title: "Integrations", href: "/integrations/" },
   { title: "Local or cloud RAG", href: "/local-vs-cloud-rag/" },
   { title: "Benchmarks", href: "/benchmarks/" },
-  { title: "These docs on Context7", href: PROJECT_LINKS.context7, external: true },
-  { title: "Source on GitHub", href: `${PROJECT_LINKS.github}/tree/main/docs`, external: true },
+  { title: "Docs on GitHub", href: `${PROJECT_LINKS.github}/tree/main/docs`, external: true },
+  { title: "Releases", href: PROJECT_LINKS.releases, external: true },
+]
+
+/** Shortcuts on the documentation's overview: where the guides, packages, and releases live. */
+export const DOC_SHORTCUTS: ReadonlyArray<{ title: string; href: string }> = [
+  { title: "Docs on GitHub", href: `${PROJECT_LINKS.github}/tree/main/docs` },
+  { title: "Releases", href: PROJECT_LINKS.releases },
+  { title: "Changelog", href: PROJECT_LINKS.changelog },
+  { title: "npm package", href: PROJECT_LINKS.npm },
+  { title: "Python packages", href: PROJECT_LINKS.pypi },
+  { title: "Docker images", href: `${PROJECT_LINKS.github}/pkgs/container/ragmir` },
+  { title: "Agent Skills", href: PROJECT_LINKS.agentSkills },
+  { title: "Context7", href: PROJECT_LINKS.context7 },
+  { title: "Issues", href: `${PROJECT_LINKS.github}/issues` },
 ]
 
 /**

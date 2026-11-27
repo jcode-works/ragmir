@@ -11,5 +11,10 @@ export const getStaticPaths = (async () => {
   return docs.map((entry) => ({ params: { slug: entry.id }, props: { body: entry.body ?? "" } }))
 }) satisfies GetStaticPaths
 
-export const GET: APIRoute = ({ props }) =>
-  new Response(String(props.body), { headers: { "Content-Type": "text/markdown; charset=utf-8" } })
+export const GET: APIRoute = ({ props }) => {
+  // The collection trims the file's final newline; put it back so the copy matches the file.
+  const body = String(props.body)
+  return new Response(body.endsWith("\n") ? body : `${body}\n`, {
+    headers: { "Content-Type": "text/markdown; charset=utf-8" },
+  })
+}

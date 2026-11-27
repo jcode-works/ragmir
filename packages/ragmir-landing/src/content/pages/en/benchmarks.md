@@ -9,6 +9,15 @@ translationKey: "benchmarks"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
 related: ["claude-code-rag", "rag-without-vector-database", "case-studies/ragmir-repository"]
+highlights:
+  - value: "99–100%"
+    label: "of 89 developer questions get an answering file in the top 10"
+  - value: "4.7 KiB"
+    label: "median text an agent reads to reach the answer, against 71.4 KiB with grep"
+  - value: "28 of 30"
+    label: "off-topic questions return nothing with the hybrid model, 23 without one"
+  - value: "17.3 ms"
+    label: "median search without a model, and 19.1 ms with the hybrid model"
 ---
 
 On this repository's questions, Ragmir finds an answering file about as often as grep does. It
@@ -101,6 +110,11 @@ Median search is the median of warm sequential searches in one process.
 | MiniSearch BM25 | 74% | 98% | 0.596 | 2 of 30 | 0 of 40 | 1.5 ms |
 
 Raw report: [competitors-2026-11-27.json](/benchmarks/competitors-2026-11-27.json).
+
+<figure>
+  <img src="/guides/competitors-chart.webp" alt="Bar charts comparing Ragmir with other local retrieval libraries on 89 developer and 30 off-topic questions. Answer in the top 3: Ragmir hybrid 87%, Ragmir local-hash 82%, MiniSearch BM25 74%, LangChain.js memory store 70%, Orama similarity 0.1 35%, Orama default 14%. Off-topic questions refused out of 30: 28, 23, 2, 0, 0, and 2. Median search: 19.1, 17.3, 1.5, 6.5, 9.9, and 8.5 ms." width="1440" height="1703" loading="lazy" decoding="async">
+  <figcaption>The table above, drawn to scale: the libraries search faster, and Ragmir ranks answers higher and returns nothing for most off-topic questions.</figcaption>
+</figure>
 
 The in-memory libraries answer faster. They also return results for almost every off-topic
 question, and none ranks an answering file in the top 3 as often.

@@ -2,7 +2,7 @@ import type { CollectionEntry } from "astro:content"
 import { readdirSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
-import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, docsMenu, docTitle } from "./docs-pages"
+import { DOC_GROUPS, DOC_ORDER, DOC_PAGES, DOC_SHORTCUTS, docsMenu, docTitle } from "./docs-pages"
 
 const guides = readdirSync(fileURLToPath(new URL("../../../../docs", import.meta.url)))
   .filter((name) => name.endsWith(".md"))
@@ -47,8 +47,15 @@ describe("docs pages", () => {
       { title: "Title of configuration", href: "/docs/configuration/", current: true },
     ])
     const more = menu.at(-1)?.links ?? []
-    expect(more.find((link) => link.href.startsWith("https://context7.com/"))?.external).toBe(true)
+    expect(more.find((link) => link.title === "Docs on GitHub")?.external).toBe(true)
+    expect(more.filter((link) => !link.external).map((link) => link.href)).toContain("/benchmarks/")
     expect(docsMenu((id) => id, undefined)[0]?.links[0]?.current).toBe(true)
+  })
+
+  it("should point every shortcut at a distinct page outside the site", () => {
+    const hrefs = DOC_SHORTCUTS.map((shortcut) => shortcut.href)
+    expect(hrefs.every((href) => href.startsWith("https://"))).toBe(true)
+    expect(new Set(hrefs).size).toBe(hrefs.length)
   })
 
   it("should title a guide with its own H1, or its id without one", () => {

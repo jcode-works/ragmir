@@ -84,10 +84,13 @@ function selectText(element: Element | null | undefined): void {
   selection.addRange(range)
 }
 
-/** Focuses a text field and selects all of it, ready for the copy shortcut. */
+/** Selects all of a text field or a block of text, ready for the copy shortcut. */
 function selectField(id: string | undefined): void {
   const field = id ? document.getElementById(id) : null
-  if (!(field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement)) return
+  if (!(field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement)) {
+    selectText(field)
+    return
+  }
   field.focus()
   field.select()
 }

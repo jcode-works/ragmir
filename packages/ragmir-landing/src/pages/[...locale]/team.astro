@@ -136,16 +136,10 @@ const structuredData = [
         class="grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_15rem] lg:gap-16"
       >
         <div class="min-w-0">
-          <p class="text-shadow-hero flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-            <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
-            <span class="tnum">001</span>
-            <span aria-hidden="true" class="opacity-60">·</span>
-            <span>{t("team_profile_label")}</span>
-          </p>
-          <h1 id="team-title" class="type-title text-shadow-hero mt-6">
+          <h1 id="team-title" class="type-title text-shadow-hero">
             {t("team_title")}
           </h1>
-          <p class="text-shadow-hero mt-6 max-w-xl text-base text-muted-foreground leading-relaxed">
+          <p class="type-lead text-shadow-hero mt-5 max-w-xl text-muted-foreground">
             {t("team_member_jb_description")}
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
@@ -185,7 +179,7 @@ const structuredData = [
               width="240"
             />
           </div>
-          <figcaption class="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em] md:text-center">
+          <figcaption class="font-mono text-micro text-muted-foreground uppercase tracking-[0.2em] md:text-center">
             {t("team_photo_caption")}
             <span class="sr-only">, {t("team_member_jb_subtitle")}</span>
           </figcaption>
@@ -199,7 +193,7 @@ const structuredData = [
       >
         {stats.map((stat) => (
           <li class="flex flex-col rounded-xl bg-card p-5 md:p-6">
-            <p class="tnum font-black text-3xl leading-none md:text-4xl">
+            <p class="tnum type-title">
               <span data-count={stat.value}>{stat.value}</span>{stat.suffix}
             </p>
             <p class="mt-3 text-muted-foreground text-sm leading-6">{stat.label}</p>
@@ -208,13 +202,7 @@ const structuredData = [
       </ul>
 
       <section aria-labelledby="mission-title" class="mt-24 md:mt-32">
-        <p class="flex items-center gap-3 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
-          <span aria-hidden="true" class="h-px w-10 bg-foreground/40" />
-          <span class="tnum">002</span>
-          <span aria-hidden="true" class="opacity-60">·</span>
-          <span>{t("team_mission_label")}</span>
-        </p>
-        <h2 id="mission-title" class="type-title mt-6">
+        <h2 id="mission-title" class="type-title">
           {t("team_mission_title")}
         </h2>
         <div class="mt-10 grid gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">

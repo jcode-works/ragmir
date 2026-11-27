@@ -36,9 +36,9 @@ const { cards, cta, class: className } = Astro.props
         )}
         <span class="flex min-w-0 flex-1 flex-col">
           <span class="font-black text-lg leading-snug">{card.title}</span>
-          <span class="mt-2 text-[13px] text-muted-foreground leading-5">{card.summary}</span>
+          <span class="mt-2 text-small text-muted-foreground leading-5">{card.summary}</span>
           <!-- The whole card is the link; this line only shows that it leads somewhere. -->
-          <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-[13px] text-foreground">
+          <span aria-hidden="true" class="mt-auto flex items-center gap-1.5 pt-5 font-semibold text-small text-foreground">
             {cta}
             <ArrowRight class="arrow-forward size-3.5 text-muted-foreground" />
           </span>

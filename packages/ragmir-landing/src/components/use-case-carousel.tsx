@@ -180,7 +180,7 @@ function WorkflowStep({
       className="relative flex min-h-28 flex-col rounded-xl bg-background p-4 transition-opacity duration-300 ease-[var(--ease-out-expo)] group-data-[state=active]/panel:delay-[calc(var(--step)*50ms)] group-data-[state=inactive]/panel:opacity-0 group-data-[state=inactive]/panel:duration-150 md:p-5 lg:min-h-36"
       style={{ "--step": position - 1 } as React.CSSProperties}
     >
-      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+      <div className="flex items-center gap-2 font-mono text-micro uppercase tracking-[0.2em]">
         <span className="tnum text-muted-foreground">{String(position).padStart(2, "0")}</span>
         <span
           aria-hidden="true"

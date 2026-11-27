@@ -7,13 +7,5 @@ section: hub
 translationKey: "guides"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["benchmarks", "integrations", "case-studies/ragmir-repository"]
+related: ["integrations", "docs/quick-start"]
 ---
-
-Ragmir is a retrieval layer. It indexes the files you select and returns passages with exact
-citations. An agent or an application receives them and plans, reasons, and writes with its own
-model.
-
-The guides above answer the questions developers ask about that layer, with commands you can run.
-For every command and option, see the [documentation](/docs/). For the tool-by-tool setup, see the
-[integrations](/integrations/).

@@ -22,7 +22,7 @@ export function SectionHeader({
 }: SectionHeaderProps): React.JSX.Element {
   return (
     <div className="mx-auto w-full max-w-[860px] text-start md:text-center">
-      <p className="flex items-baseline gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.25em] md:items-center md:justify-center md:gap-3">
+      <p className="flex items-baseline gap-2 font-mono text-micro text-muted-foreground uppercase tracking-[0.25em] md:items-center md:justify-center md:gap-3">
         <span aria-hidden="true" className="hidden h-px w-10 bg-foreground/40 md:block" />
         <span className="tnum shrink-0">{num}</span>
         <span aria-hidden="true" className="shrink-0 opacity-60">
@@ -35,9 +35,7 @@ export function SectionHeader({
         {title}
       </h2>
       {text && (
-        <p className="mt-6 text-base text-muted-foreground leading-relaxed md:mx-auto md:max-w-[560px]">
-          {text}
-        </p>
+        <p className="type-lead mt-6 text-muted-foreground md:mx-auto md:max-w-[560px]">{text}</p>
       )}
     </div>
   )

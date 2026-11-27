@@ -12,7 +12,12 @@ export function tableRowHeadersPlugin() {
         const head = sections.find((section) => section.tagName === "thead")
         const corner = elements(elements(head)[0])[0]
         if (corner?.tagName !== "th" || context.textContent(corner).trim() !== "") return
-        context.replaceNode(corner, { type: "element", tagName: "td", properties: {}, children: [] })
+        context.replaceNode(corner, {
+          type: "element",
+          tagName: "td",
+          properties: {},
+          children: [],
+        })
         for (const body of sections.filter((section) => section.tagName === "tbody")) {
           for (const row of elements(body)) {
             const first = elements(row)[0]

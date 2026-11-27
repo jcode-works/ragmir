@@ -1,8 +1,8 @@
 ---
 import { ArrowUpRight } from "@lucide/astro"
 import { GithubIcon, NpmIcon, PypiIcon } from "../brand-icons"
+import { LanguageSelect } from "../language-select"
 import RagmirLogo from "../ragmir-logo.astro"
-import { languageTag } from "../../i18n/utils"
 import { JCODE_URL } from "../../lib/maintainer"
 import {
   FOOTER_SECTIONS,
@@ -167,23 +167,13 @@ const marqueeCopy =
             JCode Works<span class="sr-only">{` ${newTab}`}</span>
           </a>
         </p>
-        <nav aria-label={t("language_label")}>
-          <ul class="flex flex-wrap items-center justify-center gap-1 rounded-full bg-card p-1" role="list">
-            {alternateLocales.map((entry) => (
-              <li>
-                <a
-                  aria-current={entry.locale === locale ? "page" : undefined}
-                  class="flex min-h-8 items-center rounded-full px-3 font-semibold text-muted-foreground text-xs transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-[var(--card-hover)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
-                  href={entry.href}
-                  hreflang={languageTag(entry.locale)}
-                  lang={languageTag(entry.locale)}
-                >
-                  {entry.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <LanguageSelect
+          client:visible
+          label={t("language_label")}
+          locale={locale}
+          menuClassName="bottom-full left-1/2 mb-2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0"
+          options={alternateLocales}
+        />
       </div>
     </div>
   </div>

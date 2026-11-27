@@ -36,6 +36,7 @@ import {
 } from "../lib/project-links"
 import { cn } from "../lib/utils"
 import { GithubIcon, NpmIcon, PypiIcon } from "./brand-icons"
+import { LanguageSelect } from "./language-select"
 import { Button } from "./ui/button"
 
 interface AlternateLocale {
@@ -116,9 +117,6 @@ const HUB_LINKS: ReadonlyArray<{ href: string; labelKey: string }> = [
   { href: PROJECT_LINKS.agentPlugins, labelKey: "nav_integrations" },
   { href: PROJECT_LINKS.docs, labelKey: "footer_link_docs" },
 ]
-
-/** BCP 47 tag of each landing locale, so screen readers read every language name in its language. */
-const LANGUAGE_TAGS: Record<string, string> = { zh: "zh-Hans" }
 
 /**
  * Sends a language link to the section the reader is on: every language shares the section ids,
@@ -382,7 +380,10 @@ export function LandingNavbar({
           </div>
 
           <div className="flex items-center gap-1">
-            <nav aria-label={t("nav_aria_label")} className="mr-3 hidden items-center gap-6 lg:flex xl:mr-5 xl:gap-8">
+            <nav
+              aria-label={t("nav_aria_label")}
+              className="mr-3 hidden items-center gap-6 lg:flex xl:mr-5 xl:gap-8"
+            >
               {HUB_LINKS.map(({ href, labelKey }) => (
                 <a
                   aria-current={
@@ -446,41 +447,19 @@ export function LandingNavbar({
       >
         <div className="flex h-full flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 bg-background px-5 pt-3 pb-3">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background px-5 pt-3 pb-3">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-full h-4 bg-linear-to-b from-background to-transparent"
               />
-              {/* The language row moves under the logo when the panel is too narrow for both. */}
-              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                <a
-                  aria-label="Ragmir"
-                  className="flex h-10 items-center"
-                  href={localizedHomeUrl}
-                  onClick={closeMenu}
-                >
-                  <RagmirLogo />
-                </a>
-                <nav
-                  aria-label={t("language_label")}
-                  className="flex items-center gap-1 rounded-full bg-card p-1"
-                >
-                  {alternateLocales.map((entry) => (
-                    <a
-                      aria-current={entry.locale === locale ? "page" : undefined}
-                      className="rounded-full px-3 py-1.5 font-bold text-muted-foreground text-xs uppercase transition-colors hover:text-foreground active:bg-[var(--card-hover)] aria-[current=page]:bg-foreground aria-[current=page]:text-background"
-                      href={entry.href}
-                      hrefLang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-                      key={entry.locale}
-                      lang={LANGUAGE_TAGS[entry.locale] ?? entry.locale}
-                      onClick={(event) => keepReadingPlace(event, entry.href)}
-                    >
-                      <span aria-hidden="true">{entry.locale}</span>
-                      <span className="sr-only">{entry.label}</span>
-                    </a>
-                  ))}
-                </nav>
-              </div>
+              {/* The bar behind the drawer already shows the logo; the drawer leads with the language. */}
+              <LanguageSelect
+                label={t("language_label")}
+                locale={locale}
+                menuClassName="top-full left-0 mt-2"
+                onSelect={keepReadingPlace}
+                options={alternateLocales}
+              />
               <button
                 aria-label={t("nav_menu_close")}
                 className="flex size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

@@ -95,14 +95,9 @@ rgr ocr setup
 
 ## Cómo inicia cada cliente el servidor
 
-| Cliente | Configuración |
-| --- | --- |
-| Claude Code | `/plugin install ragmir --marketplace jcode-works/ragmir` y, después, `/ragmir:index`; o `rgr setup --agents claude` |
-| OpenAI Codex | `codex plugin marketplace add jcode-works/ragmir` y, después, `codex plugin add ragmir@ragmir`; o `rgr setup --agents codex` |
-| Cursor | La carpeta del plugin `plugins/ragmir`, copiada a `~/.cursor/plugins/local/ragmir` hasta que aparezca en el Cursor Marketplace |
-| Gemini CLI | `gemini extensions install https://github.com/jcode-works/ragmir` |
-| Qwen Code | `qwen extensions install jcode-works/ragmir:ragmir` |
-| Kimi, OpenCode, Cline | `rgr setup --agents kimi,opencode,cline` |
+Claude Code, Codex, Cursor, Gemini CLI y Qwen Code instalan Ragmir como plugin o como extensión, y
+`rgr setup --agents kimi,opencode,cline` prepara Kimi, OpenCode y Cline. Las
+[integraciones](/es/integraciones/) indican los pasos exactos de cada una.
 
 Los plugins y las extensiones ejecutan una versión de Ragmir fijada desde npm contra el proyecto que
 el agente tiene abierto. Cualquier otro cliente que admita MCP sobre stdio acepta esta entrada,

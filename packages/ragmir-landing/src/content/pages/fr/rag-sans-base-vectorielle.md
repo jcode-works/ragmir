@@ -79,23 +79,13 @@ point d’accès compatible OpenAI. Le texte des passages et les requêtes parte
 
 ## Ce que montrent les mesures
 
-Le 27 novembre 2026, `pnpm bench:competitors` a indexé 287 fichiers suivis du dépôt de Ragmir, dans
-plusieurs piles techniques. Chaque pile a reçu 89 questions de développeurs, 30 questions hors sujet
-et 40 questions proches du domaine. Chaque côté vectoriel utilisait `mxbai-embed-xsmall-v1`.
-L’exécution a porté sur le commit `10bb9f6` (le code Core de Ragmir 6.20.0) sur un Apple M3 Max
-([méthode et rapport brut](/fr/benchmarks/)) :
-
-| Système | Réponse dans le top 3 | Réponse dans le top 10 | MRR@10 | Hors sujet refusés | Proche du domaine refusés | Recherche médiane |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Ragmir**, hybride avec `mxbai-embed-xsmall-v1` | **87 %** | **100 %** | 0,658 | **28** sur 30 | **13** sur 40 | 19,1 ms |
-| **Ragmir**, `local-hash` sans modèle | **82 %** | **99 %** | **0,675** | **23** sur 30 | **7** sur 40 | 17,3 ms |
-| Découpeur LangChain.js avec recherche cosinus exacte, en `MemoryVectorStore` | 70 % | 93 % | 0,581 | 0 sur 30 | 0 sur 40 | 6,5 ms |
-| Orama hybride, similarité par défaut 0,8 | 14 % | 20 % | 0,102 | 2 sur 30 | 0 sur 40 | 8,5 ms |
-| Orama hybride, similarité 0,1 | 35 % | 71 % | 0,303 | 0 sur 30 | 0 sur 40 | 9,9 ms |
-| MiniSearch BM25 | 74 % | 98 % | 0,596 | 2 sur 30 | 0 sur 40 | 1,5 ms |
+Le 27 novembre 2026, `pnpm bench:competitors` a soumis 89 questions de développeurs, 30 questions
+hors sujet et 40 questions proches du domaine sur 287 fichiers du dépôt de Ragmir, dans Ragmir et
+dans d’autres bibliothèques de recherche locales. Les [benchmarks](/fr/benchmarks/) donnent le
+tableau complet, un graphique et le rapport brut.
 
 Sans aucun modèle, Ragmir a classé un fichier de réponse dans le top 3 plus souvent (82 %) que le
-pipeline LangChain.js avec un modèle d’embedding (70 %). Il n’a en outre rien renvoyé pour la plupart
+pipeline LangChain.js avec un modèle d’embedding (70 %). Il n’a aussi rien renvoyé pour la plupart
 des questions hors sujet.
 
 Ajouter le modèle a fait passer le top 3 de 82 à 87 %. Il a aussi augmenté les refus pour les

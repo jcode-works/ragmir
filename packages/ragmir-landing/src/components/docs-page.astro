@@ -6,7 +6,7 @@ import { articleSchema, type Crumb } from "../lib/page-schema"
 import ArticleNav from "./article-nav.astro"
 import Breadcrumbs from "./breadcrumbs.astro"
 import PageShell from "./page-shell.astro"
-import RagmirLogo from "./ragmir-logo.astro"
+import { RagmirBackground } from "./ragmir-background"
 
 interface PagerLink {
   title: string
@@ -99,20 +99,21 @@ const pagerClass =
   alternates={{ en: pagePath }}
   structuredData={structuredData}
   navSection="/docs/"
-  sidebarLogo
 >
-  <div class="container-wide px-5 pt-4 pb-24 md:px-8">
+  <!-- Clips the dot band without becoming a scroll container, so the side rails stay sticky. -->
+  <div class="relative overflow-clip">
+  <RagmirBackground
+    behindContent={false}
+    className="inset-x-0 top-0 [mask-image:linear-gradient(to_bottom,black_55%,transparent)]"
+    client:visible
+    height="300px"
+  />
+  <div class="container-wide relative z-10 px-5 pt-28 pb-24 md:px-8">
     <div class:list={["docs-layout", hasContents && "docs-layout-toc"]}>
-      <!-- The panel holds the logo and runs the height of the window, a gap clear of each edge. -->
+      <!-- The panel starts level with the breadcrumb, stays there, and runs to a gap above the
+           bottom of the window. -->
       <aside class="max-lg:hidden">
-        <div class="sticky top-4 z-[45] flex h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-card">
-          <a
-            aria-label="Ragmir"
-            class="flex h-16 shrink-0 items-center rounded-t-2xl px-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-            href="/"
-          >
-            <RagmirLogo />
-          </a>
+        <div class="sticky top-28 flex h-[calc(100dvh-8rem)] flex-col overflow-hidden rounded-2xl bg-card">
           <ArticleNav
             class="min-h-0 flex-1"
             groups={menu}
@@ -123,7 +124,7 @@ const pagerClass =
         </div>
       </aside>
 
-      <main id="main-content" class="min-w-0 pt-20 lg:pt-24">
+      <main id="main-content" class="min-w-0">
         <Breadcrumbs crumbs={breadcrumbs} label={t("article_breadcrumb_label")} />
         <header class="mt-6">
           <h1 class="type-title">{h1}</h1>
@@ -203,11 +204,12 @@ const pagerClass =
       </main>
 
       {hasContents && (
-        <aside class="pt-24 max-xl:hidden">
+        <aside class="docs-toc max-xl:hidden">
           <ArticleNav groups={[{ links: contents }]} label={t("article_toc")} sections variant="rail" />
         </aside>
       )}
     </div>
+  </div>
   </div>
 </PageShell>
 

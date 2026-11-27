@@ -32,17 +32,10 @@ propio servidor vLLM o una API alojada que recibe los pasajes que le envías.
 
 ## RAG con Docker: las imágenes slim y full
 
-| Imagen | Contenido |
-| --- | --- |
-| `ghcr.io/jcode-works/ragmir` | La CLI y el servidor MCP con el proveedor sin conexión `local-hash`, sobre `node:22-bookworm-slim` |
-| `ghcr.io/jcode-works/ragmir:full` | Lo mismo, más el entorno de ejecución del modelo semántico, OCR con Tesseract (inglés, francés, alemán, español, italiano, portugués), Poppler y antiword |
-
-Ambas imágenes se publican para `linux/amd64` y `linux/arm64`, con atestaciones de SBOM y de
-procedencia. Se ejecutan como el usuario sin privilegios `node` y usan `/workspace` como directorio
-de trabajo.
-
-Cada versión publica las etiquetas `X.Y.Z`, `X.Y`, `X` y `latest`, además de las variantes `-full`.
-En producción, fija una versión exacta, como `6.20.0` o `6.20.0-full`.
+La imagen oficial `ghcr.io/jcode-works/ragmir` ejecuta la CLI y el servidor MCP sin Node.js. Su
+variante `:full` añade el entorno de ejecución del modelo semántico y OCR local. La [guía de
+Docker](/docs/docker/) indica qué contiene cada imagen, sus plataformas y sus etiquetas. Fija una
+versión exacta en producción, como `6.20.0` o `6.20.0-full`.
 
 Monta el proyecto y pasa tu ID de usuario para que los archivos que escribe Ragmir sean tuyos:
 

@@ -28,14 +28,7 @@ Ragmir 是一个库和一个 CLI，而不是托管服务。它不开放任何端
 
 ## 使用 Docker 运行 RAG：精简版与完整版镜像
 
-| 镜像 | 包含内容 |
-| --- | --- |
-| `ghcr.io/jcode-works/ragmir` | CLI 与 MCP 服务器，带离线的 `local-hash` 提供方，基于 `node:22-bookworm-slim` |
-| `ghcr.io/jcode-works/ragmir:full` | 同上，另加语义模型运行时、Tesseract OCR（英语、法语、德语、西班牙语、意大利语、葡萄牙语）、Poppler 和 antiword |
-
-两个镜像都以 `linux/amd64` 和 `linux/arm64` 发布，并附带 SBOM 与来源证明（provenance）。它们以无特权的 `node` 用户身份运行，并以 `/workspace` 作为工作目录。
-
-每个版本都会发布 `X.Y.Z`、`X.Y`、`X` 和 `latest` 标签，以及 `-full` 变体。在生产环境中请固定精确版本，例如 `6.20.0` 或 `6.20.0-full`。
+官方镜像 `ghcr.io/jcode-works/ragmir` 无需 Node.js 即可运行 CLI 与 MCP 服务器。它的 `:full` 变体额外包含语义模型运行时和本地 OCR。[Docker 指南](/docs/docker/)列出了每个镜像包含的内容、支持的平台及其标签。在生产环境中请固定精确版本，例如 `6.20.0` 或 `6.20.0-full`。
 
 挂载项目目录，并传入你的用户 ID，使 Ragmir 写入的文件归你所有：
 

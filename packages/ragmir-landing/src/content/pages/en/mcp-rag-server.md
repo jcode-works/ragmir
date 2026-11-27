@@ -90,14 +90,9 @@ rgr ocr setup
 
 ## How each client starts it
 
-| Client | Setup |
-| --- | --- |
-| Claude Code | `/plugin install ragmir --marketplace jcode-works/ragmir`, then `/ragmir:index`; or `rgr setup --agents claude` |
-| OpenAI Codex | `codex plugin marketplace add jcode-works/ragmir`, then `codex plugin add ragmir@ragmir`; or `rgr setup --agents codex` |
-| Cursor | The plugin folder `plugins/ragmir`, copied to `~/.cursor/plugins/local/ragmir` until it is listed in the Cursor Marketplace |
-| Gemini CLI | `gemini extensions install https://github.com/jcode-works/ragmir` |
-| Qwen Code | `qwen extensions install jcode-works/ragmir:ragmir` |
-| Kimi, OpenCode, Cline | `rgr setup --agents kimi,opencode,cline` |
+Claude Code, Codex, Cursor, Gemini CLI, and Qwen Code install Ragmir as a plugin or an extension,
+and `rgr setup --agents kimi,opencode,cline` prepares Kimi, OpenCode, and Cline. The
+[integrations](/integrations/) give the exact steps for each one.
 
 Plugins and extensions run a pinned Ragmir release from npm against the project the agent has open.
 Any other client that supports MCP over stdio takes this entry, adapted to its documented format:

@@ -73,19 +73,10 @@ endpoint.
 
 ## What the measurements show
 
-On November 27, 2026, `pnpm bench:competitors` indexed 287 tracked files of Ragmir's repository in
-several stacks. Each stack got 89 developer questions, 30 off-topic questions, and 40 near-domain
-questions. Every vector side used `mxbai-embed-xsmall-v1`. The run used commit `10bb9f6` (Ragmir
-6.20.0's Core code) on an Apple M3 Max ([method and raw report](/benchmarks/)):
-
-| System | Answer in top 3 | Answer in top 10 | MRR@10 | Off-topic refused | Near-domain refused | Median search |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Ragmir**, hybrid with `mxbai-embed-xsmall-v1` | **87%** | **100%** | 0.658 | **28** of 30 | **13** of 40 | 19.1 ms |
-| **Ragmir**, `local-hash` without a model | **82%** | **99%** | **0.675** | **23** of 30 | **7** of 40 | 17.3 ms |
-| LangChain.js splitter with exact cosine search, as `MemoryVectorStore` | 70% | 93% | 0.581 | 0 of 30 | 0 of 40 | 6.5 ms |
-| Orama hybrid, default similarity 0.8 | 14% | 20% | 0.102 | 2 of 30 | 0 of 40 | 8.5 ms |
-| Orama hybrid, similarity 0.1 | 35% | 71% | 0.303 | 0 of 30 | 0 of 40 | 9.9 ms |
-| MiniSearch BM25 | 74% | 98% | 0.596 | 2 of 30 | 0 of 40 | 1.5 ms |
+On November 27, 2026, `pnpm bench:competitors` asked 89 developer questions, 30 off-topic questions,
+and 40 near-domain questions over 287 files of Ragmir's repository, in Ragmir and in other local
+retrieval libraries. The [benchmarks](/benchmarks/#against-other-retrieval-stacks) give the full
+table, a chart, and the raw report.
 
 Without any model, Ragmir ranked an answering file in the top 3 more often (82%) than the
 LangChain.js pipeline with an embedding model (70%). It also returned nothing for most off-topic

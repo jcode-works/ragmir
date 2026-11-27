@@ -739,6 +739,12 @@ header[data-hidden] .logo-text {
   }
 }
 
+/* The docs' contents rail stays level with the menu panel and the breadcrumb, 7rem down. */
+.docs-toc .article-rail {
+  top: 5.5rem;
+  max-height: calc(100dvh - 6.5rem);
+}
+
 /* A side rail stays in view and scrolls on its own, with a thin scrollbar that stays quiet. */
 .article-rail {
   scrollbar-width: thin;

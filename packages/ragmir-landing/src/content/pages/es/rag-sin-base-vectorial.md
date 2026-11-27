@@ -80,27 +80,17 @@ con OpenAI. El texto de los pasajes y las consultas se envía a ese endpoint.
 
 ## Qué muestran las mediciones
 
-El 27 de noviembre de 2026, `pnpm bench:competitors` indexó 287 archivos rastreados del repositorio
-de Ragmir en varios sistemas. Cada sistema recibió 89 preguntas de desarrolladores, 30 preguntas
-fuera de tema y 40 preguntas de dominio cercano. Todas las partes vectoriales usaron
-`mxbai-embed-xsmall-v1`. La ejecución usó el commit `10bb9f6` (el código Core de Ragmir 6.20.0) en
-un Apple M3 Max ([método e informe completo](/es/benchmarks/)):
+El 27 de noviembre de 2026, `pnpm bench:competitors` planteó 89 preguntas de desarrolladores, 30
+preguntas fuera de tema y 40 preguntas de dominio cercano sobre 287 archivos del repositorio de
+Ragmir, en Ragmir y en otras bibliotecas locales de recuperación. Los
+[benchmarks](/es/benchmarks/) ofrecen la tabla completa, un gráfico y el informe sin procesar.
 
-| Sistema | Respuesta en el top 3 | Respuesta en el top 10 | MRR@10 | Rechazos fuera de tema | Rechazos de dominio cercano | Búsqueda mediana |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Ragmir**, híbrido con `mxbai-embed-xsmall-v1` | **87 %** | **100 %** | 0,658 | **28** de 30 | **13** de 40 | 19,1 ms |
-| **Ragmir**, `local-hash` sin modelo | **82 %** | **99 %** | **0,675** | **23** de 30 | **7** de 40 | 17,3 ms |
-| Divisor de texto de LangChain.js con búsqueda exacta por coseno, como `MemoryVectorStore` | 70 % | 93 % | 0,581 | 0 de 30 | 0 de 40 | 6,5 ms |
-| Orama híbrido, similitud predeterminada 0,8 | 14 % | 20 % | 0,102 | 2 de 30 | 0 de 40 | 8,5 ms |
-| Orama híbrido, similitud 0,1 | 35 % | 71 % | 0,303 | 0 de 30 | 0 de 40 | 9,9 ms |
-| MiniSearch BM25 | 74 % | 98 % | 0,596 | 2 de 30 | 0 de 40 | 1,5 ms |
-
-Sin ningún modelo, Ragmir colocó un archivo de respuesta entre los 3 primeros con más frecuencia (82
-%) que el pipeline de LangChain.js con un modelo de embeddings (70 %). Además, no devolvió nada en
+Sin ningún modelo, Ragmir colocó un archivo de respuesta en el top 3 con más frecuencia (82 %)
+que el pipeline de LangChain.js con un modelo de embeddings (70 %). Además, no devolvió nada en
 la mayoría de las preguntas fuera de tema.
 
-Añadir el modelo subió el top 3 del 82 al 87 %. También aumentó los rechazos de preguntas fuera de
-tema y de dominio cercano.
+Añadir el modelo subió el top 3 del 82 al 87 %. También aumentó los rechazos de preguntas fuera
+de tema y de dominio cercano.
 
 ## Compromisos que conviene valorar
 

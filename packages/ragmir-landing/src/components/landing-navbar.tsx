@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import type * as React from "react"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { JCODE_URL } from "../lib/maintainer"
 import {
   GITHUB_URL,
   isExternalLink,
@@ -61,8 +62,6 @@ interface LandingNavbarProps {
   currentPath?: string
   /** Root-relative URL of the hub the page belongs to, so the bar can light its link. */
   currentSection?: string
-  /** The page shows the logo in its own side panel on wide screens, so the bar leaves it out there. */
-  sidebarLogo?: boolean
   /** The project links in this locale: pages of this site lead to their translation. */
   projectLinks: Record<ProjectLinkKey, string>
 }
@@ -116,6 +115,9 @@ const HEADER_ICON_CLASS_NAME =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-[var(--card-hover)] active:bg-[var(--card-press)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 /** The hubs, named in the bar after Home on wide screens; narrower ones reach them through the drawer. */
+// The build year, as in the footer: the site is static, and every release rebuilds it.
+const COPYRIGHT_YEAR = new Date().getUTCFullYear()
+
 const HUB_LINKS: ReadonlyArray<{ key: ProjectLinkKey; labelKey: string }> = [
   { key: "guides", labelKey: "nav_guides" },
   { key: "agentPlugins", labelKey: "nav_integrations" },
@@ -246,7 +248,6 @@ export function LandingNavbar({
   localizedTeamUrl,
   currentPath,
   currentSection,
-  sidebarLogo = false,
   projectLinks,
 }: LandingNavbarProps): React.JSX.Element {
   const t = (key: string): string => translations[key] ?? key
@@ -375,7 +376,7 @@ export function LandingNavbar({
         ref={headerRef}
       >
         <div className="container-navbar flex h-16 items-center justify-between px-5 md:px-8">
-          <div className={cn("flex items-center", sidebarLogo && "lg:invisible")}>
+          <div className="flex items-center">
             <a aria-label="Ragmir" className="flex items-center" href={localizedHomeUrl}>
               <RagmirLogo />
             </a>
@@ -504,7 +505,7 @@ export function LandingNavbar({
                 />
               ))}
 
-              <div className="mt-7 flex items-center justify-end gap-3">
+              <div className="mt-8 flex flex-col items-center gap-1.5 text-center">
                 {version && (
                   <a
                     className="font-medium text-muted-foreground text-xs no-underline transition-colors hover:text-foreground active:text-foreground/70"
@@ -515,6 +516,16 @@ export function LandingNavbar({
                     <span className="sr-only">{` ${newTab}`}</span>
                   </a>
                 )}
+                <p className="text-muted-foreground text-xs">
+                  © {COPYRIGHT_YEAR}{" "}
+                  <a
+                    className="font-semibold text-foreground underline-offset-4 transition-colors hover:underline active:text-foreground/70"
+                    href={JCODE_URL}
+                    {...externalLinkProps}
+                  >
+                    JCode Works<span className="sr-only">{` ${newTab}`}</span>
+                  </a>
+                </p>
               </div>
             </nav>
           </div>

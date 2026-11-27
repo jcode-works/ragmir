@@ -32,16 +32,9 @@ hosted API that receives the passages you send.
 
 ## RAG with Docker: the slim and full images
 
-| Image | Holds |
-| --- | --- |
-| `ghcr.io/jcode-works/ragmir` | The CLI and MCP server with the offline `local-hash` provider, on `node:22-bookworm-slim` |
-| `ghcr.io/jcode-works/ragmir:full` | The same, plus the semantic model runtime, Tesseract OCR (English, French, German, Spanish, Italian, Portuguese), Poppler, and antiword |
-
-Both images are published for `linux/amd64` and `linux/arm64` with SBOM and provenance
-attestations. They run as the unprivileged `node` user and use `/workspace` as the working
-directory.
-
-Each release publishes `X.Y.Z`, `X.Y`, `X`, and `latest` tags, plus `-full` variants. Pin an exact
+The official image `ghcr.io/jcode-works/ragmir` runs the CLI and the MCP server without Node.js.
+Its `:full` variant adds the semantic model runtime and local OCR. The
+[Docker guide](/docs/docker/) lists what each image holds, its platforms, and its tags. Pin an exact
 version in production, such as `6.20.0` or `6.20.0-full`.
 
 Mount the project and pass your user ID so the files Ragmir writes belong to you:

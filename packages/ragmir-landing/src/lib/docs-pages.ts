@@ -106,6 +106,7 @@ const DOC_MENU_MORE: ReadonlyArray<{ title: string; href: string; external?: boo
   { title: "All guides", href: "/guides/" },
   { title: "Integrations", href: "/integrations/" },
   { title: "Local or cloud RAG", href: "/local-vs-cloud-rag/" },
+  { title: "Claude alone or with Ragmir", href: "/compare/claude-vs-rag/" },
   { title: "Benchmarks", href: "/benchmarks/" },
   { title: "Docs on GitHub", href: `${PROJECT_LINKS.github}/tree/main/docs`, external: true },
   { title: "Releases", href: PROJECT_LINKS.releases, external: true },

@@ -8,7 +8,7 @@ setup: agents
 translationKey: "integrations/claude-code"
 datePublished: 2026-11-27
 dateModified: 2026-11-27
-related: ["local-vs-cloud-rag", "mcp-rag-server", "integrations/codex", "docs/agent-integration"]
+related: ["compare/claude-vs-rag", "local-vs-cloud-rag", "mcp-rag-server", "docs/agent-integration"]
 logo: "claude"
 group: "agents"
 ---

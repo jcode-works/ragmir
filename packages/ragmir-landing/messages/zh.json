@@ -194,7 +194,7 @@
   "integrations_eyebrow": "集成",
   "integrations_title": "一个索引，服务所有智能体和框架。",
   "integrations_text": "为 Claude Code、Codex、Cursor、Gemini CLI 和 Qwen Code 提供插件，为 LangChain、LangGraph 和 LlamaIndex 提供检索器。它们读取同一个本地索引，因此更换工具时无需重新索引。",
-  "integrations_group_agents": "编程智能体",
+  "integrations_group_agents": "智能体与编辑器",
   "integrations_group_frameworks": "框架与 SDK",
   "integrations_group_protocols": "协议与运行时",
   "integrations_kind_plugin": "插件：Skill 与 MCP 服务器",

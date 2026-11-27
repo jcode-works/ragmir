@@ -194,7 +194,7 @@
   "integrations_eyebrow": "Integrations",
   "integrations_title": "One index for every agent and framework.",
   "integrations_text": "Plugins for Claude Code, Codex, Cursor, Gemini CLI, and Qwen Code; retrievers for LangChain, LangGraph, and LlamaIndex. Each one reads the same local index, so you can change tools without re-indexing.",
-  "integrations_group_agents": "Coding agents",
+  "integrations_group_agents": "Agents and editors",
   "integrations_group_frameworks": "Frameworks and SDKs",
   "integrations_group_protocols": "Protocols and runtimes",
   "integrations_kind_plugin": "Plugin: skill and MCP server",

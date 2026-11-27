@@ -74,6 +74,7 @@
   "scripts": {
     "bench:compare": "node benchmarks/compare.mjs",
     "bench:competitors": "pnpm build && node benchmarks/competitors.mjs",
+    "bench:first-pass": "pnpm build && node benchmarks/first-pass.mjs",
     "bench:cli-startup": "pnpm build && node benchmarks/cli-startup.mjs",
     "bench:concurrency": "pnpm build && node benchmarks/concurrency.mjs",
     "bench:discovery": "pnpm build && node benchmarks/discovery.mjs",

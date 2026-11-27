@@ -39,6 +39,7 @@
     "bootstrap": "mise install && pnpm install",
     "bench:compare": "pnpm --filter @jcode.labs/ragmir bench:compare",
     "bench:competitors": "pnpm --filter @jcode.labs/ragmir bench:competitors",
+    "bench:first-pass": "pnpm --filter @jcode.labs/ragmir bench:first-pass",
     "bench:cli-startup": "pnpm --filter @jcode.labs/ragmir bench:cli-startup",
     "bench:discovery": "pnpm --filter @jcode.labs/ragmir bench:discovery",
     "bench:ingest-memory": "pnpm --filter @jcode.labs/ragmir bench:ingest-memory",

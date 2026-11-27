@@ -13,7 +13,7 @@ logo: "claude"
 group: "agents"
 ---
 
-Installez le plugin Ragmir, indexez un projet une seule fois, et Claude Code peut le chercher avec
+Installez le plugin Ragmir, indexez un projet une seule fois, et Claude Code peut y chercher avec
 des citations.
 
 Claude Code lit des fichiers et lance grep. Cela suffit pour quelques fichiers texte. Le plugin

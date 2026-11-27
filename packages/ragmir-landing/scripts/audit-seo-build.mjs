@@ -224,6 +224,7 @@ function auditPage(file, html) {
     )
   }
   auditArticle(where, html, head, nodes, { expectedUrl, locale })
+  const article = nodes.find((node) => ["Article", "TechArticle"].includes(node["@type"]))
 
   return {
     url: expectedUrl,
@@ -232,6 +233,8 @@ function auditPage(file, html) {
     description,
     alternates: pageAlternates,
     internalLinks,
+    // The day the page says it last changed, which its sitemap lastmod must repeat.
+    modified: typeof article?.dateModified === "string" ? article.dateModified.slice(0, 10) : null,
   }
 }
 
@@ -279,15 +282,13 @@ async function auditSitemap(pages) {
   )
   check(sitemapFiles.length > 0, "sitemap-index.xml lists no sitemap")
   const entries = new Map()
+  const lastmods = new Map()
   for (const sitemapPath of sitemapFiles) {
     const xml = await readFile(path.join(DIST_DIRECTORY, sitemapPath), "utf8")
     for (const block of xml.matchAll(/<url>([\s\S]*?)<\/url>/gu)) {
       const loc = block[1].match(/<loc>([^<]+)<\/loc>/u)?.[1] ?? ""
       check(!entries.has(loc), `sitemap: duplicate entry ${loc}`)
-      check(
-        !block[1].includes("<lastmod>"),
-        `sitemap: ${loc} has a lastmod, which must date a real content change, not the build`,
-      )
+      lastmods.set(loc, block[1].match(/<lastmod>([^<]+)<\/lastmod>/u)?.[1].slice(0, 10) ?? null)
       const links = new Map(
         [...block[1].matchAll(/<xhtml:link\b([^>]*)\/?>/gu)].map((match) => {
           const link = attributes(match[1])
@@ -303,6 +304,13 @@ async function auditSitemap(pages) {
     check(
       !links || sameAlternates(links, page.alternates),
       `sitemap: ${page.url} lists other alternates than its hreflang links`,
+    )
+    // A lastmod must date a real content change, never the build: only an article's own
+    // dateModified qualifies, and a page without one gets none.
+    const lastmod = lastmods.get(page.url) ?? null
+    check(
+      lastmod === page.modified,
+      `sitemap: ${page.url} lastmod ${lastmod ?? "none"} should be ${page.modified ?? "none"}`,
     )
   }
   for (const loc of entries.keys()) {

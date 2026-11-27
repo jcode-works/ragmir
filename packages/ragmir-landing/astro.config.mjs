@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process"
 import { readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -17,29 +18,60 @@ const isProduction = new URL(siteUrl).hostname === "ragmir.com"
 const sitemapLanguages = { en: "en", fr: "fr", es: "es", zh: "zh-Hans" }
 // A translated long-form page may use its own path (fr/rag-local for local-rag), and the sitemap
 // plugin pairs locales by path only, so those pages take their alternates from translationKey.
-const translatedAlternates = contentPageAlternates(
+const docsModified = docsPageModified(docsDirectory)
+const contentPages = contentPageMetadata(
   fileURLToPath(new URL("./src/content/pages", import.meta.url)),
 )
 
-/** Sitemap alternates of each long-form page that exists in several languages, by URL. */
-function contentPageAlternates(directory) {
+/**
+ * By URL, the sitemap alternates of each long-form page that exists in several languages, and the
+ * dateModified its front matter states and the page displays.
+ */
+function contentPageMetadata(directory) {
   const groups = new Map()
+  const modified = new Map()
   for (const file of readdirSync(directory, { recursive: true }).map(String)) {
     const [locale, ...segments] = file.split(path.sep)
     if (!file.endsWith(".md") || !Object.hasOwn(sitemapLanguages, locale)) continue
-    const key = readFileSync(path.join(directory, file), "utf8").match(
-      /^translationKey:\s*"?([^"\n]+)"?\s*$/mu,
-    )?.[1]
-    if (!key) continue
+    const source = readFileSync(path.join(directory, file), "utf8")
     const pagePath = segments.join("/").replace(/\.md$/u, "")
     const url = new URL(`${locale === defaultLocale ? "" : `${locale}/`}${pagePath}/`, siteUrl).href
+    const date = source.match(/^dateModified:\s*"?(\d{4}-\d{2}-\d{2})"?\s*$/mu)?.[1]
+    if (date) modified.set(url, date)
+    const key = source.match(/^translationKey:\s*"?([^"\n]+)"?\s*$/mu)?.[1]
+    if (!key) continue
     groups.set(key, [...(groups.get(key) ?? []), { url, lang: sitemapLanguages[locale] }])
   }
-  const byUrl = new Map()
+  const alternates = new Map()
   for (const links of groups.values()) {
-    if (links.length > 1) for (const link of links) byUrl.set(link.url, links)
+    if (links.length > 1) for (const link of links) alternates.set(link.url, links)
   }
-  return byUrl
+  return { alternates, modified }
+}
+
+/**
+ * By URL, the day each docs page last changed in Git, as the page states it (src/lib/git-dates.ts),
+ * and the latest of them for the docs overview. Empty without Git history.
+ */
+function docsPageModified(directory) {
+  const modified = new Map()
+  for (const file of readdirSync(directory).filter((name) => name.endsWith(".md"))) {
+    try {
+      const date = execFileSync(
+        "git",
+        ["log", "-1", "--format=%cI", "--", path.join(directory, file)],
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      ).slice(0, 10)
+      if (/^\d{4}-\d{2}-\d{2}$/u.test(date)) {
+        modified.set(new URL(`docs/${file.replace(/\.md$/u, "")}/`, siteUrl).href, date)
+      }
+    } catch {
+      // No Git history: the page states no Git date either.
+    }
+  }
+  const latest = [...modified.values()].sort().at(-1)
+  if (latest) modified.set(new URL("docs/", siteUrl).href, latest)
+  return modified
 }
 
 export default defineConfig({
@@ -61,17 +93,20 @@ export default defineConfig({
     ...(isProduction
       ? [
           sitemap({
-            // No lastmod: Google uses it only when it is verifiably accurate, and Bing asks not to
-            // stamp pages that did not change with the build time, which every release would do.
-            // Each URL lists the same alternates as its hreflang links, x-default included.
+            // lastmod only where a page states its own dateModified: Google uses lastmod only when
+            // it is verifiably accurate, and Bing asks not to stamp unchanged pages with the build
+            // time, which every release would do. Each URL lists the same alternates as its
+            // hreflang links, x-default included.
             serialize: (item) => {
-              const links = translatedAlternates.get(item.url) ?? item.links
+              const lastmod = contentPages.modified.get(item.url) ?? docsModified.get(item.url)
+              const dated = lastmod ? { ...item, lastmod } : item
+              const links = contentPages.alternates.get(item.url) ?? item.links
               const english = links?.find((link) => link.lang === defaultLocale)
               // The plugin shares one links array between a page's locales: copy, never push. A
               // page that exists in one language only gets no x-default, like its HTML.
               return english && links.length > 1
-                ? { ...item, links: [...links, { url: english.url, lang: "x-default" }] }
-                : item
+                ? { ...dated, links: [...links, { url: english.url, lang: "x-default" }] }
+                : dated
             },
             i18n: {
               defaultLocale,
